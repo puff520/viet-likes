@@ -17,9 +17,9 @@ spring:
       datasource:
         master:
           type: com.alibaba.druid.pool.DruidDataSource
-          url: jdbc:mysql://18.167.208.122:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
-          username: root
-          password: Antsidc78!
+          url: jdbc:mysql://45.207.49.136:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
+          username: likes
+          password: HrRWxWjYBiDH63T3
           driver-class-name: com.mysql.cj.jdbc.Driver
           druid:
             initial-size: 3
@@ -35,9 +35,9 @@ spring:
             filters: stat,wall,log4j2
         slave:
           type: com.alibaba.druid.pool.DruidDataSource
-          url: jdbc:mysql://18.167.208.122:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
-          username: root
-          password: Antsidc78!
+          url: jdbc:mysql://45.207.49.136:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
+          username: likes
+          password: HrRWxWjYBiDH63T3
           driver-class-name: com.mysql.cj.jdbc.Driver
           druid:
             initial-size: 3
@@ -81,13 +81,13 @@ spring:
     timeout: 8000
     database: 0
     # Redis服务器地址
-    host: localhost
+    host: 45.207.49.136
     #host: 127.0.0.1
     # Redis服务器连接端口
     port: 6379
     # Redis服务器连接密码（默认为空）
     #    password: 1qaz2wsx
-    password:
+    password: Wrhwiydk6Z2Adi75
     # 连接池最大连接数（使用负值表示没有限制）
     lettuce:
       pool:
@@ -121,9 +121,9 @@ pagehelper:
 
 # MinIO 分布式文件系统
 minio:
-  endpoint: http://16.162.80.109:9000
-  access-key: shuadan123
-  secret-key: shuadan123
+  endpoint: http://45.207.49.251:9000
+  access-key: minioadmin
+  secret-key: minioadmin
   # 自定义域名(非必须)，Nginx配置反向代理转发文件路径
   custom-domain:
   # 默认的桶名称，每个微服务有单独的默认存储桶，可查看youlai-admin.yaml配置
