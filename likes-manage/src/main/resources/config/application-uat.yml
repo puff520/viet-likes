@@ -17,7 +17,7 @@ spring:
       datasource:
         master:
           type: com.alibaba.druid.pool.DruidDataSource
-          url: jdbc:mysql:/10.6.222.2:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
+          url: jdbc:mysql:/10.6.225.4:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
           username: likes
           password: HrRWxWjYBiDH63T3
           driver-class-name: com.mysql.cj.jdbc.Driver

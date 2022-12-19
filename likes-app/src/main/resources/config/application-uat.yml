@@ -16,7 +16,7 @@ spring:
       strict: false #严格匹配数据源,默认false. true未匹配到指定数据源时抛异常,false使用默认数据源
       datasource:
         master:
-          url: jdbc:mysql://10.6.222.2:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
+          url: jdbc:mysql://10.6.225.4:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
           username: likes
           password: HrRWxWjYBiDH63T3
           driver-class-name: com.mysql.cj.jdbc.Driver
@@ -33,7 +33,7 @@ spring:
             connectionTimeout: 30000
             connectionTestQuery: SELECT 1 #连接测试
         slave:
-          url: jdbc:mysql://10.6.222.2:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
+          url: jdbc:mysql://10.6.225.4:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
           username: likes
           password: HrRWxWjYBiDH63T3
           driver-class-name: com.mysql.cj.jdbc.Driver
@@ -67,7 +67,7 @@ spring:
     timeout: 8000
     database: 0
     # Redis服务器地址
-    host: 10.6.222.2
+    host: 10.6.225.4
     #host: 127.0.0.1
     # Redis服务器连接端口
     port: 6379
