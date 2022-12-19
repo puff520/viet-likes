@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.BdBannerpicinfoMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.BdBannerpicinfo">
+        <id column="bannerpicid" jdbcType="BIGINT" property="bannerpicid"/>
+        <result column="bseatid" jdbcType="BIGINT" property="bseatid"/>
+        <result column="investorsid" jdbcType="BIGINT" property="investorsid"/>
+        <result column="bndispic" jdbcType="VARCHAR" property="bndispic"/>
+        <result column="linktype" jdbcType="BIGINT" property="linktype"/>
+        <result column="bndisptxt" jdbcType="VARCHAR" property="bndisptxt"/>
+        <result column="expirydates" jdbcType="TIMESTAMP" property="expirydates"/>
+        <result column="expirydatee" jdbcType="TIMESTAMP" property="expirydatee"/>
+        <result column="bndlink" jdbcType="VARCHAR" property="bndlink"/>
+        <result column="specparame" jdbcType="VARCHAR" property="specparame"/>
+        <result column="sortby" jdbcType="INTEGER" property="sortby"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <select id="adList" parameterType="com.likes.common.model.request.AdRequest"
+            resultType="com.likes.common.model.response.AdResponse">
+        SELECT bd.bndispic as bndispicurl,bd.bndisptxt,bd.bndlink,bd.specparame
+        ,bd.linktype,bd.title,bd.path_url as pathUrl,bd.within_link as withinLink
+        FROM bd_bannerpicinfo bd
+        WHERE bd.is_delete = b'0'
+
+<!--        AND bd.bseatid in-->
+<!--        <foreach collection="list" item="id" separator="," open="(" close=")">-->
+<!--            #{id}-->
+<!--        </foreach>-->
+        ORDER BY bd.sortby DESC ,bd.update_time DESC
+    </select>
+
+    <select id="adsList" parameterType="com.likes.common.mybatis.entity.BdBannerpicinfo"
+            resultType="com.likes.common.model.dto.BdBannerpicinfoDO">
+
+        select
+        b.*, d.seatdesc , d.seatcode , d.seatname ,ba.investname,db.bdusername,
+        IF((NOW() <![CDATA[ >= ]]> b.expirydates AND NOW() <![CDATA[ <= ]]> b.expirydatee),0,9) AS isfire
+        from bd_bannerpicinfo b
+        LEFT JOIN bd_bannerseat d ON d.bseatid = b.bseatid AND d.is_delete = b'0'
+        LEFT JOIN bas_investors ba ON ba.investorsid = b.investorsid AND ba.is_delete = b'0'
+        LEFT JOIN bd_user db on b.create_user = db.accno AND db.is_delete = b'0'
+        where b.is_delete = b'0'
+        <if test="bndisptxt != null and bndisptxt != ''">
+            and (
+            b.title LIKE CONCAT('%',#{bndisptxt,jdbcType=VARCHAR},'%')
+            or d.seatdesc LIKE CONCAT('%',#{bndisptxt,jdbcType=VARCHAR},'%')
+            or d.seatcode LIKE CONCAT('%',#{bndisptxt,jdbcType=VARCHAR},'%')
+            or d.seatname LIKE CONCAT('%',#{bndisptxt,jdbcType=VARCHAR},'%')
+            or ba.investname LIKE CONCAT('%',#{bndisptxt,jdbcType=VARCHAR},'%')
+            or db.bdusername LIKE CONCAT('%',#{bndisptxt,jdbcType=VARCHAR},'%')
+            )
+        </if>
+        <if test="title != null and title !='' ">
+            and b.title LIKE CONCAT('%',#{title,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="bseatid != null">
+            and b.bseatid = #{bseatid}
+        </if>
+        <if test="investorsid != null">
+            and b.investorsid = #{investorsid}
+        </if>
+        ORDER BY b.sortby DESC ,b.update_time desc
+    </select>
+
+
+</mapper>

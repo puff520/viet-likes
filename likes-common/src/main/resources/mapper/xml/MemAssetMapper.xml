@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.MemAssetMapper">
+
+
+    <select id="assetList" resultType="com.likes.common.model.vo.AssetProductVO">
+        SELECT mac.id                           as assetCfgId,
+               mac.`name`                       AS `name`,
+               mac.name_sp                      AS nameSp,
+               mac.name_fn                      AS nameFn,
+               mac.name_en                      AS nameEn,
+               mac.name_ab                      AS nameAb,
+               mac.earn_rate                    AS earnRate,
+               mac.max_deposit_amount           AS maxDepositAmount,
+               IFNULL(ma.amount, 0.000)         AS amount,
+               IFNULL(ma.yesterday_earn, 0.000) AS yesterdayEarn,
+               IFNULL(ma.total_earn, 0.000)     AS totalEarn
+        FROM mem_asset_cfg mac
+                 LEFT JOIN mem_asset ma ON mac.id = ma.asset_cfg_id
+            AND ma.accno = #{accno}
+    </select>
+
+
+    <update id="updateMemAssetAmount">
+        UPDATE mem_asset m
+        SET m.amount        = (
+            CASE
+                WHEN m.amount + #{amount} <![CDATA[ < ]]> 0 THEN
+                    0
+                WHEN m.amount + #{amount} <![CDATA[ >= ]]> 0 THEN
+                    m.amount + #{amount}
+                END
+            ),
+            m.usable_amount = (
+                CASE
+                    WHEN m.usable_amount + #{amount} <![CDATA[ < ]]> 0 THEN
+                        0
+                    WHEN m.usable_amount + #{amount} <![CDATA[ >= ]]> 0 THEN
+                        m.usable_amount + #{amount}
+                    END
+                )
+        where m.asset_cfg_id = #{assetCfgId}
+        and m.accno = #{accno}
+    </update>
+
+    <update id="updateMemAssetEarn">
+        UPDATE mem_asset m
+        SET m.yesterday_earn = (
+            CASE
+                WHEN m.yesterday_earn + #{yesterdayEarn} <![CDATA[ < ]]> 0 THEN
+                    0
+                WHEN m.yesterday_earn + #{yesterdayEarn} <![CDATA[ >= ]]> 0 THEN
+                    m.yesterday_earn + #{yesterdayEarn}
+                END
+            ),
+            m.today_earn     = #{amount},
+            m.total_earn     = (
+                CASE
+                    WHEN m.total_earn + #{amount} <![CDATA[ < ]]> 0 THEN
+                        0
+                    WHEN m.total_earn + #{amount} <![CDATA[ >= ]]> 0 THEN
+                        m.total_earn + #{amount}
+                    END
+                ),
+            m.usable_amount  = m.usable_amount + #{amount}
+        WHERE m.accno = #{accno}
+          and m.asset_cfg_id = #{assetCfgId}
+    </update>
+
+    <update id="updateMemYuebaoEarn">
+        UPDATE mem_yuebao m
+        SET m.yesterday_earn = (
+            CASE
+                WHEN m.yesterday_earn + #{yesterdayEarn} <![CDATA[ < ]]> 0 THEN
+                    0
+                WHEN m.yesterday_earn + #{yesterdayEarn} <![CDATA[ >= ]]> 0 THEN
+                    m.yesterday_earn + #{yesterdayEarn}
+                END
+            ),
+            m.total_income     = (
+                CASE
+                    WHEN m.total_income + #{amount} <![CDATA[ < ]]> 0 THEN
+                        0
+                    WHEN m.total_income + #{amount} <![CDATA[ >= ]]> 0 THEN
+                        m.total_income + #{amount}
+                    END
+                ),
+            m.amount  = m.amount + #{amount}
+        WHERE m.accno = #{accno}
+    </update>
+
+
+    <update id="updateMemAssetTakeTime">
+        UPDATE mem_asset m
+        SET m.take_time = #{takeTime},
+            m.into_time = now()
+        WHERE m.accno = #{accno}
+          and m.asset_cfg_id = #{assetCfgId}
+    </update>
+
+</mapper>

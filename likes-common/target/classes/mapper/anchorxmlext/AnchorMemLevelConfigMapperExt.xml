@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.AnchorMemLevelConfigMapperExt">
+
+
+    <select id="selectMemLevelConfigByAmount"
+            parameterType="java.lang.Double"
+            resultType="com.likes.common.mybatis.entity.anchor.AnchorMemLevelConfig">
+
+        SELECT id,level,recharge_amount as rechargeAmount,level_svga_url as levelSvgaUrl from (
+        select a.id,a.`level`,a.recharge_amount,a.level_svga_url from anchor_mem_level_config a where a.is_delete=b'0' AND  a.recharge_amount <![CDATA[ <= ]]> #{amount} ORDER BY a.recharge_amount desc LIMIT 1)z
+        union all
+        SELECT id,level,recharge_amount as rechargeAmount,level_svga_url as levelSvgaUrl from (
+        select a.id,a.`level`,a.recharge_amount,a.level_svga_url from anchor_mem_level_config a where a.is_delete=b'0' AND  a.recharge_amount <![CDATA[ > ]]> #{amount} ORDER BY a.recharge_amount  LIMIT 1) x
+
+
+    </select>
+
+
+</mapper>

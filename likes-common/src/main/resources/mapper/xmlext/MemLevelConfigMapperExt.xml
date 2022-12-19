@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.member.MemLevelConfigMapperExt">
+
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemLevelConfig">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="level" jdbcType="VARCHAR" property="level" />
+        <result column="level_seq" jdbcType="INTEGER" property="levelSeq" />
+        <result column="level_icon_url" jdbcType="VARCHAR" property="levelIconUrl" />
+        <result column="recharge_amount" jdbcType="DECIMAL" property="rechargeAmount" />
+        <result column="do_task_times" jdbcType="INTEGER" property="doTaskTimes" />
+        <result column="expire_time" jdbcType="INTEGER" property="expireTime" />
+        <result column="is_delete" jdbcType="BIT" property="isDelete" />
+        <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+        <result column="image_url" jdbcType="VARCHAR" property="imageUrl" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+
+    <resultMap id="BaseResultMapDto" type="com.likes.common.model.dto.member.MemLevelConfigDto">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="level" jdbcType="VARCHAR" property="level" />
+        <result column="level_seq" jdbcType="INTEGER" property="levelSeq" />
+        <result column="level_icon_url" jdbcType="VARCHAR" property="levelIconUrl" />
+        <result column="recharge_amount" jdbcType="DECIMAL" property="rechargeAmount" />
+        <result column="promote_amount" jdbcType="DECIMAL" property="promoteAmount" />
+        <result column="do_task_times" jdbcType="INTEGER" property="doTaskTimes" />
+        <result column="expire_time" jdbcType="INTEGER" property="expireTime" />
+        <result column="is_delete" jdbcType="BIT" property="isDelete" />
+        <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+        <result column="image_url" jdbcType="VARCHAR" property="imageUrl" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="buyNumber" jdbcType="INTEGER" property="buyNumber" />
+    </resultMap>
+
+
+
+    <select id="selectMemLevelConfigByAmount"
+            parameterType="java.lang.Double"
+            resultType="com.likes.common.mybatis.entity.MemLevelConfig">
+        SELECT id,level,recharge_amount as rechargeAmount from (
+        select a.id,a.`level`,a.recharge_amount from mem_level_config a where a.is_delete=b'0' AND  a.recharge_amount <![CDATA[ <= ]]> #{amount} ORDER BY a.recharge_amount desc LIMIT 1)z
+        union all
+        SELECT id,level,recharge_amount as rechargeAmount from (
+        select a.id,a.`level`,a.recharge_amount from mem_level_config a where a.is_delete=b'0' AND  a.recharge_amount <![CDATA[ > ]]> #{amount} ORDER BY a.recharge_amount  LIMIT 1) x
+    </select>
+
+    <select id="selectMemLevlConfigByLevelSeq"  resultType="com.likes.common.mybatis.entity.MemLevelConfig">
+        select id,level,recharge_amount as rechargeAmount,expire_time as expireTime from mem_level_config ORDER BY level_seq asc LIMIT 1
+    </select>
+    <select id="selectMemLevlConfigDownLevelSeq" parameterType="java.lang.Integer" resultType="com.likes.common.mybatis.entity.MemLevelConfig">
+        select id,level,recharge_amount as rechargeAmount from mem_level_config where level_seq <![CDATA[ < ]]> #{leveseq} ORDER BY level_seq desc LIMIT 1
+    </select>
+    <select id="getMemLevelList" resultType="java.util.HashMap">
+        select level as level ,level_seq as levelSeq   from mem_level_config where is_delete= b'0'
+    </select>
+    <select id="getNotExpireUserMaxLevelInfoByAccno" resultMap="BaseResultMap">
+        select mlc.* from mem_level ml INNER JOIN mem_level_config mlc on ml.level_config_id = mlc.id
+        where ml.accno = #{accno}  and ml.expire_time>SYSDATE()
+        ORDER BY mlc.level_seq DESC  LIMIT 1
+    </select>
+
+
+    <select id="GetMemLevelCountByAccno" resultMap="BaseResultMapDto">
+        select a.* from mem_level_config a
+    </select>
+
+
+</mapper>

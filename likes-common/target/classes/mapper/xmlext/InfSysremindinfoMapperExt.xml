@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.InfSysremindinfoMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.InfSysremindinfo">
+        <id column="rmdid" jdbcType="BIGINT" property="rmdid"/>
+        <result column="bdpushid" jdbcType="BIGINT" property="bdpushid"/>
+        <result column="sender" jdbcType="VARCHAR" property="sender"/>
+        <result column="rmtype" jdbcType="VARCHAR" property="rmtype"/>
+        <result column="recipienter" jdbcType="VARCHAR" property="recipienter"/>
+        <result column="rmpics" jdbcType="VARCHAR" property="rmpics"/>
+        <result column="rmtitle" jdbcType="VARCHAR" property="rmtitle"/>
+        <result column="senddate" jdbcType="TIMESTAMP" property="senddate"/>
+        <result column="remindtxt" jdbcType="VARCHAR" property="remindtxt"/>
+        <result column="refparm" jdbcType="VARCHAR" property="refparm"/>
+        <result column="refaddlink" jdbcType="VARCHAR" property="refaddlink"/>
+        <result column="rmdateexp" jdbcType="TIMESTAMP" property="rmdateexp"/>
+        <result column="issee" jdbcType="DECIMAL" property="issee"/>
+        <result column="istodo" jdbcType="DECIMAL" property="istodo"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="uuid" jdbcType="VARCHAR" property="uuid"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        rmdid, bdpushid, sender, rmtype, recipienter, rmpics, rmtitle, senddate, remindtxt,
+        refparm, refaddlink, rmdateexp, issee, istodo, is_delete, create_user, create_time, update_user, update_time, uuid
+    </sql>
+
+    <select id="myMsgList" parameterType="com.likes.common.model.request.UsersRequest" resultType="com.likes.common.mybatis.entity.InfSysremindinfo">
+        SELECT * FROM inf_sysremindinfo i
+        where i.is_delete = b'0'
+        and i.recipienter = #{accno}
+        <if test="rmtypelist != null and rmtypelist.size != 0">
+            And i.rmtype in
+            <foreach close=")" collection="rmtypelist" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+
+        order by i.create_time desc,i.issee desc
+    </select>
+
+    <select id="getRmtypeNum" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select count(1)
+        from inf_sysremindinfo i
+        where i.is_delete = b'0'
+        and i.recipienter = #{recipienter}
+        and i.issee = #{issee}
+        <if test="rmtypelist != null and rmtypelist.size != 0">
+            And i.rmtype in
+            <foreach close=")" collection="rmtypelist" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+    </select>
+
+    <update id="updateRmtypeNum" parameterType="java.util.Map">
+        update inf_sysremindinfo
+        set issee = 0 , istodo = 0 ,
+        update_user = #{updateUser}
+        where is_delete = b'0'
+        and recipienter = #{recipienter}
+        and issee = #{issee}
+        <if test="rmtypelist != null and rmtypelist.size != 0">
+            And rmtype in
+            <foreach close=")" collection="rmtypelist" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+
+    </update>
+
+    <select id="getList"
+            parameterType="com.likes.common.mybatis.entity.InfSysremindinfo"
+            resultType="com.likes.common.model.dto.RemindInfoDO">
+        SELECT i.senddate , COUNT(1) as msgnum, RTRIM(LTRIM(i.remindtxt)) as remindtxt,rmdid,
+        IF(COUNT(1) &gt; 1,"全部用户",(SELECT m.nickname FROM mem_baseinfo m WHERE m.accno = i.recipienter LIMIT 1)) AS nickname,
+        IF(COUNT(1) &gt; 1,"全部电话",(SELECT m.mobileno FROM mem_baseinfo m WHERE m.accno = i.recipienter LIMIT 1)) AS mobileno
+        FROM inf_sysremindinfo i
+        WHERE i.is_delete = b'0'
+        <if test="rmtype != null and rmtype != '' ">
+            and rmtype = #{rmtype,jdbcType=VARCHAR}
+        </if>
+        <if test="remindtxt != null and  remindtxt != ''  ">
+            and remindtxt like CONCAT('%', #{remindtxt,jdbcType=VARCHAR} ,'%')
+        </if>
+        GROUP BY i.uuid
+        ORDER BY i.update_time desc
+    </select>
+
+    <insert id="insertAll" parameterType="com.likes.common.mybatis.entity.InfSysremindinfo">
+        insert into inf_sysremindinfo ( bdpushid, sender,
+        rmtype, recipienter, rmpics,
+        rmtitle, senddate, remindtxt,
+        refparm, refaddlink, rmdateexp,
+        issee, istodo, is_delete, create_user, update_user)
+        VALUES
+        <foreach collection="list" index="index" item="itemData" separator=",">
+            (
+            #{itemData.bdpushid},
+            #{itemData.sender},
+            #{itemData.rmtype},
+            #{itemData.recipienter},
+            #{itemData.rmpics},
+            #{itemData.rmtitle},
+            #{itemData.senddate},
+            #{itemData.remindtxt},
+            #{itemData.refparm},
+            #{itemData.refaddlink},
+            #{itemData.rmdateexp},
+            #{itemData.issee},
+            #{itemData.istodo},
+            #{itemData.isDelete},
+            #{itemData.createUser},
+            #{itemData.updateUser}
+            )
+        </foreach>
+    </insert>
+
+    <select id="getCount" parameterType="java.lang.String" resultType="java.lang.Integer">
+	  SELECT ((UNIX_TIMESTAMP(now()) -
+			UNIX_TIMESTAMP(senddate)) -
+			300 ) as
+			stime
+			from
+			(SELECT
+
+			 s.senddate
+			from (
+				SELECT
+				ss.senddate
+				from  inf_sysremindinfo ss
+				where ss.rmtype = #{rmtype}
+				ORDER BY ss.senddate desc
+				limit 1
+			) as s ) mm
+    </select>
+
+    <select id="getNumByAccno" resultType="com.likes.common.model.dto.sys.InfoRemindNumDO">
+        select rmtype , count(rmtype) as num from inf_sysremindinfo where  recipienter = #{accno} and  issee = 9  and is_delete = b'0' GROUP BY rmtype
+    </select>
+
+    <insert id="allUserSystemRemind" parameterType="com.likes.common.mybatis.entity.InfSysremindinfo">
+        insert into inf_sysremindinfo ( bdpushid, sender,
+          rmtype, recipienter, rmpics,
+          rmtitle, senddate, remindtxt,
+          refparm, refaddlink, rmdateexp,
+          issee, istodo, is_delete,
+          create_user, update_user, uuid)
+
+		SELECT #{bdpushid},#{sender} , #{rmtype},m.accno ,#{rmpics},#{rmtitle},
+		NOW(),#{remindtxt},NULL,NULL,#{rmdateexp},9,0,0,#{createUser},#{updateUser}, #{uuid}
+		FROM mem_baseinfo m
+		INNER JOIN mem_login l ON m.accno = l.accno AND l.accstatus = 1
+		WHERE m.is_delete = b'0'
+		AND l.logintype IN (1,2,7)
+    </insert>
+
+    <update id="systemRemindDelete" parameterType="com.likes.common.mybatis.entity.InfSysremindinfo">
+  	    update inf_sysremindinfo set is_delete = #{isDelete}, update_user = #{updateUser} where uuid = #{uuid}
+    </update>
+
+</mapper>

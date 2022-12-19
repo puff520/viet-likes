@@ -1,0 +1,368 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.BasVideoMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.BasVideo">
+        <id column="videoid" jdbcType="BIGINT" property="videoid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="videoname" jdbcType="VARCHAR" property="videoname"/>
+        <result column="videoimg" jdbcType="VARCHAR" property="videoimg"/>
+        <result column="videoinfo" jdbcType="VARCHAR" property="videoinfo"/>
+        <result column="videourl" jdbcType="VARCHAR" property="videourl"/>
+        <result column="videosize" jdbcType="DECIMAL" property="videosize"/>
+        <result column="viewnum" jdbcType="BIGINT" property="viewnum"/>
+        <result column="praisenum" jdbcType="BIGINT" property="praisenum"/>
+        <result column="sharenum" jdbcType="BIGINT" property="sharenum"/>
+        <result column="seenum" jdbcType="BIGINT" property="seenum"/>
+        <result column="sortby" jdbcType="INTEGER" property="sortby"/>
+        <result column="checkstatus" jdbcType="DECIMAL" property="checkstatus"/>
+        <result column="checknote" jdbcType="VARCHAR" property="checknote"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        videoid,
+        accno,
+        videoname,
+        videoimg,
+        videoinfo,
+        videourl,
+        videosize,
+        viewnum,
+        praisenum,
+        sharenum,
+        seenum,
+        sortby,
+        checkstatus,
+        checknote,
+        is_delete,
+        create_user,
+        create_time,
+        update_user,
+        update_time
+    </sql>
+    <update id="updateNum" parameterType="com.likes.common.model.request.VideoRequest">
+        update bas_video
+        <set>
+            <!-- 收藏 -->
+            <if test="isview == 0">
+                <!-- viewnum = IFNULL(viewnum,1) - 1, -->
+
+                viewnum = IF(viewnum <![CDATA[ <= ]]> 0, 1, viewnum) - 1,
+
+            </if>
+            <if test="isview == 1">
+                viewnum = IFNULL(viewnum, 0) + 1,
+            </if>
+
+            <!-- 点赞 -->
+            <if test="ispraise == 0">
+
+                praisenum = IF(praisenum <![CDATA[ <= ]]> 0, 1, praisenum) - 1,
+
+                <!--  praisenum = IFNULL(praisenum,1) - 1, -->
+            </if>
+            <if test="ispraise == 1">
+                praisenum = IFNULL(praisenum, 0) + 1,
+            </if>
+
+            <!-- 分享 -->
+            <if test="isshare == 0">
+                <!-- sharenum = IFNULL(sharenum,1) - 1, -->
+
+                sharenum = IF(sharenum <![CDATA[ <= ]]> 0, 1, sharenum) - 1,
+
+            </if>
+            <if test="isshare == 1">
+                sharenum = IFNULL(sharenum, 0) + 1,
+            </if>
+        </set>
+        where videoid = #{videoid,jdbcType=BIGINT}
+        and viewnum >= 0
+        and sharenum >= 0
+        and praisenum >= 0
+    </update>
+
+    <update id="updateSeenum" parameterType="java.lang.Long">
+        update bas_video
+        set seenum = IFNULL(seenum, 0) + 1
+        where videoid = #{videoid}
+          and seenum >= 0
+    </update>
+    <select id="getAttentionVideoList" parameterType="com.likes.common.model.request.UsersRequest"
+            resultType="com.likes.common.model.dto.VideoDO">
+        select b.videoimg,
+        b.videoid,
+        b.videoinfo,
+        b.videoname,
+        b.praisenum,
+        (SELECT m.nickname FROM mem_baseinfo m WHERE m.accno = b.accno) as videoauthor
+        from bas_video b
+        where b.is_delete = b'0'
+        and b.checkstatus = 8
+        <if test="accnolist != null and accnolist.size != 0">
+            And b.accno in
+            <foreach close=")" collection="accnolist" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+        ORDER BY b.praisenum DESC, b.viewnum DESC, b.update_time DESC
+    </select>
+    <select id="getCollectionVideoList" parameterType="com.likes.common.model.request.UsersRequest"
+            resultType="com.likes.common.model.dto.VideoDO">
+        select b.videoimg,
+        b.videoid,
+        b.videoinfo,
+        b.videoname,
+        b.praisenum,
+        (SELECT m.nickname FROM mem_baseinfo m WHERE m.accno = b.accno) as createusername
+        from bas_video b
+        where b.is_delete = b'0'
+        and b.checkstatus = 8
+        <if test="idList != null and idList.size != 0">
+            AND b.videoid in
+            <foreach close=")" collection="idList" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+        ORDER BY b.praisenum DESC, b.praisenum DESC, b.update_time DESC
+    </select>
+
+    <select id="getMyVideoList" parameterType="com.likes.common.model.request.UsersRequest"
+            resultType="com.likes.common.model.dto.VideoDO">
+        select b.videoimg,
+        b.videoid,
+        b.videoinfo,
+        b.videoname,
+        b.praisenum,
+        (SELECT m.nickname FROM mem_baseinfo m WHERE m.accno = b.accno) as videoauthor
+        from bas_video b
+        where b.is_delete = b'0'
+        <if test="checkstatus == null">
+            AND b.checkstatus = 8
+        </if>
+
+        <if test="checkstatus != null">
+            AND b.checkstatus = #{checkstatus}
+        </if>
+        <if test="accnolist != null and accnolist.size != 0">
+            And b.accno in
+            <foreach close=")" collection="accnolist" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+        ORDER BY b.create_time DESC, b.checkstatus DESC, b.update_time DESC
+    </select>
+
+    <update id="doDelMySources" parameterType="com.likes.common.model.request.UsersRequest">
+        update bas_video
+        set is_delete = b'1',
+        update_user = #{updateUser},
+        update_time = #{updateTime}
+        where accno = #{accno}
+        <if test="idList != null and idList.size != 0">
+            AND videoid in
+            <foreach close=")" collection="idList" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="videoForUpdate" parameterType="com.likes.common.mybatis.entity.BasVideo">
+        update bas_video
+        <set>
+            <if test="videoname != null">
+                videoname = #{videoname,jdbcType=VARCHAR},
+            </if>
+            <if test="videoimg != null">
+                videoimg = #{videoimg,jdbcType=VARCHAR},
+            </if>
+            <if test="videoinfo != null">
+                videoinfo = #{videoinfo,jdbcType=VARCHAR},
+            </if>
+            <if test="videourl != null">
+                videourl = #{videourl,jdbcType=VARCHAR},
+            </if>
+            <if test="videosize != null">
+                videosize = #{videosize,jdbcType=DECIMAL},
+            </if>
+            <if test="checkstatus != null">
+                checkstatus = #{checkstatus,jdbcType=DECIMAL},
+            </if>
+            <if test="checknote != null">
+                checknote = #{checknote,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where videoid = #{videoid,jdbcType=BIGINT}
+        and checkstatus = 9
+        and is_delete = b'0'
+    </update>
+    <!-- 获取当前视频的上/下条 数据 -->
+    <select id="findUpdownList" parameterType="java.lang.Long" resultType="com.likes.common.mybatis.entity.BasVideo">
+
+        select *
+        from bas_video
+        where videoid in
+              (select case
+                              when SIGN(videoid - #{videoid}) <![CDATA[ > ]]> 0 THEN MIN(videoid)
+                              when SIGN(videoid - #{videoid}) <![CDATA[ < ]]> 0 THEN MAX(videoid)
+                              end
+               from bas_video
+               where videoid != #{videoid}
+                 AND is_delete = b'0'
+                 AND checkstatus = 8
+               GROUP BY SIGN(videoid - #{videoid})
+                      )
+        ORDER BY videoid asc
+
+    </select>
+
+    <select id="getList" parameterType="com.likes.common.model.request.VideoRequest"
+            resultType="com.likes.common.model.dto.bas.BasVideoDO">
+        select b.*,
+        b.create_time as createTime,
+        b.update_time as updateTime,
+        m.nickname as createusername
+        from bas_video b
+        inner join mem_baseinfo m on m.accno = b.accno
+        where b.is_delete = b'0'
+        <if test="videoname != null and videoname != ''">
+            and (
+            b.videoname LIKE CONCAT('%', #{videoname,jdbcType=VARCHAR}, '%')
+            or b.videoinfo LIKE CONCAT('%', #{videoname,jdbcType=VARCHAR}, '%')
+            or m.nickname LIKE CONCAT('%', #{videoname,jdbcType=VARCHAR}, '%')
+            )
+        </if>
+        <if test="checkstatus != null">
+            and b.checkstatus = #{checkstatus,jdbcType=DECIMAL}
+        </if>
+        <if test="checkstatus == null">
+            and b.checkstatus in (8, 9)
+        </if>
+        ORDER BY b.sortby DESC, b.checkstatus asc, b.update_time DESC
+    </select>
+
+    <update id="delVideo" parameterType="com.likes.common.model.request.VideoRequest">
+        update bas_video b
+        set b.is_delete = b'1',
+        update_user = #{updateUser,jdbcType=VARCHAR},
+        update_time = #{updateTime,jdbcType=TIMESTAMP}
+        where 1 = 1
+        <if test="videoidlist != null and videoidlist.size != 0">
+            And b.videoid in
+            <foreach close=")" collection="videoidlist" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+        <!-- where b.videoid in       
+             &lt;foreach collection="list" item="videoid" index="index"    
+                     open="(" close=")" separator=","&gt;      
+                       #{videoid}     
+              &lt;/foreach&gt; -->
+    </update>
+
+
+    <update id="updateBasVideo" parameterType="com.likes.common.mybatis.entity.BasVideo">
+        update bas_video
+        <set>
+            <if test="accno != null">
+                accno = #{accno,jdbcType=VARCHAR},
+            </if>
+            <if test="videoname != null">
+                videoname = #{videoname,jdbcType=VARCHAR},
+            </if>
+            <if test="videoimg != null">
+                videoimg = #{videoimg,jdbcType=VARCHAR},
+            </if>
+            <if test="videoinfo != null">
+                videoinfo = #{videoinfo,jdbcType=VARCHAR},
+            </if>
+            <if test="videourl != null">
+                videourl = #{videourl,jdbcType=VARCHAR},
+            </if>
+            <if test="videosize != null">
+                videosize = #{videosize,jdbcType=DECIMAL},
+            </if>
+            <if test="viewnum != null">
+                viewnum = #{viewnum,jdbcType=BIGINT},
+            </if>
+            <if test="praisenum != null">
+                praisenum = #{praisenum,jdbcType=BIGINT},
+            </if>
+            <if test="sharenum != null">
+                sharenum = #{sharenum,jdbcType=BIGINT},
+            </if>
+            <if test="seenum != null">
+                seenum = #{seenum,jdbcType=BIGINT},
+            </if>
+            <if test="sortby != null">
+                sortby = #{sortby,jdbcType=INTEGER},
+            </if>
+            <if test="checkstatus != null">
+                checkstatus = #{checkstatus,jdbcType=DECIMAL},
+            </if>
+            <if test="checknote != null">
+                checknote = #{checknote,jdbcType=VARCHAR},
+            </if>
+            <if test="isDelete != null">
+                is_delete = #{isDelete,jdbcType=DECIMAL},
+            </if>
+            <if test="createUser != null">
+                create_user = #{createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where videoid = #{videoid,jdbcType=BIGINT}
+        and checkstatus in (1)
+    </update>
+
+    <select id="getSeeVideo" resultType="com.likes.common.model.dto.DateStaticsDO">
+        SELECT date, SUM(seenum) as datenum
+        FROM (
+                     SELECT year(ba.create_time) as date, IFNULL(ba.seenum, 0) AS seenum
+                     FROM bas_video ba
+                     WHERE ba.checkstatus = 8
+                       AND ba.create_time IS NOT NULL
+                     ) AS MM
+        GROUP BY date
+    </select>
+
+
+    <select id="getFaVideo" parameterType="java.lang.String" resultType="com.likes.common.model.dto.NameValueDO">
+        SELECT count(ba.accno) value,
+               date_format(ba.create_time, '%Y-%m') AS name
+        FROM bas_video ba
+        WHERE ba.checkstatus = 8
+          AND ba.create_time IS NOT NULL
+          AND ba.create_time <![CDATA[ >= ]]> date_sub(
+                STR_TO_DATE(#{day}, '%Y-%m-%d %H:%i:%s'),
+                INTERVAL 12 MONTH
+                )
+          AND ba.create_time <![CDATA[ < ]]> STR_TO_DATE(#{day}, '%Y-%m-%d %H:%i:%s')
+        group by name
+    </select>
+
+    <select id="getResourcesnum" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(1) as resourcesnum
+        FROM bas_video bv
+        WHERE bv.accno = #{accno}
+          AND bv.is_delete = b'0'
+          AND bv.checkstatus = 8
+    </select>
+</mapper>

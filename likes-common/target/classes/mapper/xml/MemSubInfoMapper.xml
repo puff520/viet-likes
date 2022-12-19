@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.MemSubInfoMapper">
+
+
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemSubInfo">
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="level_one_agents" property="levelOneAgents"
+                typeHandler="com.likes.common.config.JsonTypeHandle"/>
+        <result column="level_two_agents" property="levelTwoAgents"
+                typeHandler="com.likes.common.config.JsonTypeHandle"/>
+        <result column="level_three_agents" property="levelThreeAgents"
+                typeHandler="com.likes.common.config.JsonTypeHandle"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+
+    <insert id="insertBatch">
+        INSERT INTO
+        mem_sub_info (
+        accno, level_one_agents, level_two_agents,
+        level_three_agents, create_time, update_time )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.accno},
+            #{item.levelOneAgents,typeHandler=com.likes.common.config.JsonTypeHandle},
+            #{item.levelTwoAgents,typeHandler=com.likes.common.config.JsonTypeHandle},
+            #{item.levelThreeAgents,typeHandler=com.likes.common.config.JsonTypeHandle},
+            #{item.createTime},#{item.updateTime}
+            )
+        </foreach>
+
+    </insert>
+
+    <select id="selectMemSubInfoByAccNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select *
+        from mem_sub_info
+        where accno = #{accno}
+
+    </select>
+
+    <update id="updateTop1" parameterType="com.likes.common.mybatis.entity.MemSubInfo">
+        update mem_sub_info
+        set level_one_agents = #{levelOneAgents,typeHandler=com.likes.common.config.JsonTypeHandle}
+        where accno = #{accno}
+    </update>
+
+    <update id="updateTop2" parameterType="com.likes.common.mybatis.entity.MemSubInfo">
+        update mem_sub_info
+        set level_two_agents = #{levelTwoAgents,typeHandler=com.likes.common.config.JsonTypeHandle}
+        where accno = #{accno}
+    </update>
+
+    <update id="updateTop3" parameterType="com.likes.common.mybatis.entity.MemSubInfo">
+        update mem_sub_info
+        set level_three_agents = #{levelThreeAgents,typeHandler=com.likes.common.config.JsonTypeHandle}
+        where accno = #{accno}
+    </update>
+
+</mapper>

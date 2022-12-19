@@ -1,0 +1,633 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.likes.common.mybatis.mapper.AgentMapper">
+
+    <select id="memList" parameterType="com.likes.common.model.request.AgentMemberOrderReq"
+            resultType="com.likes.common.model.dto.AgentMemberDTO">
+        SELECT T.*,
+        (SELECT count(1) FROM mem_relationship mr WHERE mr.refaccno = T.accno LIMIT 1 ) AS subNum,
+        (SELECT mb.email FROM mem_baseinfo mb WHERE mb.accno = T.Suprefaccno LIMIT 1 ) AS subEmail
+        FROM
+        (
+        SELECT mb.registerdate AS registerdate,
+        mb.register_ip AS registerip,
+        mb.email AS email,
+        mb.accno AS accno,
+        mb.unique_id AS uniqueId,
+        mb.superior_id AS superiorId,
+        mb.goldnum AS goldnum,
+        mb.clintipadd AS clintipadd,
+        ml.lastlogindate AS lastlogindate,
+        ml.accstatus AS accstatus,
+        mr.refaccno AS Suprefaccno,
+        mr.sup_recomcode suprecomcode
+        FROM mem_baseinfo mb
+        INNER JOIN mem_relationship mr
+        ON mb.accno = mr.accno
+        INNER JOIN mem_login ml ON mb.accno = ml.accno
+        <if test="req.accno != null and  req.accno !='' ">
+            AND mr.refaccno = #{req.accno}
+        </if>
+        ) T
+        where 1=1
+        <if test="req.accstatus != null">
+            and T.accstatus =#{req.accstatus}
+        </if>
+        <if test="req.acclogin != null and  req.acclogin !='' ">
+            and T.email =#{req.acclogin}
+        </if>
+        <if test="req.uniqueId != null  and  req.uniqueId !='' ">
+            and T.uniqueId =#{req.uniqueId}
+        </if>
+        <if test="req.suprecomcode != null  and  req.suprecomcode !='' ">
+            and T.suprecomcode =#{req.suprecomcode}
+        </if>
+        <if test="req.memlevel != null">
+            and T.memlevel =#{req.memlevel}
+        </if>
+        <if test="req.registerip != null  and  req.registerip !='' ">
+            and T.registerip =#{req.registerip}
+        </if>
+        <if test="req.beginTime != null and  req.beginTime !='' ">
+            <![CDATA[  and t.registerdate >= #{req.beginTime} ]]>
+        </if>
+        <if test="req.endTime != null and  req.endTime !='' ">
+            <![CDATA[  and t.registerdate <= #{req.endTime} ]]>
+        </if>
+        <if test="req.beginAmount != null">
+            <![CDATA[   and  T.goldnum  >=  #{req.beginAmount}]]>
+        </if>
+        <if test="req.endAmount != null">
+            <![CDATA[  and  T.goldnum <= #{req.endAmount}]]>
+        </if>
+
+
+    </select>
+
+
+    <select id="levelCount" parameterType="List" resultType="java.lang.Integer">
+        SELECT count(1) from (
+            SELECT count(1) from mem_level ml
+            INNER JOIN mem_relationship mr
+            ON ml.accno = mr.accno
+            and ml.level_config_id > 1
+            <if test="beginTime != null and beginTime !=''">
+                <![CDATA[ AND ml.create_time  >=  #{beginTime} ]]>
+
+            </if>
+            <if test="endTime != null and endTime !='' ">
+                <![CDATA[ AND ml.create_time  <=  #{endTime} ]]>
+            </if>
+            <if test="accno != null and accno !='' ">
+                AND mr.head_accno = #{accno}
+            </if>
+        GROUP BY  ml.accno
+        )a
+    </select>
+
+    <select id="taskNum" resultType="java.lang.Integer">
+        SELECT count(1) from dz_task_order dto
+        where dto.`status` = 3
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND dto.update_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND dto.update_time  <=  #{endTime} ]]>
+        </if>
+        and dto.mem_no in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+    </select>
+
+
+    <select id="subTimeOrderList" parameterType="List" resultType="java.util.Map">
+        SELECT
+        tof.orderstatus,
+        IFNULL(sum(tof.realamt),'0.00') AS realamt,
+        count( tof.accno ) AS operNum
+        FROM
+        tra_orderinfom tof
+        where tof.orderstatus IN ( 'ord08', 'ord12' )
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND tof.update_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND tof.update_time  <=  #{endTime} ]]>
+        </if>
+        AND tof.accno in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+        GROUP BY
+        tof.orderstatus
+    </select>
+
+
+    <select id="subTimeOrderListByAccno" parameterType="List" resultType="java.util.Map">
+        SELECT
+        tof.orderstatus,
+        IFNULL(sum(tof.sumamt),'0.00') AS realamt,
+        count( tof.accno ) AS operNum
+        FROM
+        tra_orderinfom tof
+        INNER JOIN mem_relationship mr
+        ON tof.accno = mr.accno
+        and tof.orderstatus IN ( 'ord08', 'ord12' )
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND tof.update_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND tof.update_time  <=  #{endTime} ]]>
+        </if>
+        <if test="accno != null and accno !='' ">
+            AND mr.head_accno = #{accno}
+        </if>
+        GROUP BY
+        tof.orderstatus
+    </select>
+
+
+    <select id="subRecMemNum" parameterType="List" resultType="java.lang.Integer">
+        SELECT
+        count(DISTINCT tof.accno ) AS recMemNum
+        FROM
+        tra_orderinfom tof
+        where tof.orderstatus IN ( 'ord08')
+
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND tof.update_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND tof.update_time  <=  #{endTime} ]]>
+        </if>
+        AND tof.accno in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+    </select>
+
+
+    <select id="fundsList" parameterType="com.likes.common.model.request.FundsRequest"
+            resultType="com.likes.common.model.dto.member.FundsResponse">
+        select
+        mg.goldchangid,mg.accno,mb.email,
+        mg.changetype,mg.goldnum,mg.quantity,mg.recgoldnum,mg.opnote,mg.create_user as createuser,
+        mg.create_time as createtime,mg.update_user as updateuser,mg.update_time as updatetime,
+        mg.snow_sn as snowsn
+        from
+        mem_goldchange mg
+        LEFT JOIN mem_baseinfo mb on mb.accno = mg.accno
+        INNER JOIN mem_relationship mr
+        ON mb.accno = mr.accno
+        where
+        mg.is_delete = 0
+        AND mr.head_accno = #{req.accno}
+        <choose>
+            <when test="req.changeType != null and '0'.toString() == req.changeType ">
+                AND mg.changetype in (1,55,12,101,102,103,200,301,302,303)
+            </when>
+            <otherwise>
+                <if test="req.changeType != null and '1'.toString() != req.changeType">
+                    and mg.changetype = #{req.changeType}
+                </if>
+                <if test="req.changeType != null and '1'.toString() == req.changeType ">
+                    and mg.changetype in(1,55)
+                </if>
+            </otherwise>
+        </choose>
+        <if test="req.acclogin != null and  req.acclogin !='' ">
+            and mb.email =#{req.acclogin}
+        </if>
+        <if test="req.uniqueId != null and req.uniqueId != ''">
+            and mb.unique_id = #{req.uniqueId}
+        </if>
+        <if test="req.beginAmount != null">
+            <![CDATA[ AND mg.quantity  >=  #{req.beginAmount} ]]>
+        </if>
+        <if test="req.endAmount != null">
+            <![CDATA[ AND mg.quantity  <=  #{req.endAmount} ]]>
+        </if>
+        <if test="req.beginTime != null and req.beginTime != '' ">
+            <![CDATA[ AND mg.update_time  >=  #{req.beginTime} ]]>
+        </if>
+        <if test="req.endTime != null and req.endTime != ''  ">
+            <![CDATA[ AND mg.update_time  <=  #{req.endTime} ]]>
+        </if>
+        order by mg.create_time desc
+    </select>
+
+
+    <select id="adminTeamList" parameterType="com.likes.common.model.request.TeamRequest"
+            resultType="com.likes.common.model.response.TeamResponse">
+
+        SELECT
+        mb.accno,
+        mb.email,
+        mb.create_time as createTime,
+        mb.register_ip AS registerIp
+        FROM
+        mem_baseinfo mb
+        where 1=1
+        <if test="req.acclogin != null and  req.acclogin !='' ">
+            and mb.email =#{req.acclogin}
+        </if>
+    </select>
+
+    <select id="teamList" parameterType="com.likes.common.model.request.TeamRequest"
+            resultType="com.likes.common.model.response.TeamResponse">
+        SELECT A.*,
+        (SELECT count(1) FROM mem_relationship mr WHERE mr.refaccno = A.accno LIMIT 1 ) AS subNum
+        FROM
+        (
+        SELECT
+        mb.accno,
+        mb.email,
+        mb.create_time as createTime,
+        mb.register_ip AS registerIp
+        FROM
+        mem_baseinfo mb
+        INNER JOIN mem_relationship mr ON mb.accno = mr.accno
+        AND mr.head_accno =#{req.accno}
+        ) A
+        where 1=1
+        <if test="req.acclogin != null and  req.acclogin !='' ">
+            and A.email =#{req.acclogin}
+        </if>
+        ORDER BY A.createTime desc
+    </select>
+
+
+    <select id="team2List" parameterType="com.likes.common.model.request.TeamRequest"
+            resultType="com.likes.common.model.response.TeamResponse">
+        SELECT A.*,
+        (SELECT count(1) FROM mem_relationship mr WHERE mr.refaccno = A.accno LIMIT 1 ) AS subNum
+        FROM
+        (
+        SELECT
+        mb.accno,
+        mb.email,
+        mb.create_time as create_time,
+        mb.register_ip AS registerIp
+        FROM
+        mem_baseinfo mb
+        INNER JOIN mem_relationship mr ON mb.accno = mr.accno
+        AND mr.refaccno = #{req.accno}
+        ) A
+        where 1=1
+        AND A.accno in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+        <if test="req.beginTime != null and req.beginTime !=''">
+            <![CDATA[ AND A.create_time  >=  #{req.beginTime} ]]>
+
+        </if>
+        <if test="req.endTime != null and req.endTime !='' ">
+            <![CDATA[ AND A.create_time  <=  #{req.endTime} ]]>
+        </if>
+
+    </select>
+
+
+    <select id="appTeamList" parameterType="com.likes.common.model.request.FundsRequest"
+            resultType="com.likes.common.model.response.AppTeamResponse">
+        SELECT A.*,
+        (SELECT count(1) FROM mem_relationship mr WHERE mr.refaccno = A.accno LIMIT 1 ) AS subNum
+        FROM
+        (
+        SELECT
+        mb.accno,
+        mb.email
+        FROM
+        mem_baseinfo mb
+        INNER JOIN mem_relationship mr ON mb.accno = mr.accno
+        <if test="req.beginTime != null and req.beginTime !=''">
+            <![CDATA[ AND mb.create_time  >=  #{req.beginTime} ]]>
+
+        </if>
+        <if test="req.endTime != null and req.endTime !='' ">
+            <![CDATA[ AND mb.create_time  <=  #{req.endTime} ]]>
+        </if>
+        AND mr.refaccno = #{accno}
+        ) A
+
+    </select>
+
+    <select id="memBalance" resultType="java.math.BigDecimal">
+        SELECT
+        IFNULL(sum(m.goldnum),0.00) AS balance
+        FROM
+        mem_baseinfo m
+        INNER JOIN mem_relationship mr
+        ON m.accno = mr.accno
+        WHERE
+        m.is_delete = 0
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND m.create_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND m.create_time  <=  #{endTime} ]]>
+        </if>
+    </select>
+
+
+    <select id="teamAddMem" resultType="java.lang.String">
+        SELECT
+        m.accno
+        FROM
+        mem_baseinfo m
+        INNER JOIN mem_relationship mr
+        ON m.accno = mr.accno
+        WHERE
+        m.is_delete = 0
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND m.create_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND m.create_time  <=  #{endTime} ]]>
+        </if>
+        <if test="accno != null and accno !='' ">
+            AND mr.head_accno = #{accno}
+        </if>
+    </select>
+
+
+    <select id="teamTaskNum" resultType="java.lang.Integer">
+        SELECT
+        IFNULL(count( 1 ),0) AS theDayTaskNum
+        from dz_task_order dto
+        RIGHT JOIN mem_relationship mr
+        ON dto.mem_no = mr.accno
+        where dto.`status` = 3
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND dto.update_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND dto.update_time  <=  #{endTime} ]]>
+        </if>
+        <if test="accno != null and accno !='' ">
+            AND mr.head_accno = #{accno}
+        </if>
+    </select>
+
+    <select id="agentTree" parameterType="java.lang.String" resultType="com.likes.common.model.dto.PromotionDo">
+        SELECT mr.create_time,
+               (SELECT m.email FROM mem_baseinfo m WHERE m.accno = mr.accno)     as email,
+               (SELECT m.accno FROM mem_baseinfo m WHERE m.accno = mr.accno)     as accno,
+               (select count(0) from mem_relationship where refaccno = mr.accno) as subnum
+        FROM mem_relationship mr
+        WHERE mr.refaccno = #{accno}
+          and mr.is_delete = b'0'
+    </select>
+
+
+    <select id="subTaskList" resultType="com.likes.common.model.SubAndTaskDto">
+        SELECT
+        T.*,
+        mb.email
+        FROM
+        (
+        SELECT
+        count( dto.mem_no ) AS taskNum,
+        dto.mem_no AS accno
+        FROM
+        dz_task_order dto
+        WHERE
+        dto.`status` = 3
+        GROUP BY
+        dto.mem_no
+        ) T
+        INNER JOIN mem_baseinfo mb ON T.accno = mb.accno
+        and T.accno in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+    </select>
+
+
+
+    <select id="subNum" resultType="java.lang.String">
+        SELECT accno from mem_relationship
+        WHERE 1=1
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND create_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND create_time  <=  #{endTime} ]]>
+        </if>
+        and refaccno in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+    </select>
+
+    <select id="subNumNotTime" resultType="java.lang.String">
+        SELECT accno from mem_relationship
+        WHERE 1=1
+        and refaccno in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+    </select>
+
+
+    <select id="subNum2" resultType="java.lang.Integer">
+        SELECT count(1)
+        from mem_relationship
+        WHERE 1 = 1
+          and refaccno = #{accno}
+    </select>
+
+
+    <select id="todayAddSubNum" resultType="java.lang.String">
+        SELECT accno
+        from mem_relationship
+        WHERE 1 = 1
+          and refaccno = #{accno}
+        <choose>
+            <when test="beginTime != null and beginTime !=''">
+                <![CDATA[ AND create_time  >=  #{beginTime} AND create_time  <=  #{endTime}  ]]>
+            </when>
+            <otherwise>
+                and create_time BETWEEN CONCAT('2022-03-03', ' 00:00:00') AND CONCAT('2023-03-03', ' 23:59:59')
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <select id="todayTaskNum" resultType="java.lang.Integer">
+        SELECT count(1) from dz_task_order dto
+        where dto.`status` = 3
+        <choose>
+            <when test="beginTime != null and beginTime !=''">
+                <![CDATA[ AND dto.update_time  >=  #{beginTime} AND dto.update_time  <=  #{endTime}  ]]>
+            </when>
+            <otherwise>
+                and dto.update_time BETWEEN CONCAT('2022-03-03', ' 00:00:00') AND CONCAT('2023-03-03', ' 23:59:59')
+            </otherwise>
+        </choose>
+        and dto.mem_no in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+    </select>
+
+
+    <select id="todaySubmitTaskNum" resultType="java.lang.Integer">
+        SELECT count(1)
+        from dz_task_order dto
+                 INNER JOIN mem_relationship mr
+        ON dto.mem_no = mr.accno
+            and
+           dto.create_time BETWEEN CONCAT(#{timeStr}, ' 00:00:00') AND CONCAT(#{timeStr}, ' 23:59:59')
+            and mr.refaccno = #{accno}
+    </select>
+
+
+
+
+    <select id="memTodayTaskNum" resultType="java.lang.Integer">
+        SELECT
+        sum( k.aa )
+        FROM
+        (
+        SELECT
+        count( a.accno ) AS aa
+        FROM
+        (
+        SELECT
+        m.accno,
+        m.create_time AS createTime
+        FROM
+        mem_baseinfo m
+        INNER JOIN mem_relationship mr ON m.accno = mr.accno
+        <if test="accno != null and accno !='' ">
+            AND mr.head_accno = #{accno}
+        </if>
+        AND m.create_time BETWEEN CONCAT( #{timeStr}, ' 00:00:00' )
+        AND CONCAT( #{timeStr}, ' 23:59:59' )
+        WHERE
+        m.is_delete = 0
+        ) a
+        INNER JOIN dz_task_order dto ON a.accno = dto.mem_no
+        AND dto.`status` = 3
+        AND dto.update_time BETWEEN CONCAT(#{timeStr}, ' 00:00:00' )
+        AND CONCAT(#{timeStr}, ' 23:59:59' )
+        GROUP BY
+        a.accno
+        ) k
+    </select>
+
+
+    <select id="level1SubAccList" resultType="java.lang.String">
+        SELECT
+            accno
+        FROM
+            mem_relationship
+        WHERE
+            refaccno = #{accno}
+    </select>
+    <select id="level2SubAccList" resultType="java.lang.String">
+        SELECT
+            accno
+        FROM
+            mem_relationship
+        WHERE
+            parent_id IN ( SELECT relaid FROM mem_relationship WHERE refaccno = #{accno} )
+
+    </select>
+
+    <select id="level3SubAccList" resultType="java.lang.String">
+        SELECT
+            accno
+        FROM
+            mem_relationship
+        WHERE
+                parent_id IN ( SELECT relaid FROM mem_relationship WHERE parent_id IN ( SELECT relaid FROM mem_relationship WHERE refaccno = #{accno} ) )
+    </select>
+
+    <select id="levelAllSubAccList" resultType="java.lang.String">
+        SELECT
+            accno
+        FROM
+            mem_relationship
+        WHERE
+            refaccno = #{accno} UNION ALL
+        SELECT
+            accno
+        FROM
+            mem_relationship
+        WHERE
+                parent_id IN ( SELECT relaid FROM mem_relationship WHERE refaccno = #{accno} ) UNION ALL
+        SELECT
+            accno
+        FROM
+            mem_relationship
+        WHERE
+                parent_id IN ( SELECT relaid FROM mem_relationship WHERE parent_id IN ( SELECT relaid FROM mem_relationship WHERE refaccno = #{accno} ) )
+    </select>
+
+
+    <select id="agentLineList" resultType="com.likes.common.model.dto.AgentLineData">
+        SELECT
+            k.accno,
+            k.email AS userName,
+            (
+                SELECT
+                    IFNULL( sum( tof.sumamt ), '0.000' )
+                FROM
+                    mem_relationship mr
+                        INNER JOIN tra_orderinfom tof ON mr.accno = tof.accno
+                WHERE
+                    tof.orderstatus = 'ord08'
+                  AND mr.head_accno = k.accno
+                <if test="beginTime != null and beginTime !=''">
+                    <![CDATA[ AND tof.update_time  >=  #{beginTime} ]]>
+
+                </if>
+                <if test="endTime != null and endTime !='' ">
+                    <![CDATA[ AND tof.update_time  <=  #{endTime} ]]>
+                </if>
+            ) AS rechargeAmount,
+            (
+                SELECT
+                    IFNULL( sum( tof.sumamt ), '0.000' )
+                FROM
+                    mem_relationship mr
+                        INNER JOIN tra_orderinfom tof ON mr.accno = tof.accno
+                WHERE
+                    tof.orderstatus = 'ord12'
+                  AND mr.head_accno = k.accno
+                <if test="beginTime != null and beginTime !=''">
+                    <![CDATA[ AND tof.update_time  >=  #{beginTime} ]]>
+
+                </if>
+                <if test="endTime != null and endTime !='' ">
+                    <![CDATA[ AND tof.update_time  <=  #{endTime} ]]>
+                </if>
+            ) AS withdrawAmount
+        FROM
+            (
+                SELECT
+                    ml.accno,
+                    ml.email
+                FROM
+                    mem_baseinfo ml
+                        INNER JOIN ( SELECT accno FROM mem_relationship WHERE refaccno = '7df4efdbc7dd4142838f4aa02c4dbcae' ) agentLine ON ml.accno = agentLine.accno
+            ) k
+
+    </select>
+
+
+</mapper>

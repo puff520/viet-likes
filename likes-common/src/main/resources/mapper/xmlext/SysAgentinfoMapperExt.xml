@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.sys.SysAgentinfoMapperExt">
+  <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysAgentinfo">
+    <id column="agentid" jdbcType="BIGINT" property="agentid" />
+    <result column="agentname" jdbcType="VARCHAR" property="agentname" />
+    <result column="minamt" jdbcType="DECIMAL" property="minamt" />
+    <result column="maxamt" jdbcType="DECIMAL" property="maxamt" />
+    <result column="commission" jdbcType="DECIMAL" property="commission" />
+    <result column="sortby" jdbcType="INTEGER" property="sortby" />
+    <result column="is_delete" jdbcType="BIT" property="isDelete" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    agentid, agentname, minamt, maxamt, commission, sortby, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+  <select id="getList" parameterType="com.likes.common.model.request.SysAgentinfoReq" resultType="com.likes.common.model.response.SysAgentinfoResp">
+    select 
+    agentid, agentname, minamt, maxamt, commission, sortby
+    from sys_agentinfo
+    where is_delete = b'0'
+    <if test="searchstr !=null and searchstr !=''">
+    	and (agentname LIKE CONCAT('%',#{searchstr,jdbcType=VARCHAR},'%')
+    	 	or (
+    	 		minamt &lt;= #{searchstr,jdbcType=VARCHAR} 
+    	 		and maxamt &gt;= #{searchstr,jdbcType=VARCHAR} 
+    	 	)
+    	 )
+    </if>
+    order by sortby desc,agentid asc
+  </select>
+</mapper>

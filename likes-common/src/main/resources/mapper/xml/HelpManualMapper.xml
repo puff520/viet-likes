@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.HelpManualMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.model.HelpManual">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="sort" jdbcType="INTEGER" property="sort" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+  <select id="getList" parameterType="java.lang.String" resultType="com.likes.common.model.HelpManual">
+    select id,title,sort,content ,create_time as createTime from help_manual where
+    1=1
+     <if test="keyWord != null and keyWord != ''">
+        and title like  CONCAT('%',#{keyWord,jdbcType=VARCHAR},'%')
+     </if>
+     order by sort desc
+  </select>
+</mapper>

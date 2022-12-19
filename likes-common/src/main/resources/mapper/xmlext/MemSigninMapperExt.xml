@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.member.MemSigninMapperExt">
+  <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemSignin">
+    <id column="signinid" jdbcType="BIGINT" property="signinid" />
+    <result column="accno" jdbcType="VARCHAR" property="accno" />
+    <result column="signinnum" jdbcType="INTEGER" property="signinnum" />
+    <result column="signintime" jdbcType="TIMESTAMP" property="signintime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    signinid, accno, signinnum, signintime
+  </sql>
+
+  
+  <select id="getTodayData" resultType="com.likes.common.mybatis.entity.MemSignin"
+  parameterType="com.likes.common.model.dto.order.SignDaoDO">
+  SELECT * FROM mem_signin m WHERE DATE_FORMAT(m.signintime ,'%Y-%m-%d') =  #{signDate}
+  and m.accno = #{accno}
+  order by m.signintime desc
+  </select>
+  
+   <insert id="insertMemSignin" keyColumn="signinid" 
+   keyProperty="signinid" 
+   parameterType="com.likes.common.model.dto.member.MemSigninDO"
+   useGeneratedKeys="true">
+    insert into mem_signin (accno, signinnum,signintime)
+    SELECT   #{accno}, #{signinnum},  #{signintime}
+		WHERE 
+		NOT EXISTS 
+		(SELECT m.signintime FROM mem_signin m 
+		WHERE DATE_FORMAT(m.signintime ,'%Y-%m-%d') =  #{signDate} 
+		AND m.accno = #{accno} limit 1)
+  </insert>
+  
+  
+</mapper>

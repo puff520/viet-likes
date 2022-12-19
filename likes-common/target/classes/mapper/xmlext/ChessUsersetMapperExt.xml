@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.lottery.ChessUsersetMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.ChessUserset">
+        <id column="chesssetid" jdbcType="BIGINT" property="chesssetid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="autoexchange" jdbcType="DECIMAL" property="autoexchange"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    chesssetid, accno, autoexchange, is_delete, create_user, create_time, update_user, update_time
+    </sql>
+
+    <select id="getChessUsersetByAccno" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.ChessUserset">
+  	select * from chess_userset
+  	where accno = #{accno} and is_delete = 0 
+  	order by update_time desc
+  	limit 1
+  </select>
+
+</mapper>

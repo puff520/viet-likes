@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.sys.SysBduserroleMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysBduserrole">
+        <id column="refurid" jdbcType="BIGINT" property="refurid"/>
+        <result column="sysroleid" jdbcType="BIGINT" property="sysroleid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    refurid, sysroleid, accno, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+    <select id="getZuneiList" parameterType="java.lang.Long" resultType="com.likes.common.model.dto.member.UserDO">
+  	SELECT sb.accno,bu.bdusername as nickname
+	FROM sys_bduserrole sb
+	INNER JOIN bd_user bu ON sb.accno = bu.accno AND sb.is_delete = b'0'
+	where sb.sysroleid = #{sysroleid}
+	and bu.is_delete = b'0'
+  </select>
+
+    <select id="getZuwaiList" resultType="com.likes.common.model.dto.member.UserDO">
+	  SELECT b.accno ,b.bdusername as nickname
+		FROM bd_user b
+		WHERE b.accno NOT IN
+		(
+		SELECT sb.accno
+		FROM sys_bduserrole sb
+		INNER JOIN bd_user bu ON sb.accno = bu.accno AND sb.is_delete = b'0'
+		WHERE  bu.is_delete = b'0'
+		)
+		AND b.is_delete = b'0'
+  </select>
+
+    <select id="checkExist"
+            parameterType="com.likes.common.mybatis.entity.SysBduserrole"
+            resultType="com.likes.common.mybatis.entity.SysBduserrole">
+        SELECT sb.*
+        FROM sys_bduserrole sb
+        where sb.accno = #{accno}
+        <if test="sysroleid != null">
+            and sb.sysroleid = #{sysroleid,jdbcType=BIGINT}
+        </if>
+        and sb.is_delete = b'0'
+        limit 1
+    </select>
+
+
+    <update id="delBduserrole" parameterType="com.likes.common.mybatis.entity.SysBduserrole">
+	update   sys_bduserrole set is_delete = b'1',update_user = #{updateUser,jdbcType=VARCHAR} where accno = #{accno}
+  </update>
+</mapper>

@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.OrgBankaccountMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.OrgBankaccount">
+    <id column="bankaccid" jdbcType="BIGINT" property="bankaccid" />
+    <result column="accounttype" jdbcType="DECIMAL" property="accounttype" />
+    <result column="bankname" jdbcType="VARCHAR" property="bankname" />
+    <result column="accountname" jdbcType="VARCHAR" property="accountname" />
+    <result column="accountno" jdbcType="VARCHAR" property="accountno" />
+    <result column="accidcardno" jdbcType="VARCHAR" property="accidcardno" />
+    <result column="idcardpic1" jdbcType="VARCHAR" property="idcardpic1" />
+    <result column="idcardpic2" jdbcType="VARCHAR" property="idcardpic2" />
+    <result column="checkstatus" jdbcType="DECIMAL" property="checkstatus" />
+    <result column="checknote" jdbcType="VARCHAR" property="checknote" />
+    <result column="emailaddress" jdbcType="VARCHAR" property="emailaddress" />
+    <result column="is_delete" jdbcType="DECIMAL" property="isDelete"/>
+    <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    bankaccid, accounttype, bankname, accountname, accountno, accidcardno, idcardpic1, 
+    idcardpic2, checkstatus, checknote, emailaddress, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from org_bankaccount
+    where bankaccid = #{bankaccid,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from org_bankaccount
+    where bankaccid = #{bankaccid,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="bankaccid" keyProperty="bankaccid" parameterType="com.likes.common.mybatis.entity.OrgBankaccount" useGeneratedKeys="true">
+    insert into org_bankaccount (bankaccid, accounttype, bankname, 
+      accountname, accountno, accidcardno, 
+      idcardpic1, idcardpic2, checkstatus, 
+      checknote, emailaddress, is_delete,
+      createuser, modifyuser)
+    values (#{bankaccid,jdbcType=BIGINT}, #{accounttype,jdbcType=DECIMAL}, #{bankname,jdbcType=VARCHAR},
+      #{accountname,jdbcType=VARCHAR}, #{accountno,jdbcType=VARCHAR}, #{accidcardno,jdbcType=VARCHAR}, 
+      #{idcardpic1,jdbcType=VARCHAR}, #{idcardpic2,jdbcType=VARCHAR}, #{checkstatus,jdbcType=DECIMAL}, 
+      #{checknote,jdbcType=VARCHAR}, #{emailaddress,jdbcType=VARCHAR}, #{isDelete,jdbcType=BIT},
+      #{createuser,jdbcType=VARCHAR}, #{modifyuser,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" keyColumn="bankaccid" keyProperty="bankaccid" parameterType="com.likes.common.mybatis.entity.OrgBankaccount" useGeneratedKeys="true">
+    insert into org_bankaccount
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="bankaccid != null">
+        bankaccid,
+      </if>
+      <if test="accounttype != null">
+        accounttype,
+      </if>
+      <if test="bankname != null">
+        bankname,
+      </if>
+      <if test="accountname != null">
+        accountname,
+      </if>
+      <if test="accountno != null">
+        accountno,
+      </if>
+      <if test="accidcardno != null">
+        accidcardno,
+      </if>
+      <if test="idcardpic1 != null">
+        idcardpic1,
+      </if>
+      <if test="idcardpic2 != null">
+        idcardpic2,
+      </if>
+      <if test="checkstatus != null">
+        checkstatus,
+      </if>
+      <if test="checknote != null">
+        checknote,
+      </if>
+      <if test="emailaddress != null">
+        emailaddress,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+      <if test="createuser != null">
+        createuser,
+      </if>
+      <if test="createdate != null">
+        createdate,
+      </if>
+      <if test="modifyuser != null">
+        modifyuser,
+      </if>
+      <if test="modifydate != null">
+        modifydate,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="bankaccid != null">
+        #{bankaccid,jdbcType=BIGINT},
+      </if>
+      <if test="accounttype != null">
+        #{accounttype,jdbcType=DECIMAL},
+      </if>
+      <if test="bankname != null">
+        #{bankname,jdbcType=VARCHAR},
+      </if>
+      <if test="accountname != null">
+        #{accountname,jdbcType=VARCHAR},
+      </if>
+      <if test="accountno != null">
+        #{accountno,jdbcType=VARCHAR},
+      </if>
+      <if test="accidcardno != null">
+        #{accidcardno,jdbcType=VARCHAR},
+      </if>
+      <if test="idcardpic1 != null">
+        #{idcardpic1,jdbcType=VARCHAR},
+      </if>
+      <if test="idcardpic2 != null">
+        #{idcardpic2,jdbcType=VARCHAR},
+      </if>
+      <if test="checkstatus != null">
+        #{checkstatus,jdbcType=DECIMAL},
+      </if>
+      <if test="checknote != null">
+        #{checknote,jdbcType=VARCHAR},
+      </if>
+      <if test="emailaddress != null">
+        #{emailaddress,jdbcType=VARCHAR},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=BIT},
+      </if>
+      <if test="createuser != null">
+        #{createuser,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null">
+        #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyuser != null">
+        #{modifyuser,jdbcType=VARCHAR},
+      </if>
+      <if test="modifydate != null">
+        #{modifydate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.likes.common.mybatis.entity.OrgBankaccount">
+    update org_bankaccount
+    <set>
+      <if test="accounttype != null">
+        accounttype = #{accounttype,jdbcType=DECIMAL},
+      </if>
+      <if test="bankname != null">
+        bankname = #{bankname,jdbcType=VARCHAR},
+      </if>
+      <if test="accountname != null">
+        accountname = #{accountname,jdbcType=VARCHAR},
+      </if>
+      <if test="accountno != null">
+        accountno = #{accountno,jdbcType=VARCHAR},
+      </if>
+      <if test="accidcardno != null">
+        accidcardno = #{accidcardno,jdbcType=VARCHAR},
+      </if>
+      <if test="idcardpic1 != null">
+        idcardpic1 = #{idcardpic1,jdbcType=VARCHAR},
+      </if>
+      <if test="idcardpic2 != null">
+        idcardpic2 = #{idcardpic2,jdbcType=VARCHAR},
+      </if>
+      <if test="checkstatus != null">
+        checkstatus = #{checkstatus,jdbcType=DECIMAL},
+      </if>
+      <if test="checknote != null">
+        checknote = #{checknote,jdbcType=VARCHAR},
+      </if>
+      <if test="emailaddress != null">
+        emailaddress = #{emailaddress,jdbcType=VARCHAR},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=BIT},
+      </if>
+      <if test="createuser != null">
+        createuser = #{createuser,jdbcType=VARCHAR},
+      </if>
+      <if test="createdate != null">
+        createdate = #{createdate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="modifyuser != null">
+        modifyuser = #{modifyuser,jdbcType=VARCHAR},
+      </if>
+      <if test="modifydate != null">
+        modifydate = #{modifydate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where bankaccid = #{bankaccid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.likes.common.mybatis.entity.OrgBankaccount">
+    update org_bankaccount
+    set accounttype = #{accounttype,jdbcType=DECIMAL},
+      bankname = #{bankname,jdbcType=VARCHAR},
+      accountname = #{accountname,jdbcType=VARCHAR},
+      accountno = #{accountno,jdbcType=VARCHAR},
+      accidcardno = #{accidcardno,jdbcType=VARCHAR},
+      idcardpic1 = #{idcardpic1,jdbcType=VARCHAR},
+      idcardpic2 = #{idcardpic2,jdbcType=VARCHAR},
+      checkstatus = #{checkstatus,jdbcType=DECIMAL},
+      checknote = #{checknote,jdbcType=VARCHAR},
+      emailaddress = #{emailaddress,jdbcType=VARCHAR},
+      is_delete = #{isDelete,jdbcType=BIT},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      update_user = #{updateUser,jdbcType=VARCHAR}
+    where bankaccid = #{bankaccid,jdbcType=BIGINT}
+  </update>
+</mapper>

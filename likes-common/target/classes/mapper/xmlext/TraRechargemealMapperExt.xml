@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.tra.TraRechargemealMapperExt">
+  <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.TraRechargemeal">
+    <id column="mealid" jdbcType="BIGINT" property="mealid" />
+    <result column="realamt" jdbcType="DECIMAL" property="realamt" />
+    <result column="rechargegold" jdbcType="DECIMAL" property="rechargegold" />
+    <result column="givegold" jdbcType="DECIMAL" property="givegold" />
+    <result column="givepercent" jdbcType="DECIMAL" property="givepercent" />
+    <result column="expirydates" jdbcType="TIMESTAMP" property="expirydates" />
+    <result column="expirydatee" jdbcType="TIMESTAMP" property="expirydatee" />
+    <result column="mealnote" jdbcType="VARCHAR" property="mealnote" />
+    <result column="sortby" jdbcType="INTEGER" property="sortby" />
+    <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+    <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+  </resultMap>
+  <sql id="Base_Column_List">
+    mealid, realamt, rechargegold, givegold, givepercent, expirydates, expirydatee, mealnote, 
+    sortby, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+  
+  <select id="traRechargemealList" parameterType="com.likes.common.model.request.TraRechargemealReq"
+          resultType="com.likes.common.model.response.TraRechargemealResponse">
+  		SELECT t.* , (t.givegold + t.rechargegold) AS sumchargegold
+		FROM tra_rechargemeal t
+		WHERE t.is_delete = b'0'
+		ORDER BY t.sortby desc,t.realamt asc
+  </select>
+  
+  <select id="findAllTotal" resultType="java.lang.Integer">
+  	select count(1) from FROM tra_rechargemeal t WHERE t.is_delete = b'0'
+  </select>
+
+  <!-- GROUP BY 和 ORDER BY一起使用时，ORDER BY要在GROUP BY的后面 -->
+  <!-- 对于mysql 5.7后版本,需要加入limit限制，否则不生效 -->
+  <select id="getList" parameterType="java.lang.Integer"
+          resultType="com.likes.common.model.response.TraRechargemealResponse">
+    SELECT * FROM
+    ( SELECT * FROM tra_rechargemeal  WHERE is_delete = b'0'  ORDER BY update_time desc limit 10000 ) AS t
+    GROUP BY t.realamt
+    order by t.sortby desc,t.realamt asc
+
+    LIMIT #{num}
+  </select>
+</mapper>

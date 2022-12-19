@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.BdUserMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.BdUser">
+        <id column="bduserid" jdbcType="BIGINT" property="bduserid" />
+        <result column="accno" jdbcType="VARCHAR" property="accno" />
+        <result column="acclogin" jdbcType="VARCHAR" property="acclogin" />
+        <result column="bdusername" jdbcType="VARCHAR" property="bdusername" />
+        <result column="password" jdbcType="VARCHAR" property="password" />
+        <result column="passwordmd5" jdbcType="VARCHAR" property="passwordmd5" />
+        <result column="phoneno" jdbcType="VARCHAR" property="phoneno" />
+        <result column="wechat" jdbcType="VARCHAR" property="wechat" />
+        <result column="email" jdbcType="VARCHAR" property="email" />
+        <result column="is_delete" jdbcType="BIT" property="isDelete" />
+        <result column="loginnum" jdbcType="INTEGER" property="loginnum" />
+        <result column="accstatus" jdbcType="DECIMAL" property="accstatus" />
+        <result column="clintipadd" jdbcType="VARCHAR" property="clintipadd" />
+        <result column="lastlogindate" jdbcType="TIMESTAMP" property="lastlogindate" />
+        <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <sql id="Base_Column_List">
+    bduserid, accno, acclogin, bdusername, `password`, passwordmd5, phoneno, wechat,
+    email, is_delete, loginnum, accstatus, clintipadd, lastlogindate, create_user, create_time,
+    update_user, update_time
+    </sql>
+
+    <select id="selectByAccno" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bd_user
+        where accno = #{accno,jdbcType=VARCHAR}
+        limit 1
+    </select>
+
+    <select id="getRepeatPhoneno"
+            resultMap="BaseResultMap"
+            parameterType="com.likes.common.mybatis.entity.BdUser">
+        select
+        <include refid="Base_Column_List"/>
+        from bd_user
+        where phoneno = #{phoneno,jdbcType=VARCHAR}
+        <if test="bduserid != null">
+            and bduserid != #{bduserid}
+        </if>
+        and is_delete = b'0'
+        limit 1
+
+    </select>
+
+    <select id="getRandWeiChat" resultType="com.likes.common.mybatis.entity.BdUser">
+  		SELECT bu.* FROM bd_user bu
+		INNER JOIN mem_login ml ON bu.accno = ml.accno AND ml.accstatus = 1
+		WHERE ml.logintype IN (8,9)
+		ORDER BY RAND()
+		LIMIT 1
+  </select>
+
+    <select id="getKeFuWeiChat" parameterType="java.lang.String" resultType="java.lang.String">
+  	SELECT bd.wechat FROM bd_user bd WHERE bd.accno in (
+	SELECT sb.accno FROM sys_roleinfo sr
+	INNER JOIN sys_bduserrole sb ON sr.sysroleid = sb.sysroleid AND sb.is_delete = b'0'
+	WHERE sr.sysrolename = #{sysrolename})
+  </select>
+
+
+</mapper>

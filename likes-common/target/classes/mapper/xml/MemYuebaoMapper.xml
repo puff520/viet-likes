@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.MemYuebaoMapper">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemYuebao">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="amount" jdbcType="DECIMAL" property="amount"/>
+        <result column="yesterday_earn" jdbcType="DECIMAL" property="yesterdayEarn"/>
+        <result column="total_income" jdbcType="DECIMAL" property="totalIncome"/>
+        <result column="dividend_type" jdbcType="INTEGER" property="dividendType"/>
+        <result column="rate_type" jdbcType="INTEGER" property="rateType"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+
+    <select id="yuebaoUserList" resultMap="BaseResultMap">
+        select *
+        from mem_yuebao
+        where accno = #{accno}
+
+    </select>
+
+    <select id="selectMemYuebaoByAccno" parameterType="String" resultMap="BaseResultMap">
+        select accno, amount,yesterday_earn, total_income
+        from mem_yuebao
+        where 1=1
+          and accno = #{accno}
+    </select>
+
+    <update id="updateMemYuebaoAmount">
+        UPDATE mem_yuebao m
+        SET m.amount = (
+            CASE
+                WHEN m.amount + #{amount} <![CDATA[ < ]]> 0 THEN
+                    0
+                WHEN m.amount + #{amount} <![CDATA[ >= ]]> 0 THEN
+                    m.amount + #{amount}
+                END
+            )
+        WHERE m.accno = #{accno}
+    </update>
+
+</mapper>

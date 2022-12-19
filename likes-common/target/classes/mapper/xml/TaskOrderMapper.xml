@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.TaskOrderMapper">
+
+
+    <resultMap id="BaseResultMap" type="com.likes.common.model.TaskOrderListDetail">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="orderNo" jdbcType="VARCHAR" property="orderNo"/>
+        <result column="taskId" jdbcType="BIGINT" property="taskId"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="createTime" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="receiveLevel" jdbcType="VARCHAR" property="receiveLevel"/>
+        <result column="receivePrice" jdbcType="DECIMAL" property="receivePrice"/>
+        <result column="email" jdbcType="VARCHAR" property="email"/>
+    </resultMap>
+
+
+    <select id="taskOrderList" parameterType="com.likes.common.model.request.TaskOrderRequest" resultMap="BaseResultMap">
+        SELECT
+        dto.id AS id,
+        dt.id as taskId,
+        mb.email AS email,
+        dt.title AS title,
+        dto.receive_level AS receiveLevel,
+        dto.receive_price AS receivePrice,
+        dto.`status` AS `status`,
+        dto.create_time AS createTime
+        FROM
+        dz_task_order dto
+        INNER JOIN dz_task dt ON dto.task_id = dt.id
+        INNER JOIN mem_baseinfo mb ON dto.mem_no = mb.accno
+        where 1=1
+
+        <if test="email != null and  email !='' ">
+            and mb.email  like concat('%',#{email},'%')
+        </if>
+        <if test="levelSeq != null">
+            and dt.task_level  = #{levelSeq}
+        </if>
+        <if test="status != null">
+            and dto.status = #{status}
+        </if>
+        <if test="startTime != null ">
+            <![CDATA[  and dto.create_time >= #{startTime} ]]>
+        </if>
+        <if test="endTime != null">
+            <![CDATA[  and dto.create_time <= #{endTime} ]]>
+        </if>
+          order by dto.id desc
+    </select>
+
+
+    <select id="selectReviewDetail" parameterType="java.lang.Long"
+            resultType="com.likes.common.model.TaskOrderReviewDetail">
+        SELECT
+        dt.title as taskName,
+        dt.create_user as createUser,
+        dt.info as info,
+        dt.task_url as taskUrl,
+        dto.mobile as mobile,
+        dto.create_time as createTime,
+        dto.`status` as `status`,
+        dt.sample_url as sampleUrl,
+        dto.submit_sample as submitSample,
+        dto .remark as remark
+        FROM
+        dz_task_order dto
+        INNER JOIN dz_task dt ON dto.task_id = dt.id
+        WHERE 1 = 1
+        <if test="taskOrderId != null">
+            and dto.id = #{taskOrderId}
+        </if>
+    </select>
+
+
+    <select id="waitReceiveList" parameterType="java.lang.String" resultType="com.likes.common.model.WaitReceiveDto">
+        SELECT
+        dtc.icon AS icon,
+        dtc.`name` AS categoryName,
+        dtc.`icon` AS taskIcon,
+        k.*
+        FROM
+        (
+        SELECT
+        dt.task_level AS taskLevel,
+        dt.id AS taskId,
+        dto.id AS orderId,
+        dt.category_id AS categoryId,
+        dt.info AS info,
+        dt.task_url AS taskUrl,
+        dt.sample_url AS sampleUrl,
+        dt.surplus_num AS surplusNum,
+        dto.create_user AS createUser,
+        dto.mobile AS mobile,
+        dto.submit_sample AS submitSample,
+        dto.create_time AS createTime,
+        dto.update_time AS updateTime,
+        dt.task_require AS taskRequire,
+        dt.price AS price,
+        dto.`status` AS `status`
+        FROM
+        dz_task_order dto
+        LEFT JOIN dz_task dt ON dto.task_id = dt.id
+        WHERE 1=1
+        <if test="createUser != null and createUser !=''">
+            and dt.create_user = #{createUser}
+        </if>
+        <if test="status != null">
+            and dto.status = #{status}
+        </if>
+        ) k
+        INNER JOIN dz_task_category dtc ON k.categoryId = dtc.id
+    </select>
+
+
+</mapper>

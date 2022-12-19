@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+        namespace="com.likes.common.mybatis.mapperext.anchor.BasInvestorsMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.BasInvestors">
+        <id column="investorsid" jdbcType="BIGINT" property="investorsid"/>
+        <result column="investname" jdbcType="VARCHAR" property="investname"/>
+        <result column="investlog" jdbcType="VARCHAR" property="investlog"/>
+        <result column="investdesc" jdbcType="VARCHAR" property="investdesc"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+		investorsid, investname, investlog, investdesc, is_delete, create_user, create_time, update_user, update_time
+	</sql>
+
+    <select
+            id="getRepeat"
+            parameterType="com.likes.common.mybatis.entity.BasInvestors"
+            resultType="com.likes.common.mybatis.entity.BasInvestors">
+        select
+        <include refid="Base_Column_List"/>
+        from bas_investors
+        where investname = #{investname}
+        and is_delete = b'0'
+        <if test="investorsid != null">
+            and investorsid != #{investorsid,jdbcType=BIGINT}
+        </if>
+        limit 1
+
+    </select>
+
+    <select
+            id="investorsList"
+            parameterType="com.likes.common.mybatis.entity.BasInvestors"
+            resultType="com.likes.common.model.dto.bas.BasInvestorsDO">
+        select
+        <include refid="Base_Column_List"/>,
+        (select bdusername from bd_user where accno = b.create_user and is_delete = b'0' limit 1) as createusername
+        from bas_investors b
+        where
+        b.is_delete = b'0'
+        <if test="investname != null  and  investname != '' ">
+            and (
+            b.investname LIKE CONCAT('%',#{investname,jdbcType=VARCHAR},'%')
+            or b.investdesc LIKE CONCAT('%',#{investname,jdbcType=VARCHAR},'%')
+            )
+        </if>
+        order by b.create_time desc
+    </select>
+
+</mapper>

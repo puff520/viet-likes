@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.EveryDayReportMapper">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.EveryDayReport">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="create_date" jdbcType="VARCHAR" property="createDate"/>
+        <result column="recharge" jdbcType="DECIMAL" property="recharge"/>
+        <result column="withdrawal" jdbcType="DECIMAL" property="withdrawal"/>
+        <result column="add_vip_num" jdbcType="INTEGER" property="addVipNum"/>
+        <result column="sub_task_amount" jdbcType="DECIMAL" property="subTaskAmount"/>
+        <result column="task_amount" jdbcType="DECIMAL" property="taskAmount"/>
+        <result column="vip_amount" jdbcType="DECIMAL" property="vipAmount"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+
+    <select id="everyDayReport" resultType="com.likes.common.model.dto.AgentEveryData">
+        SELECT
+        id AS id,
+        create_date AS createDate,
+        recharge AS rechargeAmount,
+        withdrawal AS withdrawAmount,
+        add_vip_num AS addVipNum,
+        sub_task_amount AS subTaskBrokerage,
+        vip_amount AS buyVipAmount,
+        task_amount AS taskAmount,
+        create_time AS createTime
+        FROM
+        every_day_report
+        WHERE
+        1 = 1
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND create_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND create_time  <=  #{endTime} ]]>
+        </if>
+        order by create_time desc
+    </select>
+
+
+    <select id="everyDayList" resultType="com.likes.common.model.dto.AgentEveryData">
+        SELECT k.dat,
+               sum(case when k.changetype = 1 then k.amount else 0 end)   as cz,
+               sum(case when k.changetype = 12 then k.amount else 0 end)  as tx,
+               sum(case when k.changetype = 55 then k.amount else 0 end)  as rgcz,
+               sum(case when k.changetype = 100 then k.amount else 0 end) as vip,
+               sum(case when k.changetype = 101 then k.amount else 0 end) as task1,
+               sum(case when k.changetype = 102 then k.amount else 0 end) as task2,
+               sum(case when k.changetype = 103 then k.amount else 0 end) as task3,
+               sum(case when k.changetype = 200 then k.amount else 0 end) as rw
+        FROM (SELECT date_format(create_time, '%Y-%m-%d') dat,
+                     sum(quantity) AS                     amount,
+                     changetype
+              FROM mem_goldchange
+              WHERE 1 = 1
+                AND changetype IN (1, 12, 55, 100, 101, 102, 103, 200)
+                <if test="beginTime != null and beginTime !=''">
+                    <![CDATA[ AND create_time  >=  #{beginTime} ]]>
+
+                </if>
+                <if test="endTime != null and endTime !='' ">
+                    <![CDATA[ AND create_time  <=  #{endTime} ]]>
+                </if>
+              GROUP BY date_format(create_time, '%Y-%m-%d'),
+                       changetype) k
+        GROUP BY k.dat
+    </select>
+
+
+
+    <select id="agentAccnoList" resultType="java.lang.String">
+        SELECT
+            DISTINCT accno
+        FROM
+            mem_baseinfo mb
+        WHERE
+            1 = 1
+          AND mb.accno IN ( SELECT DISTINCT refaccno FROM mem_relationship WHERE is_delete = b'0' )
+        order  by mb.accno
+        limit #{pageNo},#{pageSize}
+    </select>
+
+
+    <select id="countAgentAccNo" resultType="java.lang.Integer">
+        SELECT
+            DISTINCT  count(1)
+        FROM
+            mem_baseinfo mb
+        WHERE
+            1 = 1
+          AND mb.accno IN ( SELECT DISTINCT refaccno FROM mem_relationship WHERE is_delete = b'0' )
+        order  by mb.accno
+    </select>
+
+</mapper>

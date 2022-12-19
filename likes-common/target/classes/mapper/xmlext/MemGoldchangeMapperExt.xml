@@ -1,0 +1,806 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.member.MemGoldchangeMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemGoldchange">
+        <id column="goldchangid" jdbcType="BIGINT" property="goldchangid"/>
+        <result column="refid" jdbcType="BIGINT" property="refid"/>
+        <result column="refaccno" jdbcType="VARCHAR" property="refaccno"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="changetype" jdbcType="DECIMAL" property="changetype"/>
+        <result column="goldnum" jdbcType="DECIMAL" property="goldnum"/>
+        <result column="quantity" jdbcType="DECIMAL" property="quantity"/>
+        <result column="amount" jdbcType="DECIMAL" property="amount"/>
+        <result column="recgoldnum" jdbcType="DECIMAL" property="recgoldnum"/>
+        <result column="opnote" jdbcType="VARCHAR" property="opnote"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    goldchangid, refid, refaccno, accno, changetype, goldnum, quantity, amount, recgoldnum,
+    opnote, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+
+    <select id="getcountbyrmtype" parameterType="java.util.Map" resultType="java.lang.Integer">
+        select CAST(SUM(quantity) AS signed)
+        from mem_goldchange
+        where is_delete = b'0'
+        and accno = #{accno}
+        <if test="rmtypelist != null and rmtypelist.size != 0">
+            And changetype in
+            <foreach close=")" collection="rmtypelist" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+    </select>
+
+    <insert id="insertSelectiveMemGoldchange"
+            keyColumn="goldchangid" keyProperty="goldchangid"
+            parameterType="com.likes.common.mybatis.entity.MemGoldchange" useGeneratedKeys="true">
+  insert into mem_goldchange ( refid, refaccno, accno,
+      changetype, goldnum, quantity,
+      amount, recgoldnum, opnote,  create_user,update_user,pre_cgdml,source,after_cgdml)
+
+   select #{refid},#{refaccno},#{accno},#{changetype},mb.goldnum,#{quantity}, #{amount},(mb.goldnum + #{quantity}),
+   #{opnote},#{createUser},#{updateUser},mb.no_withdrawal_amount, #{source},
+   <![CDATA[
+   if(mb.no_withdrawal_amount + #{quantity} < 0 , 0,   mb.no_withdrawal_amount + #{quantity} )
+   ]]>
+   FROM mem_baseinfo mb
+
+   WHERE
+		NOT EXISTS
+		(SELECT m.refid FROM mem_goldchange m
+		WHERE  m.refid = #{refid}
+		AND m.accno = #{accno}
+		AND m.changetype = #{changetype}
+		AND m.is_delete = b'0'
+		LIMIT 1
+		)
+		AND mb.is_delete = b'0'
+		AND mb.accno = #{accno}
+  </insert>
+
+
+    <!-- 改为 状态已提现 -->
+    <update id="updateZhuboTixian" parameterType="com.likes.common.mybatis.entity.MemGoldchange">
+    update mem_goldchange
+    set
+      changetype = 12 ,
+      update_user = #{updateUser},
+      opnote = #{opnote,jdbcType=VARCHAR},
+      source =  #{source,jdbcType=VARCHAR}
+    where refid = #{refid,jdbcType=BIGINT}
+     AND accno = #{accno,jdbcType=VARCHAR}
+     AND changetype = #{changetype,jdbcType=DECIMAL}
+     AND is_delete = b'0'
+  </update>
+
+    <!-- 家族长提现 start -->
+    <!-- 查询家族是否存在体现 -->
+    <select id="isFamilyTiXian" parameterType="com.likes.common.model.request.FamilyIncarnateRequest"
+            resultType="com.likes.common.model.response.FamilyMemGoldchangeResponse">
+        SELECT mg.* ,
+        (SELECT bdusername FROM bd_user bd WHERE bd.accno = mg.update_user LIMIT 1) AS bdusername,
+        (SELECT mb.nickname FROM mem_baseinfo mb WHERE mg.refaccno = mb.accno LIMIT 1) AS nickname
+        FROM mem_goldchange mg
+        WHERE DATE_FORMAT(mg.create_time,"%Y-%m") = #{searchdate}
+        AND mg.is_delete = b'0'
+        <!-- <if test="changetypeList != null and changetypeList.size != 0"> -->
+        And mg.changetype in
+        <foreach close=")" collection="changetypeList" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        <!-- </if> -->
+        AND mg.accno= #{accno}
+        AND mg.refaccno IS NOT NULL
+    </select>
+
+    <!-- 每个主播该提多少 -->
+    <select id="findFamilyTiXian" parameterType="com.likes.common.model.request.FamilyIncarnateRequest"
+            resultType="com.likes.common.model.response.FamilyMemIncarnateResponse">
+  		SELECT (AA.shouruamount - AA.zhichuamount) AS amount , AA.refaccno,AA.accno,
+		(SELECT mb.nickname FROM mem_baseinfo mb WHERE mb.accno = AA.refaccno LIMIT 1) AS nickname
+		FROM (
+
+			SELECT
+			mg.accno,mg.refaccno,SUM(mg.quantity) AS shouruquantity , 0 as zhichuquantity ,
+			IFNULL(SUM(mg.amount),0) as shouruamount , 0 as zhichuamount
+
+			 FROM mem_goldchange mg
+			 WHERE mg.is_delete = b'0'
+			 AND mg.changetype = 9
+			 AND mg.accno =
+			 #{accno}
+			 AND mg.refaccno IS NOT NULL
+			    <![CDATA[   AND mg.create_time <= #{endtime}   ]]>
+			 GROUP BY mg.accno,mg.refaccno
+
+			 UNION ALL
+
+
+			 SELECT mg.accno,mg.refaccno , 0 as quantity,IFNULL(SUM(mg.quantity),0) AS zhichuquantity,
+			 0 as shouruamount,IFNULL(SUM(mg.amount),0) as zhichuamount
+
+			 FROM mem_goldchange mg
+			 WHERE mg.is_delete = b'0'
+			 AND mg.changetype  in (10,12)
+			 AND mg.accno =  #{accno}
+			 AND mg.refaccno IS NOT NULL
+			  <![CDATA[   AND mg.create_time <= #{endtime}   ]]>
+			 GROUP BY mg.accno,mg.refaccno
+			 )AS AA
+  </select>
+
+    <!--  家族长 从 主播分成里面算钱钱 -->
+    <select id="familyIncomeAndExpensesList" parameterType="com.likes.common.model.request.FamilyIncarnateRequest"
+            resultType="com.likes.common.model.response.FamilyIncomeAndExpensesResponse">
+
+        SELECT *
+        FROM(
+
+        SELECT
+        AA.accno,
+        SUM(AA.shouruquantity) as allshouruquantity,
+        SUM(AA.zhichuquantity) as allzhichuquantity,
+        SUM(AA.shouruamount) as allshouruamount,
+        SUM(AA.zhichuamount) as allzhichuamount
+        FROM (
+        <!-- 收入 -->
+        SELECT
+        mg.accno,mg.refaccno,SUM(mg.quantity) AS shouruquantity , 0 as zhichuquantity ,
+        IFNULL(SUM(mg.amount),0) as shouruamount , 0 as zhichuamount
+
+        FROM mem_goldchange mg
+        WHERE mg.is_delete = b'0'
+        AND mg.changetype = 9
+        AND mg.accno in
+        <foreach close=")" collection="accnoList" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        AND mg.refaccno IS NOT NULL
+        <![CDATA[   AND mg.create_time <= #{endtime}   ]]>
+        GROUP BY mg.accno,mg.refaccno
+
+        UNION ALL
+
+        <!-- 支出 -->
+        SELECT mg.accno,mg.refaccno , 0 as quantity,IFNULL(SUM(mg.quantity),0) AS zhichuquantity,
+        0 as shouruamount,IFNULL(SUM(mg.amount),0) as zhichuamount
+
+        FROM mem_goldchange mg
+        WHERE mg.is_delete = b'0'
+        AND mg.changetype in (10,12)
+        AND mg.accno in
+        <foreach close=")" collection="accnoList" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        AND mg.refaccno IS NOT NULL
+        <![CDATA[   AND mg.create_time <= #{endtime}   ]]>
+        GROUP BY mg.accno,mg.refaccno
+
+        ) AS AA
+
+        GROUP BY AA.accno
+        ) AS BB
+
+        <!-- WHERE (BB.allshouruquantity -  BB.allzhichuquantity) > 0   -->
+
+    </select>
+
+    <select id="findFamilyIsIncarnate" parameterType="com.likes.common.mybatis.entity.MemGoldchange"
+            resultType="com.likes.common.mybatis.entity.MemGoldchange">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM
+        mem_goldchange m
+        WHERE
+        m.changetype IN ( #{changetype} )
+        AND m.is_delete = b'0'
+        AND m.accno = #{accno}
+        AND DATE_FORMAT(m.create_time, "%Y%m") = DATE_FORMAT( NOW(), "%Y%m" )
+        LIMIT 1
+    </select>
+
+    <!-- 单个家族 的 每个 主播 对于的 总收入 总支出 -->
+    <insert id="doFamilyIncarnateMemGoldchange" parameterType="java.util.Map">
+  insert into mem_goldchange ( refid, accno, refaccno,
+      changetype, goldnum, quantity,
+      amount, recgoldnum, opnote,
+      is_delete, create_user, create_time, update_user, update_time)
+
+   select #{refid},#{accno},mb.refaccno,#{changetype},null,
+   (mb.shouruquantity - mb.zhichuquantity),  (mb.shouruamount - mb.zhichuamount),
+    null, #{opnote},0,#{operatoraccno},now(),#{operatoraccno},now()
+
+   from   (
+	   SELECT * FROM
+		(
+		SELECT
+			accno,
+			refaccno,
+			SUM( shouruquantity ) AS shouruquantity,
+			SUM( zhichuquantity ) AS zhichuquantity,
+			SUM( shouruamount ) AS shouruamount,
+			SUM( zhichuamount ) AS zhichuamount
+		FROM
+			(
+			SELECT
+				mg.accno,
+				mg.refaccno,
+				SUM( mg.quantity ) AS shouruquantity,
+				0 AS zhichuquantity,
+				IFNULL( SUM( mg.amount ), 0 ) AS shouruamount,
+				0 AS zhichuamount
+			FROM
+				mem_goldchange mg
+			WHERE
+				mg.is_delete = b'0'
+				AND mg.changetype = 9
+				AND mg.accno = #{accno}
+				AND mg.refaccno IS NOT NULL
+			<![CDATA[	AND mg.create_time <= #{endtime} ]]>
+			GROUP BY
+				mg.accno,
+				mg.refaccno
+
+				UNION ALL
+
+			SELECT
+				mg.accno,
+				mg.refaccno,
+				0 AS quantity,
+				IFNULL( SUM( mg.quantity ), 0 ) AS zhichuquantity,
+				0 AS shouruamount,
+				IFNULL( SUM( mg.amount ), 0 ) AS zhichuamount
+			FROM
+				mem_goldchange mg
+			WHERE
+				mg.is_delete = b'0'
+				AND mg.changetype IN ( 10, 12 )
+				AND mg.accno = #{accno}
+				AND mg.refaccno IS NOT NULL
+			<![CDATA[	AND mg.create_time <= #{endtime} ]]>
+			GROUP BY
+				mg.accno,
+				mg.refaccno
+			) AS AA
+		GROUP BY
+		AA.refaccno
+		) AS TT
+		WHERE
+			NOT EXISTS (
+			SELECT
+				m.accno
+			FROM
+				mem_goldchange m
+			WHERE
+				m.changetype IN ( 10, 12 )
+				AND m.is_delete = b'0'
+				AND m.accno = #{accno}
+				AND m.refaccno = TT.refaccno
+				AND DATE_FORMAT( m.create_time, "%Y%m" ) = DATE_FORMAT( NOW(), "%Y%m" )
+			)
+			AND ( TT.shouruamount - TT.zhichuamount ) > 0
+   )  AS mb
+  </insert>
+
+    <select id="getTopTenStatistics"
+            parameterType="com.likes.common.model.request.UserReq"
+            resultType="com.likes.common.model.response.UserResp">
+        SELECT *,(@num:=@num + 1) AS ranknum FROM(
+
+        SELECT abs((SUM(s.quantity))) AS goldnum ,s.accno,
+        (select memid from mem_baseinfo where accno = s.accno and is_delete = b'0' limit 1) as memid,
+        (select nickname from mem_baseinfo where accno = s.accno and is_delete = b'0' limit 1) as nickname,
+        (select headimg from mem_baseinfo where accno = s.accno and is_delete = b'0' limit 1) as headimg,
+        (select sex from mem_baseinfo where accno = s.accno and is_delete = b'0' limit 1) as sex,
+        IFNULL((select IFNULL(memlevel,1) from mem_level where accno = s.accno and is_delete = b'0' limit 1),"1") as
+        memlevel
+        FROM mem_goldchange s
+        WHERE DATE_FORMAT(s.create_time,'%Y%m%d') BETWEEN #{starttime} AND #{endtime}
+        AND s.is_delete = b'0'
+        <!-- <if test="changetypeList != null and changetypeList.size != 0">  -->
+        And s.changetype in
+        <foreach close=")" collection="changetypeList" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        <!-- </if> -->
+        GROUP BY s.accno
+        ORDER BY goldnum desc
+        LIMIT #{limitnum}
+
+        ) AS a ,(SELECT @num:= 0) b
+        ORDER BY goldnum DESC
+    </select>
+
+    <select id="getRoomBigMoneyTop" parameterType="com.likes.common.model.request.UserReq"
+            resultType="com.likes.common.model.response.UserResp">
+        SELECT *, (@num:=@num + 1) AS ranknum
+        FROM ( SELECT abs(SUM(s.quantity)) AS goldnum, s.accno,s.refaccno as refAccno,
+        ( SELECT memid from mem_baseinfo where accno = s.accno and is_delete = b'0' limit 1 ) as memid,
+        ( SELECT nickname from mem_baseinfo where accno = s.accno and is_delete = b'0' limit 1 ) as nickname,
+        ( SELECT headimg from mem_baseinfo where accno = s.accno and is_delete = b'0' limit 1 ) as headimg,
+        ( SELECT sex from mem_baseinfo where accno = s.accno and is_delete = b'0' limit 1 ) as sex,
+        IFNULL((select IFNULL(memlevel,1) from mem_level where accno = s.accno and is_delete = b'0' limit 1 ),"1") as
+        memlevel
+        FROM ( SELECT *
+        FROM mem_goldchange
+        WHERE DATE_FORMAT(create_time,'%Y%m%d') BETWEEN #{starttime} AND #{endtime}
+        AND is_delete = b'0' ) AS s
+        WHERE 1=1
+        And s.changetype in
+        <foreach close=")" collection="changetypeList" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        <if test="accnoLists != null and accnoLists.size != 0">
+            AND s.accno in
+            <foreach close=")" collection="accnoLists" index="index" item="acc" open="(" separator=",">
+                #{acc}
+            </foreach>
+        </if>
+        and refaccno=#{refAccno}
+        GROUP BY s.accno
+        LIMIT #{limitnum} ) AS a ,(SELECT @num:= 0) b
+        ORDER BY goldnum DESC
+    </select>
+    <insert id="insertSelectiveSubtractMemGoldchange" keyColumn="goldchangid" keyProperty="goldchangid"
+            parameterType="com.likes.common.mybatis.entity.MemGoldchange" useGeneratedKeys="true">
+  insert into mem_goldchange ( refid, accno, refaccno,
+      changetype, goldnum, quantity,
+      amount, recgoldnum, opnote,
+       create_user,  update_user,pre_cgdml,after_cgdml)
+
+   select #{refid},#{accno},#{refaccno},#{changetype},TRUNCATE(mb.goldnum,3),
+   TRUNCATE(#{quantity},3), TRUNCATE(#{amount},3),( TRUNCATE( mb.goldnum,3) - TRUNCATE(#{quantity},3) ),
+   #{opnote},#{createUser},#{updateUser},mb.no_withdrawal_amount,if( mb.no_withdrawal_amount - #{quantity} &lt; 0,0, mb.no_withdrawal_amount - #{quantity})
+
+   FROM mem_baseinfo mb
+
+   WHERE
+		NOT EXISTS
+		(SELECT m.refid FROM mem_goldchange m
+		WHERE  m.refid = #{refid}
+		AND m.accno = #{accno}
+		AND m.changetype = #{changetype}
+		AND m.is_delete = b'0'
+		LIMIT 1
+		)
+
+		AND mb.is_delete = b'0'
+		AND mb.accno = #{accno}
+
+		AND (TRUNCATE(mb.goldnum,3) - TRUNCATE(#{quantity},3)) >= 0
+  </insert>
+    <!-- 1充值  3赠送  13彩票派奖-->
+    <select id="getNengtiGoldNum" parameterType="java.lang.String"
+            resultType="java.lang.Double">
+  SELECT (SUM(zongdashang) - SUM(zongtixian)) AS nengti
+  FROM (
+
+	SELECT  IFNULL(SUM(mg.quantity),0)  AS zongdashang, 0 AS zongtixian
+	  	FROM mem_goldchange mg
+		WHERE mg.is_delete = b'0'
+		AND mg.accno = #{accno}
+		AND mg.changetype in(1,3,13)
+
+	UNION ALL
+
+	SELECT  0 AS zongdashang, IFNULL(SUM(A.quantity),0)  AS zongtixian
+	FROM
+		(
+		SELECT  mg.refid,mg.quantity FROM mem_goldchange mg
+		WHERE mg.is_delete = b'0'
+		AND mg.accno = #{accno}
+		AND mg.changetype = 10 ) AS A
+		,
+		(SELECT tr.apycgold,tr.paydate,tr.apycdate,
+		tr.orderid,tr.apycamt,tr.bankaccid,tr.paymemname,tr.apycid
+		FROM tra_applycash tr
+		WHERE tr.accno = #{accno}
+		AND tr.is_delete = b'0'
+		AND tr.apycstatus not in (9)
+		) AS B
+		WHERE A.refid = B.orderid
+
+		)AS C
+  </select>
+    <insert id="insertSelectiveFamilyGoldchange" keyColumn="goldchangid" keyProperty="goldchangid"
+            parameterType="com.likes.common.mybatis.entity.MemGoldchange" useGeneratedKeys="true">
+  insert into mem_goldchange ( refid, accno, refaccno,
+      changetype, goldnum, quantity,
+      amount, recgoldnum, opnote, refaccno,
+      is_delete, create_user, create_time, update_user, update_time)
+
+   select #{refid},#{accno},#{refaccno},#{changetype},TRUNCATE(#{goldnum},3),TRUNCATE(#{quantity},3),
+   TRUNCATE(#{amount},3),TRUNCATE(#{recgoldnum},3),
+   #{opnote},#{refaccno},#{isDelete},#{createUser},#{createTime},#{updateUser},#{updateTime}
+
+   WHERE
+		NOT EXISTS
+		(SELECT m.refid FROM mem_goldchange m
+		WHERE  m.refid = #{refid}
+		AND m.accno = #{accno}
+		AND m.changetype = #{changetype}
+		AND m.is_delete = b'0'
+		LIMIT 1
+		)
+  </insert>
+    <select id="myIncomeAndExpensesList" parameterType="com.likes.common.model.request.UsersRequest"
+            resultType="com.likes.common.model.dto.member.MemGoldchangeDTO">
+        select quantity,opnote,create_time as createTime,changetype
+        from mem_goldchange
+        where accno = #{accno}
+        and is_delete = b'0'
+        <if test="changetypeList != null and changetypeList.size != 0">
+            And changetype in
+            <foreach close=")" collection="changetypeList" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+        order by update_time desc
+    </select>
+    <select id="getAllGoldchangeByType" parameterType="com.likes.common.model.request.UsersRequest"
+            resultType="com.likes.common.mybatis.entity.MemGoldchange">
+        SELECT *
+        FROM mem_goldchange mg
+        WHERE mg.is_delete = b'0'
+        AND mg.accno = #{accno}
+        <!--  <if test="changetypeList != null and changetypeList.size != 0">  -->
+        And mg.changetype in
+        <foreach close=")" collection="changetypeList" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        <!-- </if> -->
+
+        <if test="consumedate != null and consumedate !=''  ">
+            AND mg.create_time >= #{consumedate}
+        </if>
+        order by mg.create_time asc
+    </select>
+    <select id="getAllQuantity" resultType="java.lang.Double">
+  	SELECT   IFNULL(SUM(mg.quantity),0)
+	  	FROM mem_goldchange mg
+		WHERE mg.is_delete = b'0'
+		AND mg.accno = #{accno}
+		AND mg.changetype = #{changetype}
+  </select>
+    <select id="getAllQuantityByType" resultType="java.lang.Double"
+            parameterType="com.likes.common.model.request.UsersRequest">
+        SELECT IFNULL(SUM(mg.quantity),0)
+        FROM mem_goldchange mg
+        WHERE mg.is_delete = b'0'
+        AND mg.accno = #{accno}
+        AND mg.changetype in
+        <foreach item="item" index="index" collection="changetypeList"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="getLiveincome" parameterType="com.likes.common.model.request.UserReq"
+            resultType="java.lang.Double">
+
+        <!-- SELECT sum(mg.quantity)
+           FROM mem_goldchange mg
+
+           WHERE mg.accno IN (
+
+           SELECT br.accno FROM
+           bas_reward br
+            WHERE br.create_time
+            BETWEEN
+              ( SELECT b.onlinedate FROM bas_anchoronline  b WHERE b.is_delete = b'0' AND b.roomid = #{roomid}
+              ORDER BY  onlinedate DESC LIMIT 1  )
+              AND
+              ( SELECT IFNULL(b.offlinedate,NOW()) FROM bas_anchoronline  b WHERE b.is_delete = b'0' AND b.roomid = #{roomid}
+              ORDER BY  onlinedate DESC LIMIT 1  )
+              AND br.is_delete = b'0'
+              AND br.roomid =  #{roomid}
+              GROUP BY br.accno
+           )
+           AND mg.is_delete = b'0'
+           AND mg.create_time
+           BETWEEN
+          ( SELECT b.onlinedate FROM bas_anchoronline  b WHERE b.is_delete = b'0' AND b.roomid = #{roomid}
+              ORDER BY  onlinedate DESC LIMIT 1  )
+          AND ( SELECT IFNULL(b.offlinedate,NOW()) FROM bas_anchoronline  b WHERE b.is_delete = b'0' AND b.roomid = #{roomid}
+              ORDER BY  onlinedate DESC LIMIT 1  )
+          AND mg.changetype in -->
+
+        SELECT abs(IFNULL(sum(mg.quantity) , 0))
+        FROM mem_goldchange mg , (SELECT b.onlinedate , (IFNULL(b.offlinedate,NOW())) as offlinedate ,b.roomid
+        FROM bas_anchoronline b WHERE b.is_delete = b'0' AND b.roomid = #{roomid}
+        ORDER BY onlinedate DESC LIMIT 1 ) AS dd
+
+        WHERE mg.accno IN (
+
+        SELECT br.accno FROM
+        bas_reward br , (SELECT b.onlinedate , (IFNULL(b.offlinedate,NOW())) as offlinedate ,b.roomid
+        FROM bas_anchoronline b WHERE b.is_delete = b'0' AND b.roomid = #{roomid}
+        ORDER BY onlinedate DESC LIMIT 1 ) AS da
+        WHERE br.create_time
+        BETWEEN
+        da.onlinedate
+        AND
+        da.offlinedate
+        AND br.is_delete = b'0'
+        AND br.roomid = #{roomid}
+        GROUP BY br.accno
+        )
+        AND mg.is_delete = b'0'
+        AND mg.create_time
+        BETWEEN
+        dd.onlinedate
+        AND
+        dd.offlinedate
+        AND mg.changetype in
+        <foreach close=")" collection="changetypeList" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+
+    </select>
+
+    <!-- 家族长提现 end -->
+
+
+    <!-- 获取用户縂充值的金额数量 -->
+    <select id="getZongchongzhi" parameterType="java.lang.String" resultType="java.lang.Double">
+	 	SELECT TRUNCATE( SUM(mg.amount) , 3) FROM mem_goldchange mg
+		WHERE mg.is_delete = b'0' and mg.changetype = 1
+		AND mg.accno = #{accno}
+ 	</select>
+
+    <select id="getSumQuantity" resultType="java.lang.Double"
+            parameterType="com.likes.common.model.request.FamilyStatisticsRequest">
+        SELECT TRUNCATE( SUM(mg.quantity) , 3) FROM mem_goldchange mg
+        where mg.is_delete = b'0'
+        AND mg.accno = #{accno}
+        and mg.changetype in
+        <foreach close=")" collection="changetypelist" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        <![CDATA[
+		   AND (mg.create_time  BETWEEN  #{starttime}   AND  #{endtime}  )  ]]>
+    </select>
+
+
+    <insert id="insertAuto" keyColumn="goldchangid" keyProperty="goldchangid"
+            parameterType="com.likes.common.mybatis.entity.MemGoldchange" useGeneratedKeys="true">
+	    insert into mem_goldchange (goldchangid, refid, refaccno,
+	      accno, changetype, goldnum,
+	      quantity, amount, recgoldnum,
+	      opnote, is_delete, create_user, update_user
+	      )
+	    select  #{goldchangid,jdbcType=BIGINT}, #{refid,jdbcType=BIGINT}, #{refaccno,jdbcType=VARCHAR},
+	      #{accno,jdbcType=VARCHAR}, #{changetype,jdbcType=DECIMAL}, goldnum,
+	      #{quantity,jdbcType=DECIMAL}, #{amount,jdbcType=DECIMAL}, (goldnum+#{amount,jdbcType=DECIMAL}),
+	      #{opnote,jdbcType=VARCHAR}, #{isDelete,jdbcType=DECIMAL}, #{createUser,jdbcType=VARCHAR},
+	      #{updateUser,jdbcType=VARCHAR}
+	      from mem_baseinfo
+	      where accno = #{accno,jdbcType=VARCHAR}
+  </insert>
+    <select id="tatolGoldchange" resultType="java.math.BigDecimal">
+        select sum(quantity) totalAmount
+        from mem_goldchange
+        <where>
+            <if test="refaccno != null">
+                and refaccno = #{refaccno}
+            </if>
+            <if test="accno != null">
+                and accno = #{accno}
+            </if>
+            <if test="null != typeList and typeList.size == 1">
+                and `changetype` = #{typeList[0]}
+            </if>
+            <if test="null != typeList and typeList.size > 1">
+                and `changetype` in
+                <foreach collection="typeList" item="changetype" open="(" close=")" separator=",">
+                    #{changetype}
+                </foreach>
+            </if>
+            <if test="startTime !=null and startTime !=''">
+                <![CDATA[ and create_time  >=  #{startTime}  ]]>
+            </if>
+            <if test="endTime !=null and endTime !=''">
+                <![CDATA[ and create_time <=  #{endTime}  ]]>
+            </if>
+        </where>
+    </select>
+
+    <select id="statisticsAllType" resultType="java.util.HashMap">
+        select sum(quantity) as money, changetype
+        from mem_goldchange
+        where is_delete = b'0'
+        <if test="startTime != null and startTime != ''">
+            and create_time &gt;= #{startTime,jdbcType=VARCHAR}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            and create_time <![CDATA[ <=  ]]> #{endTime,jdbcType=VARCHAR}
+        </if>
+        GROUP BY changetype;
+    </select>
+
+    <select id="statisticsIncomeRecharge" resultType="java.util.HashMap">
+        SELECT sum(mgco.quantity) as money, mgco.ordertype
+        FROM ( SELECT mgc.*, ( SELECT toi.ordertype
+        FROM tra_orderinfom toi
+        WHERE toi.orderid = mgc.refid
+        LIMIT 1 ) as ordertype
+        FROM mem_goldchange mgc
+        WHERE changetype = 1
+        AND is_delete = b'0'
+        <if test="startTime != null and startTime != ''">
+            AND create_time &gt;= #{startTime,jdbcType=VARCHAR}
+        </if>
+        <if test="endTime != null and endTime != ''">
+            AND create_time <![CDATA[ <=  ]]> #{endTime,jdbcType=VARCHAR}
+        </if>
+        ) as mgco
+        WHERE mgco.ordertype in (1,2)
+        GROUP BY mgco.ordertype;
+    </select>
+
+    <select id="getTotalGoldsByAccnos" resultType="java.util.Map">
+        SELECT mg.refaccno, abs(SUM(IFNULL(mg.quantity,0)))
+        FROM mem_goldchange mg
+        WHERE mg.changetype = 2
+        AND mg.is_delete = b'0'
+        AND mg.refaccno in
+        <foreach collection="accnoList" item="accnoItem" open="(" close=")" separator=",">
+            #{accnoItem}
+        </foreach>
+        GROUP BY mg.refaccno
+    </select>
+
+    <select id="getTotalYesterdayGoldsByAccnos" resultType="java.util.Map">
+        SELECT mg.refaccno, abs(SUM(IFNULL(mg.quantity,0)))
+        FROM mem_goldchange mg
+        WHERE mg.changetype = 2
+        AND mg.is_delete = b'0'
+        <if test="startTime != null and startTime != ''">
+            <![CDATA[ AND mg.create_time  >=  #{startTime} ]]>
+        </if>
+        <if test="endTime != null and endTime != ''">
+            <![CDATA[ AND mg.create_time <=  #{endTime} ]]>
+        </if>
+        AND mg.refaccno in
+        <foreach collection="accnoList" item="accnoItem" open="(" close=")" separator=",">
+            #{accnoItem}
+        </foreach>
+        GROUP BY mg.refaccno
+    </select>
+    <select id="selectSumPeople" resultType="com.likes.common.model.dto.report.DepositStatisticsDO">
+     select sum(quantity) as money , count(distinct(accno)) as AllRenci from  mem_goldchange where changetype = #{type} and
+
+     create_time <![CDATA[ >= ]]> #{startTime} AND create_time <![CDATA[ <= ]]> #{endTime}
+
+
+    </select>
+
+
+    <select id="getActivityGoldchange" resultType="com.likes.common.model.dto.report.ActivityUserDataDO">
+        select sum(quantity) activityamt,
+                mb.memid as userid
+        from mem_goldchange mg left join mem_baseinfo mb on mg.accno = mb.accno
+        where mg.is_delete = b'0'
+          and mg.create_time  BETWEEN #{startTime} and #{endTime}
+          and mg.`changetype` in (27,28,4,30,31,32,35,46,47,48,49,20)
+        GROUP BY mb.memid
+    </select>
+
+    <select id="getRecharge" resultType="com.likes.common.model.dto.report.RechargeUserDataDO">
+         SELECT   mg.`changetype` as rechargetype,
+               abs(sum(quantity)) as rechargeamt,
+                mb.memid as userid,
+                mg.refid as orderid
+         from mem_goldchange mg left join mem_baseinfo mb on mg.accno = mb.accno
+        where mg.is_delete = b'0'
+          and mg.create_time  BETWEEN #{startTime} and #{endTime}
+           and mg.`changetype` IN(0,1,69)
+        GROUP BY mb.memid,mg.`changetype`,mg.refid
+    </select>
+
+    <select id="getPayment" resultType="com.likes.common.model.dto.report.PaymentUserDataDO">
+        select
+                mg.`changetype` paymenttype,
+                abs(sum(quantity)) paymentamt,
+                mb.memid as userid,
+                mg.refid as orderid
+        from mem_goldchange mg left join mem_baseinfo mb on mg.accno = mb.accno
+        where mg.is_delete = b'0'
+          and mg.create_time  BETWEEN #{startTime} and #{endTime}
+          and mg.`changetype` in (12,62,59)
+        GROUP BY mb.memid,mg.`changetype`,mg.refid
+    </select>
+
+    <select id="getGodPlanReward" resultType="com.likes.common.model.dto.report.GodPlanRewardDataDO">
+        select
+                abs(sum(quantity)) godplanrewardamt,
+                mb.memid as userid
+        from mem_goldchange mg left join mem_baseinfo mb on mg.accno = mb.accno
+        where mg.is_delete = b'0'
+          and mg.create_time  BETWEEN #{startTime} and #{endTime}
+          and mg.`changetype` in (36)
+        GROUP BY mb.memid
+    </select>
+
+    <select id="getGift"
+            resultType="com.likes.common.model.dto.report.GiftUserDataDO">
+        select
+                 abs(sum(quantity)) giftamt,
+                mb.memid as userid
+        from mem_goldchange mg left join mem_baseinfo mb on mg.accno = mb.accno
+        where mg.is_delete = b'0'
+          and mg.create_time  BETWEEN #{startTime} and #{endTime}
+          and mg.`changetype` in (2)
+        GROUP BY mb.memid
+    </select>
+    <select id="getMemberGoldChange" parameterType="com.likes.common.model.request.MemGoldChangeRequest"
+            resultType="com.likes.common.model.dto.member.MemGoldChangeDTON">
+        select
+        mg.goldchangid,mg.refid,mg.refaccno,mg.accno,mb.nickname as memname,mb.email as email,
+        mg.changetype,mg.goldnum,mg.quantity,mg.amount,mg.recgoldnum,mg.opnote,mg.create_user as createuser,
+        mg.create_time as createtime,mg.update_user as updateuser,bu.bdusername,mg.update_time as updatetime,
+        mg.snow_sn as snowsn,mg.source
+        from
+        mem_goldchange mg
+        LEFT JOIN mem_baseinfo mb on mb.accno = mg.accno
+        LEFT JOIN bd_user bu on bu.accno = mg.update_user
+        where
+        mg.is_delete = 0
+        <if test="accno != null and accno != ''">
+            and mg.accno = #{accno}
+        </if>
+        <if test="keywords != null and keywords != ''">
+            <if test="reachtype == 1">
+                and (mb.nickname like CONCAT('%', #{keywords}, '%') or mb.email like CONCAT('%', #{keywords}, '%'))
+            </if>
+            <if test="reachtype == 2 || reachtype == 3">
+                and mg.snow_sn like CONCAT('%', #{keywords}, '%')
+            </if>
+            <if test="reachtype == 4">
+                and mg.opnote like CONCAT('%', #{keywords}, '%')
+            </if>
+        </if>
+        <if test="recordtype != null">
+            <if test="recordtype == 60">
+                and mg.changetype in (10,11,12)
+            </if>
+            <if test="recordtype != 60">
+                and mg.changetype = #{recordtype}
+            </if>
+        </if>
+        <if test="minMoney != null">
+            <![CDATA[ AND mg.quantity  >=  #{minMoney} ]]>
+        </if>
+        <if test="maxMoney != null">
+            <![CDATA[ AND mg.quantity  <=  #{maxMoney} ]]>
+        </if>
+        <if test="startTime != null">
+            <![CDATA[ AND mg.update_time  >=  #{startTime} ]]>
+
+        </if>
+        <if test="endTime != null">
+            <![CDATA[ AND mg.update_time  <=  #{endTime} ]]>
+
+        </if>
+        order by mg.create_time desc
+    </select>
+
+    <select id="myPageCount" parameterType="String"
+            resultType="java.util.LinkedHashMap">
+
+ SELECT IFNULL(ztsy,0) as ztsy,IFNULL(jtsy,0) as jtsy,IFNULL(bzsy,0) as bzsy from (
+        (SELECT SUM(quantity) as ztsy from  mem_goldchange  WHERE changetype  in (200,7,101,102,103,301,302,303) and accno = #{accno}  and create_time BETWEEN #{ztBeginTime} AND #{ztEnDTime} ) as zt,
+        (SELECT SUM(quantity) as jtsy from  mem_goldchange  WHERE changetype  in (200,7,101,102,103,301,302,303) and accno = #{accno} and create_time BETWEEN #{jtBeginTime} AND #{jtEnDTime} ) as jt,
+        (SELECT SUM(quantity) as bzsy FROM  mem_goldchange  WHERE changetype  in (200,7,101,102,103,301,302,303) and accno = #{accno}  and create_time BETWEEN #{bzBeginTime} AND #{bzEnDTime} ) as bz
+
+
+        )
+    </select>
+
+
+</mapper>

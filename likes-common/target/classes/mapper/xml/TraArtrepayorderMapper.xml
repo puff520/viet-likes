@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.TraArtrepayorderMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.TraArtrepayorder">
+    <id column="artorderid" jdbcType="BIGINT" property="artorderid" />
+    <result column="orderid" jdbcType="BIGINT" property="orderid" />
+    <result column="logintype" jdbcType="DECIMAL" property="logintype" />
+    <result column="ordertype" jdbcType="DECIMAL" property="ordertype" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="memaccount" jdbcType="BIGINT" property="memaccount" />
+    <result column="accno" jdbcType="VARCHAR" property="accno" />
+    <result column="optamt" jdbcType="DECIMAL" property="optamt" />
+    <result column="giftamt" jdbcType="DECIMAL" property="giftamt" />
+    <result column="auditper" jdbcType="DECIMAL" property="auditper" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="is_delete" jdbcType="DECIMAL" property="isDelete" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    artorderid, orderid, logintype, ordertype, nickname, memaccount, accno, optamt, giftamt, auditper,
+    note, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tra_artrepayorder
+    where artorderid = #{artorderid,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from tra_artrepayorder
+    where artorderid = #{artorderid,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="artorderid" keyProperty="artorderid" parameterType="com.likes.common.mybatis.entity.TraArtrepayorder" useGeneratedKeys="true">
+    insert into tra_artrepayorder (artorderid, orderid, logintype, 
+      ordertype, nickname, memaccount, 
+      accno, optamt, giftamt, auditper,
+      note, is_delete, create_user,
+      create_time, update_user, update_time
+      )
+    values (#{artorderid,jdbcType=BIGINT}, #{orderid,jdbcType=BIGINT}, #{logintype,jdbcType=DECIMAL}, 
+      #{ordertype,jdbcType=DECIMAL}, #{nickname,jdbcType=VARCHAR}, #{memaccount,jdbcType=BIGINT},
+      #{accno,jdbcType=VARCHAR}, #{optamt,jdbcType=DECIMAL}, #{giftamt,jdbcType=DECIMAL}, #{auditper,jdbcType=DECIMAL},
+      #{note,jdbcType=VARCHAR}, #{isDelete,jdbcType=DECIMAL}, #{createUser,jdbcType=VARCHAR},
+      #{createTime,jdbcType=TIMESTAMP}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" keyColumn="artorderid" keyProperty="artorderid" parameterType="com.likes.common.mybatis.entity.TraArtrepayorder" useGeneratedKeys="true">
+    insert into tra_artrepayorder
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="artorderid != null">
+        artorderid,
+      </if>
+      <if test="orderid != null">
+        orderid,
+      </if>
+      <if test="logintype != null">
+        logintype,
+      </if>
+      <if test="ordertype != null">
+        ordertype,
+      </if>
+      <if test="nickname != null">
+        nickname,
+      </if>
+      <if test="memaccount != null">
+        memaccount,
+      </if>
+      <if test="accno != null">
+        accno,
+      </if>
+      <if test="optamt != null">
+        optamt,
+      </if>
+      <if test="giftamt != null">
+        giftamt,
+      </if>
+      <if test="auditper != null">
+        auditper,
+      </if>
+      <if test="note != null">
+        note,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="artorderid != null">
+        #{artorderid,jdbcType=BIGINT},
+      </if>
+      <if test="orderid != null">
+        #{orderid,jdbcType=BIGINT},
+      </if>
+      <if test="logintype != null">
+        #{logintype,jdbcType=DECIMAL},
+      </if>
+      <if test="ordertype != null">
+        #{ordertype,jdbcType=DECIMAL},
+      </if>
+      <if test="nickname != null">
+        #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="memaccount != null">
+        #{memaccount,jdbcType=BIGINT},
+      </if>
+      <if test="accno != null">
+        #{accno,jdbcType=VARCHAR},
+      </if>
+      <if test="optamt != null">
+        #{optamt,jdbcType=DECIMAL},
+      </if>
+      <if test="giftamt != null">
+        #{giftamt,jdbcType=DECIMAL},
+      </if>
+      <if test="auditper != null">
+        #{auditper,jdbcType=DECIMAL},
+      </if>
+      <if test="note != null">
+        #{note,jdbcType=VARCHAR},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=DECIMAL},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.likes.common.mybatis.entity.TraArtrepayorder">
+    update tra_artrepayorder
+    <set>
+      <if test="orderid != null">
+        orderid = #{orderid,jdbcType=BIGINT},
+      </if>
+      <if test="logintype != null">
+        logintype = #{logintype,jdbcType=DECIMAL},
+      </if>
+      <if test="ordertype != null">
+        ordertype = #{ordertype,jdbcType=DECIMAL},
+      </if>
+      <if test="nickname != null">
+        nickname = #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="memaccount != null">
+        memaccount = #{memaccount,jdbcType=BIGINT},
+      </if>
+      <if test="accno != null">
+        accno = #{accno,jdbcType=VARCHAR},
+      </if>
+      <if test="optamt != null">
+        optamt = #{optamt,jdbcType=DECIMAL},
+      </if>
+      <if test="giftamt != null">
+        giftamt = #{giftamt,jdbcType=DECIMAL},
+      </if>
+      <if test="auditper != null">
+        auditper = #{auditper,jdbcType=DECIMAL},
+      </if>
+      <if test="note != null">
+        note = #{note,jdbcType=VARCHAR},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=DECIMAL},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where artorderid = #{artorderid,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.likes.common.mybatis.entity.TraArtrepayorder">
+    update tra_artrepayorder
+    set orderid = #{orderid,jdbcType=BIGINT},
+      logintype = #{logintype,jdbcType=DECIMAL},
+      ordertype = #{ordertype,jdbcType=DECIMAL},
+      nickname = #{nickname,jdbcType=VARCHAR},
+      memaccount = #{memaccount,jdbcType=BIGINT},
+      accno = #{accno,jdbcType=VARCHAR},
+      optamt = #{optamt,jdbcType=DECIMAL},
+      giftamt = #{giftamt,jdbcType=DECIMAL},
+      auditper = #{auditper,jdbcType=DECIMAL},
+      note = #{note,jdbcType=VARCHAR},
+      is_delete = #{isDelete,jdbcType=DECIMAL},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where artorderid = #{artorderid,jdbcType=BIGINT}
+  </update>
+  <select id="selectAgentArtRepayOrderList" parameterType="com.likes.common.model.request.TraArtRepayOrderQuery"
+  resultType="com.likes.common.model.TraArtRepayOrderDO">
+     SELECT ta.artorderid, ta.nickname, ta.optamt, ta.create_time as createdate, ta.note,
+        (CASE ta.ordertype WHEN 0 THEN '存入' WHEN 1 THEN '提出' END) as ordertype,
+        ord.orderno, ml.acclogin, createuser.acclogin as create_user
+     FROM tra_artrepayorder ta
+     INNER JOIN tra_orderinfom ord ON ta.orderid = ord.orderid
+     INNER JOIN mem_login ml ON ta.accno = ml.accno
+     INNER JOIN bd_user createuser ON ta.create_user = createuser.accno
+     WHERE ta.is_delete = 0 AND ord.is_delete = 0 AND ta.logintype = 4
+    <if test="orderno != null and orderno != '' ">
+      and ord.orderno LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="acclogin != null and acclogin != '' ">
+      and ml.acclogin LIKE CONCAT('%',#{acclogin,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="nickname != null and nickname != '' ">
+      and ta.nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="ordertype != null">
+      and ta.ordertype = #{ordertype,jdbcType=DECIMAL}
+    </if>
+    <if test="starttime != null">
+      and ta.create_time <![CDATA[ >= #{starttime,jdbcType=TIMESTAMP} ]]>
+    </if>
+    <if test="endtime != null">
+      and ta.create_time <![CDATA[ <= #{endtime,jdbcType=TIMESTAMP} ]]>
+    </if>
+    ORDER BY ta.create_time DESC
+  </select>
+  <select id="selectMemberRepayOrderList" parameterType="com.likes.common.model.MemberArtRepayOrderQuery"
+          resultType="com.likes.common.model.MemberArtRepayOrderDO">
+    SELECT pay.artorderid, ord.orderno, pay.memaccount, pay.note, pay.auditper, pay.optamt,
+        gold.recgoldnum as goldnum, pay.create_time, createuser.acclogin as create_user
+    FROM tra_artrepayorder pay
+    INNER JOIN tra_orderinfom ord ON pay.orderid = ord.orderid AND pay.is_delete = 0 AND ord.is_delete = 0
+    INNER JOIN mem_goldchange gold ON pay.orderid = gold.refid AND gold.is_delete = 0
+    INNER JOIN bd_user createuser ON pay.create_user = createuser.accno
+    WHERE pay.is_delete = 0 AND pay.logintype = 1
+    <if test="orderno != null and orderno != '' ">
+      AND ord.orderno LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="memaccount != null and memaccount != '' ">
+      AND pay.memaccount = #{memaccount,jdbcType=VARCHAR}
+    </if>
+    <if test="ordertype != null">
+      AND pay.ordertype = #{ordertype,jdbcType=DECIMAL}
+    </if>
+    <if test="changetype != null">
+      AND gold.changetype = #{changetype,jdbcType=DECIMAL}
+    </if>
+    <if test="startdate != null">
+      AND pay.create_time <![CDATA[ >= #{startdate,jdbcType=TIMESTAMP} ]]>
+    </if>
+    <if test="enddate != null">
+      AND pay.create_time <![CDATA[ <= #{enddate,jdbcType=TIMESTAMP} ]]>
+    </if>
+    ORDER BY pay.create_time DESC
+  </select>
+  
+  <select id="selectByOrderid" resultType="com.likes.common.mybatis.entity.TraArtrepayorder">
+  	SELECT * 
+  	FROM tra_artrepayorder t
+  	WHERE is_delete = 0
+  	AND t.orderid = #{orderid}
+  	AND t.logintype = #{logintype}
+  	AND t.ordertype = #{ordertype}
+  	LIMIT 1
+  </select>
+  
+  
+  
+</mapper>

@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.MemRepayuserMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemRepayuser">
+    <id column="repaymemid" jdbcType="BIGINT" property="repaymemid" />
+    <result column="accno" jdbcType="VARCHAR" property="accno" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="qq" jdbcType="VARCHAR" property="qq" />
+    <result column="webchat" jdbcType="VARCHAR" property="webchat" />
+    <result column="alipay" jdbcType="VARCHAR" property="alipay" />
+    <result column="mobileno" jdbcType="VARCHAR" property="mobileno" />
+    <result column="memgold" jdbcType="DECIMAL" property="memgold" />
+    <result column="onlinedates" jdbcType="TIMESTAMP" property="onlinedates" />
+    <result column="onlinedatee" jdbcType="TIMESTAMP" property="onlinedatee" />
+    <result column="repaynums" jdbcType="BIGINT" property="repaynums" />
+    <result column="discountrag" jdbcType="DECIMAL" property="discountrag" />
+    <result column="status" jdbcType="DECIMAL" property="status" />
+    <result column="is_delete" property="isDelete" jdbcType="BIT" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    repaymemid, accno, nickname, qq, webchat, alipay, mobileno, memgold, onlinedates, 
+    onlinedatee, repaynums, discountrag, status,is_delete, create_user, create_time, update_user,
+    update_time
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from mem_repayuser
+    where repaymemid = #{repaymemid,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from mem_repayuser
+    where repaymemid = #{repaymemid,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" keyColumn="repaymemid" keyProperty="repaymemid" parameterType="com.likes.common.mybatis.entity.MemRepayuser" useGeneratedKeys="true">
+    insert into mem_repayuser (repaymemid, accno, nickname, 
+      qq, webchat, alipay, 
+      mobileno, memgold, onlinedates, 
+      onlinedatee, repaynums, discountrag, 
+      status, create_user, create_time,
+      update_user, update_time)
+    values (#{repaymemid,jdbcType=BIGINT}, #{accno,jdbcType=VARCHAR}, #{nickname,jdbcType=VARCHAR}, 
+      #{qq,jdbcType=VARCHAR}, #{webchat,jdbcType=VARCHAR}, #{alipay,jdbcType=VARCHAR}, 
+      #{mobileno,jdbcType=VARCHAR}, #{memgold,jdbcType=DECIMAL}, #{onlinedates,jdbcType=TIMESTAMP}, 
+      #{onlinedatee,jdbcType=TIMESTAMP}, #{repaynums,jdbcType=BIGINT}, #{discountrag,jdbcType=DECIMAL}, 
+      #{status,jdbcType=DECIMAL}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+      #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+
+  <insert id="insertSelective" keyColumn="repaymemid" keyProperty="repaymemid" parameterType="com.likes.common.mybatis.entity.MemRepayuser" useGeneratedKeys="true">
+    insert into mem_repayuser
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="repaymemid != null">
+        repaymemid,
+      </if>
+      <if test="accno != null">
+        accno,
+      </if>
+      <if test="nickname != null">
+        nickname,
+      </if>
+      <if test="qq != null">
+        qq,
+      </if>
+      <if test="webchat != null">
+        webchat,
+      </if>
+      <if test="alipay != null">
+        alipay,
+      </if>
+      <if test="mobileno != null">
+        mobileno,
+      </if>
+      <if test="memgold != null">
+        memgold,
+      </if>
+      <if test="onlinedates != null">
+        onlinedates,
+      </if>
+      <if test="onlinedatee != null">
+        onlinedatee,
+      </if>
+      <if test="repaynums != null">
+        repaynums,
+      </if>
+      <if test="discountrag != null">
+        discountrag,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="repaymemid != null">
+        #{repaymemid,jdbcType=BIGINT},
+      </if>
+      <if test="accno != null">
+        #{accno,jdbcType=VARCHAR},
+      </if>
+      <if test="nickname != null">
+        #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="qq != null">
+        #{qq,jdbcType=VARCHAR},
+      </if>
+      <if test="webchat != null">
+        #{webchat,jdbcType=VARCHAR},
+      </if>
+      <if test="alipay != null">
+        #{alipay,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileno != null">
+        #{mobileno,jdbcType=VARCHAR},
+      </if>
+      <if test="memgold != null">
+        #{memgold,jdbcType=DECIMAL},
+      </if>
+      <if test="onlinedates != null">
+        #{onlinedates,jdbcType=TIMESTAMP},
+      </if>
+      <if test="onlinedatee != null">
+        #{onlinedatee,jdbcType=TIMESTAMP},
+      </if>
+      <if test="repaynums != null">
+        #{repaynums,jdbcType=BIGINT},
+      </if>
+      <if test="discountrag != null">
+        #{discountrag,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=DECIMAL},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.likes.common.mybatis.entity.MemRepayuser">
+    update mem_repayuser
+    <set>
+      <if test="accno != null">
+        accno = #{accno,jdbcType=VARCHAR},
+      </if>
+      <if test="nickname != null">
+        nickname = #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="qq != null">
+        qq = #{qq,jdbcType=VARCHAR},
+      </if>
+      <if test="webchat != null">
+        webchat = #{webchat,jdbcType=VARCHAR},
+      </if>
+      <if test="alipay != null">
+        alipay = #{alipay,jdbcType=VARCHAR},
+      </if>
+      <if test="mobileno != null">
+        mobileno = #{mobileno,jdbcType=VARCHAR},
+      </if>
+      <if test="memgold != null">
+        memgold = #{memgold,jdbcType=DECIMAL},
+      </if>
+      <if test="onlinedates != null">
+        onlinedates = #{onlinedates,jdbcType=TIMESTAMP},
+      </if>
+      <if test="onlinedatee != null">
+        onlinedatee = #{onlinedatee,jdbcType=TIMESTAMP},
+      </if>
+      <if test="repaynums != null">
+        repaynums = #{repaynums,jdbcType=BIGINT},
+      </if>
+      <if test="discountrag != null">
+        discountrag = #{discountrag,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=DECIMAL},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where repaymemid = #{repaymemid,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="com.likes.common.mybatis.entity.MemRepayuser">
+    update mem_repayuser
+    set accno = #{accno,jdbcType=VARCHAR},
+      nickname = #{nickname,jdbcType=VARCHAR},
+      qq = #{qq,jdbcType=VARCHAR},
+      webchat = #{webchat,jdbcType=VARCHAR},
+      alipay = #{alipay,jdbcType=VARCHAR},
+      mobileno = #{mobileno,jdbcType=VARCHAR},
+      memgold = #{memgold,jdbcType=DECIMAL},
+      onlinedates = #{onlinedates,jdbcType=TIMESTAMP},
+      onlinedatee = #{onlinedatee,jdbcType=TIMESTAMP},
+      repaynums = #{repaynums,jdbcType=BIGINT},
+      discountrag = #{discountrag,jdbcType=DECIMAL},
+      status = #{status,jdbcType=DECIMAL},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where repaymemid = #{repaymemid,jdbcType=BIGINT}
+  </update>
+
+  <select id="selectByAccno" resultType="com.likes.common.mybatis.entity.MemRepayuser">
+    SELECT
+    <include refid="Base_Column_List" />
+     FROM mem_repayuser
+     where `status`=0 AND accno = #{accno}
+     LIMIT 1
+  </select>
+
+  <select id="getMemRepayuser" parameterType="com.likes.common.mybatis.entity.MemRepayuser"
+          resultType="com.likes.common.mybatis.entity.MemRepayuser">
+    select
+    <include refid="Base_Column_List" />
+    from mem_repayuser
+    where 1=1 and `status`=0
+    <if test="repaymemid != null and repaymemid !=''">
+      and repaymemid = #{repaymemid}
+    </if>
+    <if test="accno != null and accno !=''">
+      and accno = #{accno}
+    </if>
+  </select>
+
+  <select id="getMemRepayuserByAccno" parameterType="com.likes.common.mybatis.entity.MemRepayuser"
+          resultType="com.likes.common.mybatis.entity.MemRepayuser">
+    select
+    <include refid="Base_Column_List" />
+    from mem_repayuser
+    where 1=1 and `status`=0
+    <if test="accno != null and accno !=''">
+      and accno = #{accno}
+    </if>
+  </select>
+
+  <update id="updateMemgold">
+    UPDATE mem_repayuser SET memgold=memgold-#{amount}, repaynums=repaynums+1
+    WHERE accno=#{accno} and memgold=#{oldmemgold} and memgold>=#{amount};
+  </update>
+
+  <select id="getRGRechargemealAccount" parameterType="com.likes.common.model.request.RepayListRequest"
+          resultType="com.likes.common.model.dto.pay.RepayuserDO">
+    SELECT * FROM (
+    SELECT * FROM (
+
+    SELECT m.repaymemid,m.accno,m.nickname,m.qq,m.webchat,m.alipay,
+    m.mobileno,m.memgold,
+    CONCAT(DATE_FORMAT(NOW(),"%Y-%m-%d")," ",DATE_FORMAT(m.onlinedates,"%H:%i:%s")) as onlinedates,
+
+    IF(DATE_FORMAT(m.onlinedates,"%H%i%s") >= DATE_FORMAT(m.onlinedatee,"%H%i%s"),
+    CONCAT(DATE_FORMAT(date_add(STR_TO_DATE(NOW(),'%Y-%m-%d %H:%i:%s'), interval 1 day),'%Y-%m-%d')
+    ," ",DATE_FORMAT(m.onlinedatee,"%H:%i:%s")) ,
+    CONCAT(DATE_FORMAT(NOW(),"%Y-%m-%d")," ",DATE_FORMAT(m.onlinedatee,"%H:%i:%s")    )  ) as onlinedatee
+
+    ,m.repaynums
+    FROM mem_repayuser m
+    WHERE m.`status` = 0
+    AND m.memgold > 0
+    <!-- ORDER BY m.memgold desc -->
+
+    ) AS A
+    WHERE NOW() BETWEEN A.onlinedates AND A.onlinedatee
+    ORDER BY RAND() LIMIT #{num}
+    ) AS TT
+    <!-- ORDER BY  memgold DESC -->
+  </select>
+
+  <select id="selectUserDetailByRepayMemId" parameterType="java.lang.Long"
+          resultType="com.likes.common.model.AgentUserDetailDO">
+	  SELECT mr.repaymemid, mr.nickname, mr.qq, mr.webchat, mr.alipay, mr.mobileno, mr.onlinedates, mr.onlinedatee,
+	    mr.discountrag, mr.status,
+        ml.acclogin, ml.passwordmd5 as password
+      FROM mem_repayuser mr
+      INNER JOIN mem_login ml
+      ON mr.accno = ml.accno
+      WHERE mr.repaymemid = #{repaymemid,jdbcType=BIGINT}
+	  limit 1
+  </select>
+
+  <select id="selectUserList" parameterType="com.likes.common.model.AgentUserQuery"
+          resultType="com.likes.common.model.dto.AgentUserDO">
+    SELECT mr.repaymemid, mr.nickname, mr.memgold, mr.onlinedates, mr.onlinedatee, mr.repaynums, mr.discountrag, mr.status,
+    ml.acclogin, ml.lastlogindate
+    FROM mem_repayuser mr
+    INNER JOIN mem_login ml
+    ON mr.accno = ml.accno
+    WHERE 1=1
+    <if test="acclogin != null and acclogin != '' ">
+      and ml.acclogin LIKE CONCAT('%',#{acclogin,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="nickname != null and nickname != '' ">
+      and mr.nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="onlinedates != null">
+      and mr.create_time <![CDATA[ >= #{onlinedates,jdbcType=TIMESTAMP} ]]>
+    </if>
+    <if test="onlinedatee != null">
+      and mr.create_time <![CDATA[ <= #{onlinedatee,jdbcType=TIMESTAMP} ]]>
+    </if>
+    ORDER BY mr.create_time DESC
+  </select>
+
+  <select id="selectByAccNo" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mem_repayuser
+    where accno = #{accno,jdbcType=VARCHAR}
+  </select>
+
+  <select id="getRepeateNickname" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from mem_repayuser
+    where nickname = #{nickname}
+  </select>
+</mapper>

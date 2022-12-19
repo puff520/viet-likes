@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.SysRepayaccountMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysRepayaccount">
+    <id column="bankid" jdbcType="BIGINT" property="bankid" />
+    <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+    <result column="bankname" jdbcType="VARCHAR" property="bankname" />
+    <result column="accountno" jdbcType="VARCHAR" property="accountno" />
+    <result column="bankaddress" jdbcType="VARCHAR" property="bankaddress" />
+    <result column="accountname" jdbcType="VARCHAR" property="accountname" />
+    <result column="minamt" jdbcType="DECIMAL" property="minamt" />
+    <result column="maxamt" jdbcType="DECIMAL" property="maxamt" />
+    <result column="stopamt" jdbcType="DECIMAL" property="stopamt" />
+    <result column="status" jdbcType="DECIMAL" property="status" />
+    <result column="is_delete" property="isDelete" jdbcType="BIT" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    bankid, nickname, bankname, accountno, bankaddress, accountname, minamt, maxamt, 
+    stopamt, status,is_delete, create_user, create_time, update_user,
+    update_time
+  </sql>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from sys_repayaccount
+    where bankid = #{bankid,jdbcType=BIGINT}
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    update sys_repayaccount set is_delete = b'1'
+    where bankid = #{bankid,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" keyColumn="bankid" keyProperty="bankid" parameterType="com.likes.common.mybatis.entity.SysRepayaccount" useGeneratedKeys="true">
+    insert into sys_repayaccount (bankid, nickname, bankname, 
+      accountno, bankaddress, accountname, 
+      minamt, maxamt, stopamt, 
+      status, is_delete, create_user,
+      create_time, update_user, update_time
+      )
+    values (#{bankid,jdbcType=BIGINT}, #{nickname,jdbcType=VARCHAR}, #{bankname,jdbcType=VARCHAR}, 
+      #{accountno,jdbcType=VARCHAR}, #{bankaddress,jdbcType=VARCHAR}, #{accountname,jdbcType=VARCHAR}, 
+      #{minamt,jdbcType=DECIMAL}, #{maxamt,jdbcType=DECIMAL}, #{stopamt,jdbcType=DECIMAL}, 
+      #{status,jdbcType=DECIMAL}, #{isDelete,jdbcType=DECIMAL}, #{createUser,jdbcType=VARCHAR},
+      #{createTime,jdbcType=TIMESTAMP}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+
+  <insert id="insertSelective" keyColumn="bankid" keyProperty="bankid" parameterType="com.likes.common.mybatis.entity.SysRepayaccount" useGeneratedKeys="true">
+    insert into sys_repayaccount
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="bankid != null">
+        bankid,
+      </if>
+      <if test="nickname != null">
+        nickname,
+      </if>
+      <if test="bankname != null">
+        bankname,
+      </if>
+      <if test="accountno != null">
+        accountno,
+      </if>
+      <if test="bankaddress != null">
+        bankaddress,
+      </if>
+      <if test="accountname != null">
+        accountname,
+      </if>
+      <if test="minamt != null">
+        minamt,
+      </if>
+      <if test="maxamt != null">
+        maxamt,
+      </if>
+      <if test="stopamt != null">
+        stopamt,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="bankid != null">
+        #{bankid,jdbcType=BIGINT},
+      </if>
+      <if test="nickname != null">
+        #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="bankname != null">
+        #{bankname,jdbcType=VARCHAR},
+      </if>
+      <if test="accountno != null">
+        #{accountno,jdbcType=VARCHAR},
+      </if>
+      <if test="bankaddress != null">
+        #{bankaddress,jdbcType=VARCHAR},
+      </if>
+      <if test="accountname != null">
+        #{accountname,jdbcType=VARCHAR},
+      </if>
+      <if test="minamt != null">
+        #{minamt,jdbcType=DECIMAL},
+      </if>
+      <if test="maxamt != null">
+        #{maxamt,jdbcType=DECIMAL},
+      </if>
+      <if test="stopamt != null">
+        #{stopamt,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=DECIMAL},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=DECIMAL},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.likes.common.mybatis.entity.SysRepayaccount">
+    update sys_repayaccount
+    <set>
+      <if test="nickname != null">
+        nickname = #{nickname,jdbcType=VARCHAR},
+      </if>
+      <if test="bankname != null">
+        bankname = #{bankname,jdbcType=VARCHAR},
+      </if>
+      <if test="accountno != null">
+        accountno = #{accountno,jdbcType=VARCHAR},
+      </if>
+      <if test="bankaddress != null">
+        bankaddress = #{bankaddress,jdbcType=VARCHAR},
+      </if>
+      <if test="accountname != null">
+        accountname = #{accountname,jdbcType=VARCHAR},
+      </if>
+      <if test="minamt != null">
+        minamt = #{minamt,jdbcType=DECIMAL},
+      </if>
+      <if test="maxamt != null">
+        maxamt = #{maxamt,jdbcType=DECIMAL},
+      </if>
+      <if test="stopamt != null">
+        stopamt = #{stopamt,jdbcType=DECIMAL},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=DECIMAL},
+      </if>
+      <if test="isDelete != null">
+        is_delete = #{isDelete,jdbcType=DECIMAL},
+      </if>
+      <if test="createUser != null">
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUser != null">
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where bankid = #{bankid,jdbcType=BIGINT}
+  </update>
+
+  <update id="updateByPrimaryKey" parameterType="com.likes.common.mybatis.entity.SysRepayaccount">
+    update sys_repayaccount
+    set nickname = #{nickname,jdbcType=VARCHAR},
+      bankname = #{bankname,jdbcType=VARCHAR},
+      accountno = #{accountno,jdbcType=VARCHAR},
+      bankaddress = #{bankaddress,jdbcType=VARCHAR},
+      accountname = #{accountname,jdbcType=VARCHAR},
+      minamt = #{minamt,jdbcType=DECIMAL},
+      maxamt = #{maxamt,jdbcType=DECIMAL},
+      stopamt = #{stopamt,jdbcType=DECIMAL},
+      status = #{status,jdbcType=DECIMAL},
+      is_delete = #{isDelete,jdbcType=DECIMAL},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where bankid = #{bankid,jdbcType=BIGINT}
+  </update>
+
+  <select id="selectByBankName" parameterType="com.likes.common.mybatis.entity.MemRepayuser"
+          resultType="com.likes.common.mybatis.entity.SysRepayaccount">
+    select
+    <include refid="Base_Column_List" />
+    from sys_repayaccount
+    where `status`=0 AND is_delete=0 and bankname=#{bankCode}
+  </select>
+
+  <select id="selectSelective" parameterType="com.likes.common.mybatis.entity.MemRepayuser"
+          resultType="com.likes.common.mybatis.entity.SysRepayaccount">
+    select
+    <include refid="Base_Column_List" />
+    from sys_repayaccount
+    where `status`=0 AND is_delete=0
+  </select>
+
+  <select id="selectAccountList" parameterType="java.lang.String"
+          resultType="com.likes.common.model.AgentAccountDO">
+    SELECT bankid, nickname,banklist.busparamname bankname, accountno, bankaddress, accountname, minamt,
+    maxamt, stopamt, status,is_delete, create_user, create_time, update_user, update_time
+    FROM sys_repayaccount repayaccount INNER JOIN  (SELECT busparamname,busparamcode from sys_busparameter
+    where pbusparamcode='banklist') banklist ON repayaccount.bankname = banklist.busparamcode
+    WHERE is_delete = 0
+    <if test="nickname != null and nickname != '' ">
+      and nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+    </if>
+    ORDER BY create_time DESC
+
+  </select>
+</mapper>

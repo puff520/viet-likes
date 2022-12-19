@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.MemDailyReportMapper">
+    <resultMap id="BaseResultMap" type="com.likes.common.model.MemDailyReport">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="recharge" jdbcType="DECIMAL" property="recharge"/>
+        <result column="withdrawal" jdbcType="DECIMAL" property="withdrawal"/>
+        <result column="task_award" jdbcType="DECIMAL" property="taskAward"/>
+        <result column="rebate" jdbcType="DECIMAL" property="rebate"/>
+        <result column="activity" jdbcType="DECIMAL" property="activity"/>
+        <result column="buy_vip" jdbcType="DECIMAL" property="buyVip"/>
+        <result column="spread" jdbcType="DECIMAL" property="spread"/>
+        <result column="pump" jdbcType="DECIMAL" property="pump"/>
+        <result column="revoke_task" jdbcType="DECIMAL" property="revokeTask"/>
+        <result column="brokerage" jdbcType="DECIMAL" property="brokerage"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="higher_no" jdbcType="VARCHAR" property="higherNo"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <select id="getMemRelationshipAll" resultType="com.likes.common.model.dto.member.MemRelationshipDTO">
+        select mr.*, (select acclogin from mem_login where accno = mr.accno) as memberName
+        from mem_relationship mr
+    </select>
+    <select id="getMemRleationshipByAcclogin" parameterType="java.lang.String"
+            resultType="com.likes.common.model.dto.member.MemRelationshipDTO">
+        select mr.*, (select acclogin from mem_login where accno = mr.accno) as memberName
+        from mem_relationship mr
+        where accno = (select accno from mem_login where acclogin = #{acclogin})
+    </select>
+    <select id="getMemRelationship" parameterType="java.lang.String"
+            resultType="com.likes.common.model.dto.member.MemRelationshipDTO">
+        select mr.*,(select acclogin from mem_login where accno = mr.accno) as memberName from mem_relationship mr where
+        1=1
+        <if test="refaccno != null and refaccno != '' ">
+            and refaccno = #{refaccno}
+        </if>
+        <if test="refaccno == null or refaccno == ''">
+            and refaccno = 'ROOT'
+        </if>
+    </select>
+    <select id="getTeamReport" parameterType="com.likes.common.model.request.DayReportRequest"
+            resultType="com.likes.common.model.dto.report.TeamReportDto">
+        SELECT
+        SUM( recharge ) AS recharge,
+        SUM( withdrawal ) AS withdrawal,
+        SUM( task_award ) AS taskAward,
+        SUM( rebate ) AS rebate,
+        SUM( activity ) AS activity,
+        SUM( buy_vip ) AS buyVip,
+        SUM( spread ) AS spread,
+        SUM( pump ) AS pump,
+        SUM( revoke_task ) AS revokeTask,
+        SUM( brokerage ) AS brokerage
+        FROM
+        mem_daily_report WHERE accno in (#{mobileno})
+        <if test="startTime !=null and endTime != null">
+            and create_time between #{startTime} and #{endTime}
+        </if>
+    </select>
+
+    <select id="getTeamReportInfo" parameterType="com.likes.common.model.request.DayReportInfoRequest"
+            resultType="com.likes.common.model.dto.report.TeamReportDto">
+        SELECT
+        SUM( recharge ) AS recharge,
+        SUM( withdrawal ) AS withdrawal,
+        SUM( task_award ) AS taskAward,
+        SUM( rebate ) AS rebate,
+        SUM( activity ) AS activity,
+        SUM( buy_vip ) AS buyVip,
+        SUM( spread ) AS spread,
+        SUM( pump ) AS pump,
+        SUM( revoke_task ) AS revokeTask,
+        SUM( brokerage ) AS brokerage
+        FROM
+        mem_daily_report WHERE accno in
+        <foreach collection="mobileno" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and create_time between #{startTime} and #{endTime}
+
+    </select>
+
+    <select id="getDayReport" parameterType="com.likes.common.model.request.DayReportRequest"
+            resultType="com.likes.common.model.dto.report.DayReportDTO">
+        SELECT
+        SUM( recharge ) AS recharge,
+        SUM( withdrawal ) AS withdrawal,
+        SUM( task_award ) AS taskAward,
+        SUM( rebate ) AS rebate,
+        SUM( activity ) AS activity,
+        SUM( buy_vip ) AS buyVip,
+        SUM( spread ) AS spread,
+        SUM( pump ) AS pump,
+        SUM( revoke_task ) AS revokeTask,
+        SUM( brokerage ) AS brokerage,
+        create_time AS createTime
+        FROM
+        (
+        SELECT * FROM mem_daily_report WHERE 1=1
+        <if test="mobileno !=null and mobileno != ''">
+            and accno = ( SELECT accno FROM mem_baseinfo WHERE mobileno = #{mobileno} )
+        </if>
+        <if test="startTime !=null and endTime != null">
+            and create_time between #{startTime} and #{endTime}
+        </if>
+        ) B
+        GROUP BY
+        create_time
+        ORDER BY
+        create_time DESC
+    </select>
+
+    <select id="getMemberReportDto" parameterType="java.lang.String"
+            resultType="com.likes.common.model.dto.report.MemberReportDto">
+        SELECT (SELECT SUM(quantity)
+                FROM mem_goldchange
+                WHERE create_time > DATE_FORMAT(CURDATE(), '%Y-%m-%d %H:%i:%s')
+                  AND changetype = 200
+                  AND accno = #{accno}) AS taskProfit,
+               (SELECT COUNT(0)
+                FROM mem_goldchange
+                WHERE create_time > DATE_FORMAT(CURDATE(), '%Y-%m-%d %H:%i:%s')
+                  AND changetype = 200
+                  AND accno = #{accno}) AS finshTaskNum,
+               (SELECT SUM(quantity)
+                FROM mem_goldchange
+                WHERE create_time > DATE_FORMAT(CURDATE(), '%Y-%m-%d %H:%i:%s')
+                  AND changetype IN (101, 102, 103)
+                  AND accno = #{accno}) AS agentTaskProfit,
+               (SELECT COUNT(0)
+                FROM mem_goldchange
+                WHERE create_time > DATE_FORMAT(CURDATE(), '%Y-%m-%d %H:%i:%s')
+                  AND changetype IN (101, 102, 103)
+                  AND accno = #{accno}) AS agentFinshTaskNum
+    </select>
+
+    <select id="getDayGlodChangeAccno" parameterType="java.lang.String" resultType="java.lang.String">
+        select accno from mem_goldchange where create_time > DATE_FORMAT( CURDATE( ), '%Y-%m-%d %H:%i:%s' )
+        <if test="mobileno != null and mobileno != ''">
+            and accno = ( SELECT accno FROM mem_baseinfo WHERE mobileno = #{mobileno} )
+        </if>
+        GROUP BY accno
+    </select>
+
+
+    <insert id="insertBatch">
+        INSERT INTO
+        mem_daily_report (
+        date_str,accno,top1_accno,top2_accno,top3_accno, recharge, withdrawal,
+        task_award,buy_vip,task_brokerage,vip_brokerage, create_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.dateStr}, #{item.accno}, #{item.top1Accno}, #{item.top2Accno}, #{item.top3Accno},
+            #{item.recharge}, #{item.withdrawal}, #{item.taskAward},
+            #{item.buyVip}, #{item.taskBrokerage}, #{item.vipBrokerage},
+            #{item.createTime}
+            )
+        </foreach>
+
+    </insert>
+
+</mapper>

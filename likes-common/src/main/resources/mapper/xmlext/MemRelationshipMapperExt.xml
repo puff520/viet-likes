@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.member.MemRelationshipMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemRelationship">
+        <id column="relaid" jdbcType="BIGINT" property="relaid"/>
+        <result column="refaccno" jdbcType="VARCHAR" property="refaccno"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="memname" jdbcType="VARCHAR" property="memname"/>
+		<result column="head_accno" jdbcType="VARCHAR" property="headAccno"/>
+        <result column="is_delete" jdbcType="DECIMAL" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+	<resultMap id="BaseSysResultMap" type="com.likes.common.model.dto.member.MemRelationshipDO">
+		<id column="relaid" jdbcType="BIGINT" property="relaid" />
+		<result column="refaccno" jdbcType="VARCHAR" property="refaccno" />
+		<result column="accno" jdbcType="VARCHAR" property="accno" />
+		<result column="memname" jdbcType="VARCHAR" property="memname" />
+		<result column="is_delete" jdbcType="DECIMAL" property="isDelete"/>
+		<result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+		<result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+		<result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+		<result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+		<collection column="accno" property="children" select="com.likes.common.mybatis.mapperext.member.MemRelationshipMapperExt.selectByPCode" />
+	</resultMap>
+    <sql id="Base_Column_List">
+    	relaid, refaccno, accno, memname,head_accno, is_delete, create_user, create_time, update_user, update_time
+  	</sql>
+
+
+    <insert id="insertSelectiveMemRelationship" keyColumn="relaid" keyProperty="relaid"
+            parameterType="com.likes.common.mybatis.entity.MemRelationship" useGeneratedKeys="true">
+		insert into mem_relationship (refaccno,parent_id,
+		accno, memname,sub_num,sup_recomcode,head_accno, create_user, update_user
+		)
+		select
+		#{refaccno},
+		#{parentId},
+		#{accno},
+		#{memname},
+		#{subnum},
+		#{suprecomcode},
+		#{headAccno},
+		#{createUser},
+		#{updateUser}
+
+		 WHERE
+		NOT EXISTS
+		(select
+		accno
+		from mem_relationship
+		where accno = #{accno}
+		AND is_delete = b'0'
+		)
+	</insert>
+
+    <select id="getMyPromotion" parameterType="java.lang.String" resultType="com.likes.common.model.dto.PromotionDo">
+		SELECT m.create_time,m.mobileno,m.nickname,m.memname
+		FROM
+		mem_baseinfo m WHERE m.accno IN (
+		SELECT mr.accno
+		FROM mem_relationship
+		mr WHERE mr.refaccno = #{accno})
+	</select>
+
+    <select id="getMyPromotionList" parameterType="java.lang.String" resultType="com.likes.common.model.dto.PromotionDo">
+		SELECT mr.create_time,
+		(SELECT m.email FROM mem_baseinfo m WHERE m.accno = mr.accno )  as email,
+		(SELECT m.accno FROM mem_baseinfo m WHERE m.accno = mr.accno )  as accno,
+		(select count(0) from mem_relationship where refaccno = mr.accno) as subnum
+		FROM
+		mem_relationship mr
+		WHERE
+		mr.refaccno = #{accno}
+		and mr.is_delete = b'0'
+	</select>
+
+
+    <select id="xiangxia" parameterType="java.lang.String" resultType="java.lang.String">
+		select accno from (
+		select t1.accno,
+		if(find_in_set(paraccno, @pids) &gt; 0, @pids := concat(@pids, ',', accno), 0) as ischild
+		from (
+		select accno,paraccno from
+		(SELECT mf.accno , mf.refaccno as paraccno
+		FROM mem_relationship mf WHERE mf.is_delete = b'0')
+		as t
+		) t1,
+		(select @pids := #{accno}) t2
+		) t3 where ischild != "0" ORDER BY accno asc
+	</select>
+
+    <select id="findByAccno" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mem_relationship
+        where accno = #{accno}
+        and is_delete = b'0'
+        limit 1
+    </select>
+
+    <select id="getRecomcode" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT
+		(SELECT mb.recomcode  FROM mem_baseinfo mb WHERE mb.accno = mr.refaccno LIMIT 1 ) as recomcode
+		FROM mem_relationship mr
+		WHERE mr.accno = #{accno}
+		and mr.is_delete = b'0'
+		LIMIT 1
+	</select>
+
+	<select id="selectByPCode"
+			parameterType="java.lang.String"
+			resultMap="BaseSysResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from mem_relationship
+		where is_delete = 0
+		AND refaccno = #{accno,jdbcType=VARCHAR}
+	</select>
+	<select id="getAllChild"
+			parameterType="java.lang.String"
+			resultMap="BaseSysResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from mem_relationship
+		where is_delete = 0
+		AND refaccno = #{refaccno,jdbcType=VARCHAR}
+		AND create_time BETWEEN CONCAT('2022-05-09', ' 00:00:00' ) AND CONCAT( CURDATE( ), ' 23:59:59' )
+	</select>
+	<select id="getRefaccnos" resultType="com.likes.common.mybatis.entity.MemRelationship">
+		select DISTINCT(rel.refaccno) as refaccno
+		from mem_relationship rel
+		INNER JOIN mem_baseinfo ba
+		on rel.refaccno= ba.accno
+		and ba.is_delete=0
+		and rel.is_delete=0
+	</select>
+	<select id="countChild" resultType="java.lang.Integer">
+		select count(1)
+		from mem_relationship
+		where is_delete = 0
+		AND refaccno = #{refaccno,jdbcType=VARCHAR}
+		and create_time between #{startDate} and #{endDate}
+	</select>
+
+
+	<select id="allZiji" resultType="java.lang.Long">
+		SELECT
+			t3.relaid
+		FROM
+			(
+				SELECT
+					t1.relaid,
+					IF
+						( find_in_set( parent_id, @pids ) > 0, @pids := concat( @pids, ',', relaid ), 0 ) AS ischild
+				FROM
+					( SELECT relaid, parent_id FROM mem_relationship t ORDER BY parent_id, relaid ) t1,
+						(select @pids := #{relaid}   ) t2
+			) t3
+		WHERE
+			ischild != 0;
+	</select>
+
+
+	<update id="updateAgentLine"  >
+			update mem_relationship
+			set head_accno = #{toHeadAccno}
+			where
+			 relaid in
+			<foreach collection="ids" item="item" separator="," open="(" close=")">
+				#{item}
+			</foreach>
+	</update>
+
+
+</mapper>

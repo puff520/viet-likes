@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.TraOrderaccountMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.TraOrderaccount">
+    <result column="accno" jdbcType="VARCHAR" property="accno" />
+    <result column="bankid" jdbcType="BIGINT" property="bankid" />
+    <result column="orderid" jdbcType="BIGINT" property="orderid" />
+    <result column="is_delete" property="isDelete" jdbcType="BIT" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <insert id="insert" parameterType="com.likes.common.mybatis.entity.TraOrderaccount">
+    insert into tra_orderaccount (accno, bankid, orderid, 
+      is_delete, create_user, create_time,
+      update_user, update_time)
+    values (#{accno,jdbcType=VARCHAR}, #{bankid,jdbcType=BIGINT}, #{orderid,jdbcType=BIGINT}, 
+      #{isDelete,jdbcType=DECIMAL}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+      #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.likes.common.mybatis.entity.TraOrderaccount">
+    insert into tra_orderaccount
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="accno != null">
+        accno,
+      </if>
+      <if test="bankid != null">
+        bankid,
+      </if>
+      <if test="orderid != null">
+        orderid,
+      </if>
+      <if test="isDelete != null">
+        is_delete,
+      </if>
+      <if test="createUser != null">
+        create_user,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateUser != null">
+        update_user,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="accno != null">
+        #{accno,jdbcType=VARCHAR},
+      </if>
+      <if test="bankid != null">
+        #{bankid,jdbcType=BIGINT},
+      </if>
+      <if test="orderid != null">
+        #{orderid,jdbcType=BIGINT},
+      </if>
+      <if test="isDelete != null">
+        #{isDelete,jdbcType=DECIMAL},
+      </if>
+      <if test="createUser != null">
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUser != null">
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+</mapper>

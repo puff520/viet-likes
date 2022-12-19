@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.MemAssetCfgMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemAssetCfg">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="name_en" jdbcType="VARCHAR" property="nameEn" />
+    <result column="name_sp" jdbcType="VARCHAR" property="nameSp" />
+    <result column="name_fn" jdbcType="VARCHAR" property="nameFn" />
+    <result column="name_ab" jdbcType="VARCHAR" property="nameAb" />
+    <result column="describe" jdbcType="VARCHAR" property="describe" />
+    <result column="describe_en" jdbcType="VARCHAR" property="describeEn" />
+    <result column="describe_sp" jdbcType="VARCHAR" property="describeSp" />
+    <result column="describe_fn" jdbcType="VARCHAR" property="describeFn" />
+    <result column="describe_ab" jdbcType="VARCHAR" property="describeAb" />
+    <result column="earn_rate" jdbcType="DECIMAL" property="earnRate" />
+    <result column="daily_earn_rate" jdbcType="DECIMAL" property="dailyEarnRate" />
+    <result column="deduct_rate" jdbcType="DECIMAL" property="deductRate" />
+    <result column="max_deposit_amount" jdbcType="DECIMAL" property="maxDepositAmount" />
+    <result column="open_level" jdbcType="INTEGER" property="openLevel" />
+    <result column="cycle_type" jdbcType="INTEGER" property="cycleType" />
+    <result column="take_status" jdbcType="INTEGER" property="takeStatus" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+</mapper>

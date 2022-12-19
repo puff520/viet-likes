@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.GameMoneyRecordMapperExt">
+    <insert id="insertOrUpdate" parameterType="com.likes.common.mybatis.entity.GameMoneyRecord" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `game_money_record`(`id`,`note`, `platform`, `user_id`, `money`,
+        `current_money`, `order_no`, `type`, `operate`, `op_status`)
+        VALUES
+        (#{id},#{note},#{platform},#{userId},#{money},#{currentMoney},#{orderNo},#{type},#{operate},#{opStatus})
+        ON DUPLICATE KEY UPDATE
+        note = #{note},
+        platform = #{platform},
+        user_id = #{userId},
+        money = #{money},
+        current_money = #{currentMoney},
+        order_no = #{orderNo},
+        type = #{type},
+        operate = #{operate},
+        op_status = #{opStatus}
+    </insert>
+</mapper>

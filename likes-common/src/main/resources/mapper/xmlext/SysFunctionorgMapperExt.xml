@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.sys.SysFunctionorgMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysFunctionorg">
+        <id column="sfunid" jdbcType="BIGINT" property="sfunid"/>
+        <result column="parsfunid" jdbcType="BIGINT" property="parsfunid"/>
+        <result column="ofsystem" jdbcType="VARCHAR" property="ofsystem"/>
+        <result column="sfuntype" jdbcType="VARCHAR" property="sfuntype"/>
+        <result column="sfunname" jdbcType="VARCHAR" property="sfunname"/>
+        <result column="sfunstatus" jdbcType="DECIMAL" property="sfunstatus"/>
+        <result column="sfunurl" jdbcType="VARCHAR" property="sfunurl"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    sfunid, parsfunid, ofsystem, sfuntype, sfunname, sfunstatus, sfunurl, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+
+    <resultMap id="BaseResultMapSys" type="com.likes.common.model.dto.sys.SysFunctionorgDO">
+        <id column="sfunid" jdbcType="BIGINT" property="sfunid"/>
+        <result column="parsfunid" jdbcType="BIGINT" property="parsfunid"/>
+        <result column="ofsystem" jdbcType="VARCHAR" property="ofsystem"/>
+        <result column="sfuntype" jdbcType="VARCHAR" property="sfuntype"/>
+        <result column="sfunname" jdbcType="VARCHAR" property="sfunname"/>
+        <result column="sfunstatus" jdbcType="DECIMAL" property="sfunstatus"/>
+        <result column="sfunurl" jdbcType="VARCHAR" property="sfunurl"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <collection column="sfunid" property="children" select="com.likes.common.mybatis.mapperext.sys.SysFunctionorgMapperExt.selectByPSfunid"/>
+    </resultMap>
+
+    <resultMap id="BaseResultMapSysFunctionorgDO" type="com.likes.common.model.dto.sys.SysFunctionorgDO">
+        <id column="sfunid" jdbcType="BIGINT" property="sfunid"/>
+        <result column="parsfunid" jdbcType="BIGINT" property="parsfunid"/>
+        <result column="ofsystem" jdbcType="VARCHAR" property="ofsystem"/>
+        <result column="sfuntype" jdbcType="VARCHAR" property="sfuntype"/>
+        <result column="sfunname" jdbcType="VARCHAR" property="sfunname"/>
+        <result column="sfunstatus" jdbcType="DECIMAL" property="sfunstatus"/>
+        <result column="sfunurl" jdbcType="VARCHAR" property="sfunurl"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="sysroleid" jdbcType="BIGINT" property="sysroleid"/>
+        <collection column="{sfunid=sfunid,sysroleid=sysroleid}" property="children" select="com.likes.common.mybatis.mapperext.sys.SysFunctionorgMapperExt.selectTreefunid"/>
+    </resultMap>
+
+    <select id="selectByPSfunid" parameterType="java.lang.Long" resultMap="BaseResultMapSys">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_functionorg
+        where is_delete = b'0'
+        AND parsfunid = #{sfunid}
+        <!-- AND sfunstatus = 0 -->
+        ORDER BY create_time asc
+    </select>
+
+    <select id="selectTreefunid" resultMap="BaseResultMapSysFunctionorgDO">
+        select
+        sf.sfunid, sf.parsfunid, sf.ofsystem, sf.sfuntype, sf.sfunname, sf.sfunstatus, sf.sfunurl, sf.is_delete, #{sysroleid} as sysroleid,
+        ( IF(( SELECT sr.sfunid FROM sys_rolefunc sr WHERE sr.sfunid = sf.sfunid
+        and sr.sysroleid = #{sysroleid} and sr.is_delete = b'0' limit 1 ) IS NOT NULL,1,0)
+        ) AS checkbox
+        from sys_functionorg sf
+        where sf.is_delete = b'0'
+        AND sf.parsfunid = #{sfunid}
+        <!-- AND sfunstatus = 0 -->
+        ORDER BY sf.create_time asc
+    </select>
+
+    <select id="getSfunidList" parameterType="java.lang.Long" resultType="com.likes.common.model.dto.sys.SysRoleinfoForRoleDO">
+      select  t1.sfunid as aid ,t2.sfunid as bid,t3.sfunid as cid,t4.sfunid as did from sys_functionorg as t1 left join sys_functionorg as t2 on t2.parsfunid = t1.sfunid left join sys_functionorg as t3 on t3.parsfunid = t2.sfunid left join sys_functionorg as t4 on t4.parsfunid = t3.sfunid  where t1.sfunid = #{sfunid}
+    </select>
+
+    <select id="getSysFunctionorgTree" resultMap="BaseResultMapSys">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_functionorg
+        where parsfunid is NULL and is_delete = b'0'
+        <!-- AND sfunstatus = 0 -->
+        ORDER BY create_time asc
+    </select>
+
+
+    <resultMap id="BaseResultMapSysList" type="com.likes.common.model.dto.sys.SysFunctionorgDO">
+        <id column="sfunid" jdbcType="BIGINT" property="sfunid"/>
+        <result column="parsfunid" jdbcType="BIGINT" property="parsfunid"/>
+        <result column="ofsystem" jdbcType="VARCHAR" property="ofsystem"/>
+        <result column="sfuntype" jdbcType="VARCHAR" property="sfuntype"/>
+        <result column="sfunname" jdbcType="VARCHAR" property="sfunname"/>
+        <result column="sfunstatus" jdbcType="DECIMAL" property="sfunstatus"/>
+        <result column="sfunurl" jdbcType="VARCHAR" property="sfunurl"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="checkbox" jdbcType="DECIMAL" property="checkbox"/>
+        <result column="sysroleid" jdbcType="BIGINT" property="sysroleid"/>
+        <collection column="{sfunid=sfunid,sysroleid=sysroleid}" property="children" select="com.likes.common.mybatis.mapper.SysFunctionorgMapper.selectByPSfunidList"/>
+    </resultMap>
+
+    <select id="selectByPSfunidList"
+            parameterType="com.likes.common.model.dto.sys.SysFunctionorgDO"
+            resultMap="BaseResultMapSysList">
+	SELECT sf.* , #{sysroleid} as sysroleid ,
+	( IF(( SELECT  sr.sfunid FROM sys_rolefunc sr WHERE sr.sfunid = sf.sfunid
+	and sr.sysroleid = #{sysroleid} and sr.is_delete = b'0'   limit 1 ) IS NOT NULL,1,0)
+	) AS checkbox
+	FROM sys_functionorg sf
+	INNER JOIN sys_rolefunc srf ON sf.sfunid = srf.sfunid AND srf.is_delete = b'0' AND srf.sysroleid = #{sysroleid}
+	where sf.is_delete = b'0'
+	and sf.sfunstatus = 0
+	AND sf.parsfunid = #{sfunid}
+	ORDER BY sf.create_time asc
+	</select>
+
+    <select id="getSysFunctionorgTreeByRole" parameterType="com.likes.common.model.dto.sys.SysFunctionorgDO"
+            resultMap="BaseResultMapSysList">
+	SELECT sf.* , #{sysroleid} as sysroleid,
+	( IF(( SELECT  sr.sfunid FROM sys_rolefunc sr WHERE sr.sfunid = sf.sfunid
+	and sr.sysroleid = #{sysroleid} and sr.is_delete = b'0' limit 1 ) IS NOT NULL,1,0)
+	) AS checkbox
+	FROM sys_functionorg sf
+	INNER JOIN sys_rolefunc srf ON sf.sfunid = srf.sfunid AND srf.is_delete = b'0' AND srf.sysroleid = #{sysroleid}
+	where sf.is_delete = b'0'
+	and sf.sfunstatus = 0
+	and sf.parsfunid is NULL
+	ORDER BY sf.create_time asc
+	</select>
+
+
+    <resultMap id="BaseResultMapSysListAll" type="com.likes.common.model.dto.sys.SysFunctionorgDO">
+        <id column="sfunid" jdbcType="BIGINT" property="sfunid"/>
+        <result column="parsfunid" jdbcType="BIGINT" property="parsfunid"/>
+        <result column="ofsystem" jdbcType="VARCHAR" property="ofsystem"/>
+        <result column="sfuntype" jdbcType="VARCHAR" property="sfuntype"/>
+        <result column="sfunname" jdbcType="VARCHAR" property="sfunname"/>
+        <result column="sfunstatus" jdbcType="DECIMAL" property="sfunstatus"/>
+        <result column="sfunurl" jdbcType="VARCHAR" property="sfunurl"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="checkbox" jdbcType="DECIMAL" property="checkbox"/>
+        <result column="sysroleid" jdbcType="BIGINT" property="sysroleid"/>
+        <collection column="{sfunid=sfunid,sysroleid=sysroleid}" property="children"
+                    select="com.likes.common.mybatis.mapper.SysFunctionorgMapper.selectByPSfunidListAll"/>
+    </resultMap>
+
+    <select id="selectByPSfunidListAll"
+            parameterType="com.likes.common.model.dto.sys.SysFunctionorgDO"
+            resultMap="BaseResultMapSysListAll">
+	SELECT sf.* , #{sysroleid} as sysroleid ,
+	( IF(( SELECT  sr.sfunid FROM sys_rolefunc sr WHERE sr.sfunid = sf.sfunid
+	and sr.sysroleid = #{sysroleid} and sr.is_delete = b'0'   limit 1 ) IS NOT NULL,1,0)
+	) AS checkbox
+	FROM sys_functionorg sf
+	LEFT JOIN sys_rolefunc srf ON sf.sfunid = srf.sfunid AND srf.is_delete = b'0' AND srf.sysroleid = #{sysroleid}
+	where sf.is_delete = b'0'
+	AND sf.parsfunid = #{sfunid}
+	and sf.sfunstatus = 0
+	ORDER BY sf.create_time asc
+	</select>
+    <select id="getSysFunctionorgTreeByRoleAll" parameterType="com.likes.common.model.dto.sys.SysFunctionorgDO" resultMap="BaseResultMapSysFunctionorgDO">
+	SELECT sf.* , #{sysroleid} as sysroleid,
+	( IF(( SELECT  sr.sfunid FROM sys_rolefunc sr WHERE sr.sfunid = sf.sfunid
+	and sr.sysroleid = #{sysroleid} and sr.is_delete = b'0' limit 1 ) IS NOT NULL,1,0)
+	) AS checkbox
+	FROM sys_functionorg sf
+	where sf.is_delete = b'0'
+	and sf.parsfunid is NULL
+	and sf.sfunstatus = 0
+	ORDER BY sf.create_time asc
+	</select>
+
+
+    <select id="repeat" parameterType="com.likes.common.mybatis.entity.SysFunctionorg"
+            resultType="com.likes.common.mybatis.entity.SysFunctionorg">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_functionorg
+        where is_delete = b'0'
+        and sfunname = #{sfunname}
+        and sfuntype = #{sfuntype}
+        <if test="sfunid != null">
+            and sfunid != #{sfunid}
+        </if>
+        limit 1
+    </select>
+
+    <select id="getAll" parameterType="java.lang.Long"
+            resultType="com.likes.common.model.dto.sys.SysFunctionorgDO">
+  	select s.* ,IF(IFNULL(#{parsfunid},0) = s.sfunid,1,0) as checked
+        from sys_functionorg s
+		where s.is_delete = b'0'
+		AND s.sfunstatus = 0
+		ORDER BY update_time DESC
+  </select>
+
+    <select id="getFunctionorgBySysroleid" parameterType="java.lang.Long"
+            resultType="com.likes.common.mybatis.entity.SysFunctionorg">
+  	select  s.sfunid, s.parsfunid, s.ofsystem,
+      s.sfuntype, s.sfunname, s.sfunstatus, s.sfunurl
+	from sys_functionorg s
+	INNER JOIN sys_rolefunc sf ON s.sfunid = sf.sfunid AND sf.is_delete = b'0'
+	WHERE sf.sysroleid = #{sysroleid}
+	AND s.sfunstatus = 0
+	AND s.is_delete = b'0'
+
+	ORDER BY s.parsfunid
+  </select>
+
+
+    <select id="getParSfunidListNode" parameterType="java.lang.Long" resultType="java.lang.Long">
+                    SELECT
+                T2.sfunid
+            FROM
+                (
+                    SELECT
+                        tmp._id,
+                        tmp.parent_id,
+                        tmp.lvl
+                    FROM
+                        (
+                            SELECT
+                                @r AS _id,
+                                (
+                                    SELECT
+                                        @r := parsfunid
+                                    FROM
+                                        sys_functionorg
+                                    WHERE
+                                        sfunid = _id
+                                ) AS parent_id,
+                                @l := @l + 1 AS lvl
+                            FROM
+                                (SELECT @r := #{sfunid}, @l := 0) vars,
+                                sys_functionorg h
+                        ) AS tmp
+                    WHERE
+                        tmp._id IS NOT NULL
+                ) T1
+            INNER JOIN sys_functionorg T2
+            ON T1._id = T2.sfunid
+            AND T2.is_delete =  b'0'
+            AND T2.sfunstatus = 0
+            ORDER BY T1.lvl DESC
+  </select>
+
+    <select id="getSysFunctionorgList" resultType="com.likes.common.model.dto.sys.SysFunctionorgForRoleDO">
+        select * from sys_functionorg s
+        where s.is_delete = b'0'
+        and s.sfunid in
+        <foreach close=")" collection="list" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+    </select>
+
+
+</mapper>

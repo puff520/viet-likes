@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.BasOnlineMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.anchor.BasOnline">
+        <id column="onlineid" jdbcType="BIGINT" property="onlineid"/>
+        <result column="roomid" jdbcType="BIGINT" property="roomid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="nickname" jdbcType="VARCHAR" property="nickname"/>
+        <result column="clientid" jdbcType="VARCHAR" property="clientid"/>
+        <result column="server" jdbcType="VARCHAR" property="server"/>
+        <result column="ismanage" jdbcType="DECIMAL" property="ismanage"/>
+        <result column="isforbidden" jdbcType="DECIMAL" property="isforbidden"/>
+        <result column="is_forbid_in" jdbcType="DECIMAL" property="isForbidIn"/>
+        <result column="status" jdbcType="DECIMAL" property="status"/>
+        <result column="onlinedate" jdbcType="TIMESTAMP" property="onlinedate"/>
+        <result column="offlinedate" jdbcType="TIMESTAMP" property="offlinedate"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    onlineid, roomid, accno, nickname, clientid, server, ismanage, isforbidden, status, 
+    onlinedate, offlinedate, is_delete,is_forbid_in,create_user,create_time,update_user,update_time
+  </sql>
+
+    <select id="selectOne" parameterType="com.likes.common.mybatis.entity.anchor.BasOnline" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bas_online
+        where is_delete = b'0'
+        <if test="roomid != null and roomid !=''">
+        and roomid = #{roomid,jdbcType=BIGINT}
+        </if>
+        <if test="clientid != null and clientid !=''">
+            and clientid = #{clientid,jdbcType=VARCHAR}
+        </if>
+        <if test="accno != null and accno !=''">
+            and accno = #{accno,jdbcType=VARCHAR}
+        </if>
+        <if test="status != null">
+            and status = #{status,jdbcType=DECIMAL}
+        </if>
+        order by onlinedate desc
+        limit 1
+    </select>
+
+
+    <select id="getAllSeeLiveNum" resultType="java.lang.Integer">
+  	SELECT COUNT(1) FROM(
+	SELECT COUNT(1) as cishu,b.accno
+	FROM bas_online b
+	GROUP BY b.accno
+	) AS MM
+  </select>
+
+    <select id="getThisWeekSeeLiveNum" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+  SELECT COUNT(1) FROM(
+	SELECT COUNT(1) as cishu,b.accno
+	FROM bas_online b
+	where DATE_FORMAT(b.onlinedate,'%Y%m%d')  BETWEEN #{starttime} AND #{endtime}
+	GROUP BY b.accno
+	) AS MM
+  </select>
+
+    <select id="selectOneByParam" parameterType="com.likes.common.mybatis.entity.anchor.BasOnline" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bas_online
+        where is_delete = b'0'
+        and roomid = #{roomid,jdbcType=BIGINT}
+        <if test="clientid != null and clientid !=''">
+            and clientid = #{clientid,jdbcType=VARCHAR}
+        </if>
+        <if test="accno != null and accno !=''">
+            and accno = #{accno,jdbcType=VARCHAR}
+        </if>
+        <if test="status != null">
+            and status = #{status,jdbcType=DECIMAL}
+        </if>
+        limit 1
+    </select>
+
+    <select id="getList" parameterType="com.likes.common.mybatis.entity.anchor.BasOnline" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bas_online
+        where is_delete = b'0'
+        and roomid = #{roomid,jdbcType=BIGINT}
+        <if test="accno != null and accno != ''">
+            and roomid in (select roomid from bas_anchorroom where accno = #{accno,jdbcType=VARCHAR} and is_delete = b'0')
+        </if>
+        <if test="nickname != null and nickname != ''">
+            and nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="clientid != null and clientid != ''">
+            and clientid = #{clientid,jdbcType=VARCHAR}
+        </if>
+        <if test="status != null and status !=''">
+            and status = #{status,jdbcType=DECIMAL}
+        </if>
+        order by status asc, onlineid des, onlinedate des, offlinedate des
+    </select>
+
+    <select id="selectLastOne" parameterType="com.likes.common.mybatis.entity.anchor.BasOnline" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bas_online
+        where is_delete = b'0'
+        and roomid = #{roomid,jdbcType=BIGINT}
+        and accno = #{accno,jdbcType=VARCHAR}
+        and status = 0
+        order by onlinedate desc
+        limit 1
+    </select>
+
+
+    <select id="getOnlineList" parameterType="com.likes.common.mybatis.entity.anchor.BasOnline" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bas_online
+        where is_delete = b'0'
+        and roomid = #{roomid,jdbcType=BIGINT}
+        and status = 0
+        <if test="nickname != null and nickname != ''">
+            and nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+        </if>
+        and accno not in (select ba.accno from bas_anchorroom ba where ba.roomid = #{roomid,jdbcType=BIGINT})
+        order by status asc, onlineid desc, onlinedate desc, offlinedate desc
+    </select>
+
+
+    <select id="getMemList"
+            parameterType="com.likes.common.mybatis.entity.anchor.BasOnline"
+            resultType="com.likes.common.model.dto.bas.BasOnlineDO">
+        SELECT MM.* ,
+        (
+        SELECT bf.expirydatee FROM bas_forbid bf
+        WHERE bf.is_delete = b'0'
+        AND bf.accno = MM.accno
+        AND bf.roomid = MM.roomid
+        AND ( ( bf.expirydates IS NULL )
+        OR
+        ( bf.expirydates IS NOT NULL AND NOW() > bf.expirydates ) )
+        AND ( ( bf.expirydatee IS NULL )
+        OR
+        ( bf.expirydatee IS NOT NULL AND bf.expirydatee > NOW() ) )
+        and bf.forbidtype = 1
+        ) AS expirydatee,
+        (
+        SELECT
+        bf.expirydates
+        FROM
+        bas_forbid bf
+        WHERE
+        bf.is_delete = b'0'
+        AND bf.accno = MM.accno
+        AND bf.roomid = MM.roomid
+        AND ( ( bf.expirydates IS NULL ) OR ( bf.expirydates IS NOT NULL AND NOW() > bf.expirydates ) )
+        AND ( ( bf.expirydatee IS NULL ) OR ( bf.expirydatee IS NOT NULL AND bf.expirydatee > NOW() ) )
+        AND bf.forbidtype = 1
+        ) AS expirydates
+        FROM
+        (select
+        *
+        from bas_online b
+        where b.is_delete = b'0'
+        and b.roomid = #{roomid,jdbcType=BIGINT}
+        <if test="nickname != null and nickname != ''">
+            and b.nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="status != null">
+            and b.status = #{status,jdbcType=DECIMAL}
+        </if>
+
+        AND ( SELECT bf.accno from bas_forbid bf WHERE bf.is_delete = b'0'
+        AND bf.accno = b.accno
+        AND bf.forbidtype = 2
+        AND ( bf.expirydates IS NOT NULL AND NOW() > bf.expirydates )
+        AND ( bf.expirydatee IS NOT NULL AND bf.expirydatee > NOW() )
+        ORDER BY bf.expirydates DESC LIMIT 1) is NULL
+
+        and b.accno not in (select ba.accno from bas_anchorroom ba where ba.roomid = #{roomid,jdbcType=BIGINT})
+        GROUP BY b.roomid ,b.accno
+        order by b.status asc, b.onlineid desc, b.onlinedate desc, b.offlinedate desc
+        ) AS MM
+    </select>
+
+    <select id="getTop"
+            parameterType="com.likes.common.model.request.UserReq"
+            resultType="com.likes.common.model.response.UserResp">
+         select bo.accno,bo.`status`,bo.roomid,IFNULL(bo.ismanage,9) as ismanage,bo.onlinedate,bo.onlineid
+         FROM bas_online bo
+         WHERE
+         bo.roomid = #{roomid}
+         AND bo.`status` = 0
+  </select>
+
+
+    <update id="removeManager" parameterType="java.lang.Long">
+  	update bas_online set ismanage = 9 where  ismanage = 0 and roomid = #{roomid}
+  </update>
+
+    <update id="initOnlineStatus">
+    update bas_online
+    set
+      status = 9,
+      offlinedate = now()
+    where status = 0
+    and is_delete = b'0'
+  </update>
+
+    <update id="offlineAll" parameterType="java.lang.Long">
+    update bas_online
+    set
+      status = 9,
+      offlinedate = now()
+    where roomid = #{roomid,jdbcType=BIGINT}
+    and status = 0
+    and is_delete = b'0'
+    and offlinedate is null
+  </update>
+
+
+    <update id="offlineMem">
+        update bas_online
+        set
+          status = 9,
+          offlinedate = now()
+        where
+         roomid = #{roomId}
+         and accno =  #{accno}
+    </update>
+
+    <select id="getValidOnlineId"
+            parameterType="com.likes.common.mybatis.entity.anchor.BasOnline"
+            resultType="java.lang.Long">
+        SELECT
+            max(onlineid)
+        FROM
+            bas_online
+        WHERE
+            roomid = #{roomId}
+          and is_delete = '0'
+        GROUP BY
+            roomid,
+            accno
+    </select>
+
+    <select id="getMemForAdminList"
+            parameterType="com.likes.common.mybatis.entity.anchor.BasOnline"
+            resultType="com.likes.common.model.dto.bas.BasOnlineDO">
+        SELECT
+        baon.*,
+        baon.update_time AS updateTime
+        FROM
+        (
+        SELECT b.* FROM bas_online b
+        WHERE b.roomid = #{roomid}
+        AND b.`status` = 0
+        AND b.is_delete = b'0'
+        ) baon
+        WHERE
+        baon.roomid = #{roomid}
+        <if test="nickname != null and nickname != ''">
+            and baon.nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+        </if>
+        AND baon.is_delete = b'0' ORDER BY baon.STATUS ASC
+    </select>
+
+    <update id="realseAllRoomForbid" parameterType="java.lang.String">
+  	 update bas_online set isforbidden = 9,is_forbid_in=9
+  	 where  accno = #{accno} and (isforbidden = 0 or is_forbid_in=0 or status= 0 )
+    </update>
+
+    <delete id="deleteAllRoomForbid" parameterType="java.lang.String">
+  	    delete from  bas_forbid  where  accno = #{accno}
+    </delete>
+
+    <update id="offlineMemBaseInfo">
+        update bas_online set status = 9, offlinedate = now(),update_time = now() where accno =#{accno} and status = 0
+    </update>
+
+    <select id="statisticsRoomPeopleNum" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        SELECT COUNT(1) AS renci
+        FROM bas_online bo
+        WHERE bo.roomid = #{roomId}
+        and bo.status = 0
+        and bo.is_delete = b'0'
+    </select>
+
+    <select id="getSumNumber" resultType="java.lang.Integer">
+
+select COUNT(1) AS renci FROM bas_online  WHERE roomid = #{roomid} and is_delete = b'0'
+  <![CDATA[  and onlinedate >= #{startDate}
+        ]]>
+    </select>
+
+    <select id="selectByAccno" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" />
+        FROM bas_online bo
+        WHERE bo.accno = #{accno}
+        AND bo.status = 0
+        AND bo.is_delete = b'0'
+        limit 1
+    </select>
+
+</mapper>

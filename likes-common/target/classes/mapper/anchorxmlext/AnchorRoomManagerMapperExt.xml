@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.AnchorRoomManagerMapperExt">
+
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.anchor.AnchorRoomManager">
+        <id column="room_manager_id" jdbcType="BIGINT" property="roomManagerId"/>
+        <result column="roomid" jdbcType="BIGINT" property="roomid"/>
+        <result column="anchor_accno" jdbcType="VARCHAR" property="anchorAccno"/>
+        <result column="mem_accno" jdbcType="VARCHAR" property="memAccno"/>
+        <result column="is_delete" jdbcType="DECIMAL" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        room_manager_id, roomid, anchor_accno, mem_accno, is_delete, create_user, create_time, update_user, update_time
+    </sql>
+
+    <select id="getByRoomidAndAccnos" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM anchor_room_manager arm
+        WHERE 1 = 1
+        <if test="roomid != null">
+            AND arm.roomid = #{roomid}
+        </if>
+        <if test="anchorAccno != null and anchorAccno != ''">
+            AND arm.anchor_accno = #{anchorAccno}
+        </if>
+        <if test="memAccno != null and memAccno != ''">
+            AND arm.mem_accno = #{memAccno}
+        </if>
+        AND arm.is_delete = b'0'
+    </select>
+
+    <delete id="deleteByRoomidAndAccnos">
+        DELETE
+        FROM anchor_room_manager arm
+        WHERE 1 = 1
+        <if test="roomid != null">
+            AND arm.roomid = #{roomid}
+        </if>
+        <if test="anchorAccno != null and anchorAccno != ''">
+            AND arm.anchor_accno = #{anchorAccno}
+        </if>
+        <if test="memAccnoList != null and memAccnoList.size() > 0">
+            AND arm.mem_accno in
+            <foreach collection="memAccnoList" item="listItem" open="(" close=")" separator=",">
+                #{listItem}
+            </foreach>
+        </if>
+    </delete>
+
+</mapper>

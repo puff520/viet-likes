@@ -1,0 +1,822 @@
+//package com.likes.common.mybatis.entity;
+//
+//import java.io.Serializable;
+//import java.math.BigDecimal;
+//import java.util.Date;
+//
+//public class RechargeAccount implements Serializable {
+//    /**
+//     * 字段: recharge_account.id<br/>
+//     * 主键: 自动增长<br/>
+//     * 必填: true<br/>
+//     * 缺省: <br/>
+//     * 长度: 10<br/>
+//     * 说明: 主键
+//     *
+//     * @mbggenerated
+//     */
+//    private Integer id;
+//
+//    /**
+//     * 字段: recharge_account.name<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 64<br/>
+//     * 说明: 支付名称
+//     *
+//     * @mbggenerated
+//     */
+//    private String name;
+//
+//    /**
+//     * 字段: recharge_account.receive_type<br/>
+//     * 必填: true<br/>
+//     * 缺省: <br/>
+//     * 长度: 10<br/>
+//     * 说明: 收款方式（1：银行卡转银行卡；2：微信转银行卡；3：支付宝转银行卡）
+//     *
+//     * @mbggenerated
+//     */
+//    private Integer receiveType;
+//
+//    /**
+//     * 字段: recharge_account.receive_name<br/>
+//     * 必填: true<br/>
+//     * 缺省: <br/>
+//     * 长度: 64<br/>
+//     * 说明: 收款人姓名
+//     *
+//     * @mbggenerated
+//     */
+//    private String receiveName;
+//
+//    /**
+//     * 字段: recharge_account.receive_card_no<br/>
+//     * 必填: true<br/>
+//     * 缺省: <br/>
+//     * 长度: 64<br/>
+//     * 说明: 收款卡号
+//     *
+//     * @mbggenerated
+//     */
+//    private String receiveCardNo;
+//
+//    /**
+//     * 字段: recharge_account.receive_bank<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 64<br/>
+//     * 说明: 收款银行
+//     *
+//     * @mbggenerated
+//     */
+//    private String receiveBank;
+//
+//    /**
+//     * 字段: recharge_account.max_amount<br/>
+//     * 必填: false<br/>
+//     * 缺省: 0<br/>
+//     * 长度: 20<br/>
+//     * 说明: 上限额度：0为不限制
+//     *
+//     * @mbggenerated
+//     */
+//    private BigDecimal maxAmount;
+//
+//    /**
+//     * 字段: recharge_account.min_amount<br/>
+//     * 必填: false<br/>
+//     * 缺省: 100<br/>
+//     * 长度: 20<br/>
+//     * 说明: 最小额度
+//     *
+//     * @mbggenerated
+//     */
+//    private BigDecimal minAmount;
+//
+//    /**
+//     * 字段: recharge_account.receive_amount<br/>
+//     * 必填: false<br/>
+//     * 缺省: 0<br/>
+//     * 长度: 20<br/>
+//     * 说明: 已收款额度
+//     *
+//     * @mbggenerated
+//     */
+//    private BigDecimal receiveAmount;
+//
+//    /**
+//     * 字段: recharge_account.sort<br/>
+//     * 必填: false<br/>
+//     * 缺省: 0<br/>
+//     * 长度: 10<br/>
+//     * 说明: 排序：从小到大排序
+//     *
+//     * @mbggenerated
+//     */
+//    private Integer sort;
+//
+//    /**
+//     * 字段: recharge_account.remark<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 255<br/>
+//     * 说明: 备注
+//     *
+//     * @mbggenerated
+//     */
+//    private String remark;
+//
+//    /**
+//     * 字段: recharge_account.recharge_type<br/>
+//     * 必填: false<br/>
+//     * 缺省: 1<br/>
+//     * 长度: 10<br/>
+//     * 说明: 充值类型[预留字段]（1：人工充值；2：在线充值；3：第三方充值）
+//     *
+//     * @mbggenerated
+//     */
+//    private Integer rechargeType;
+//
+//    /**
+//     * 字段: recharge_account.work_status<br/>
+//     * 必填: false<br/>
+//     * 缺省: 1<br/>
+//     * 长度: 10<br/>
+//     * 说明: 是否启用（0：禁用；1：启用；2：自动启用）
+//     *
+//     * @mbggenerated
+//     */
+//    private Integer workStatus;
+//
+//    /**
+//     * 字段: recharge_account.auto_enable_start<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 10<br/>
+//     * 说明: 自动启用开始时间
+//     *
+//     * @mbggenerated
+//     */
+//    private Integer autoEnableStart;
+//
+//    /**
+//     * 字段: recharge_account.auto_enable_end<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 10<br/>
+//     * 说明: 自动启用结束时间
+//     *
+//     * @mbggenerated
+//     */
+//    private Integer autoEnableEnd;
+//
+//    /**
+//     * 字段: recharge_account.pay_way_id<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 10<br/>
+//     * 说明: 支付方式
+//     *
+//     * @mbggenerated
+//     */
+//    private Integer payWayId;
+//
+//    /**
+//     * 字段: recharge_account.is_delete<br/>
+//     * 必填: false<br/>
+//     * 缺省: b'0'<br/>
+//     * 长度: 1<br/>
+//     * 说明: 是否删除（0：未删除；1：删除）
+//     *
+//     * @mbggenerated
+//     */
+//    private Boolean isDelete;
+//
+//    /**
+//     * 字段: recharge_account.created_at<br/>
+//     * 必填: false<br/>
+//     * 缺省: CURRENT_TIMESTAMP<br/>
+//     * 长度: 19<br/>
+//     * 说明: 创建时间
+//     *
+//     * @mbggenerated
+//     */
+//    private Date createdAt;
+//
+//    /**
+//     * 字段: recharge_account.update_at<br/>
+//     * 必填: false<br/>
+//     * 缺省: CURRENT_TIMESTAMP<br/>
+//     * 长度: 19<br/>
+//     * 说明: 更新时间
+//     *
+//     * @mbggenerated
+//     */
+//    private Date updateAt;
+//
+//    /**
+//     * 字段: recharge_account.user_id<br/>
+//     * 必填: false<br/>
+//     * 缺省: 0<br/>
+//     * 长度: 10<br/>
+//     * 说明: 操作用户id
+//     *
+//     * @mbggenerated
+//     */
+//    private Integer userId;
+//
+//    /**
+//     * 字段: recharge_account.user_name<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 32<br/>
+//     * 说明: 操作用户名
+//     *
+//     * @mbggenerated
+//     */
+//    private String userName;
+//
+//    /**
+//     * This field was generated by MyBatis Generator.
+//     * This field corresponds to the database table recharge_account
+//     *
+//     * @mbggenerated
+//     */
+//    private static final long serialVersionUID = 1L;
+//
+//    /**
+//     * @return recharge_account.id: 主键
+//     *
+//     * @mbggenerated
+//     */
+//    public Integer getId() {
+//        return id;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.id<br/>
+//     * 主键: 自动增长<br/>
+//     * 必填: true<br/>
+//     * 缺省: <br/>
+//     * 长度: 10<br/>
+//     * 说明: 主键
+//     *
+//     * @mbggenerated
+//     */
+//    public void setId(Integer id) {
+//        this.id = id;
+//    }
+//
+//    /**
+//     * @return recharge_account.name: 支付名称
+//     *
+//     * @mbggenerated
+//     */
+//    public String getName() {
+//        return name;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.name<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 64<br/>
+//     * 说明: 支付名称
+//     *
+//     * @mbggenerated
+//     */
+//    public void setName(String name) {
+//        this.name = name;
+//    }
+//
+//    /**
+//     * @return recharge_account.receive_type: 收款方式（1：银行卡转银行卡；2：微信转银行卡；3：支付宝转银行卡）
+//     *
+//     * @mbggenerated
+//     */
+//    public Integer getReceiveType() {
+//        return receiveType;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.receive_type<br/>
+//     * 必填: true<br/>
+//     * 缺省: <br/>
+//     * 长度: 10<br/>
+//     * 说明: 收款方式（1：银行卡转银行卡；2：微信转银行卡；3：支付宝转银行卡）
+//     *
+//     * @mbggenerated
+//     */
+//    public void setReceiveType(Integer receiveType) {
+//        this.receiveType = receiveType;
+//    }
+//
+//    /**
+//     * @return recharge_account.receive_name: 收款人姓名
+//     *
+//     * @mbggenerated
+//     */
+//    public String getReceiveName() {
+//        return receiveName;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.receive_name<br/>
+//     * 必填: true<br/>
+//     * 缺省: <br/>
+//     * 长度: 64<br/>
+//     * 说明: 收款人姓名
+//     *
+//     * @mbggenerated
+//     */
+//    public void setReceiveName(String receiveName) {
+//        this.receiveName = receiveName;
+//    }
+//
+//    /**
+//     * @return recharge_account.receive_card_no: 收款卡号
+//     *
+//     * @mbggenerated
+//     */
+//    public String getReceiveCardNo() {
+//        return receiveCardNo;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.receive_card_no<br/>
+//     * 必填: true<br/>
+//     * 缺省: <br/>
+//     * 长度: 64<br/>
+//     * 说明: 收款卡号
+//     *
+//     * @mbggenerated
+//     */
+//    public void setReceiveCardNo(String receiveCardNo) {
+//        this.receiveCardNo = receiveCardNo;
+//    }
+//
+//    /**
+//     * @return recharge_account.receive_bank: 收款银行
+//     *
+//     * @mbggenerated
+//     */
+//    public String getReceiveBank() {
+//        return receiveBank;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.receive_bank<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 64<br/>
+//     * 说明: 收款银行
+//     *
+//     * @mbggenerated
+//     */
+//    public void setReceiveBank(String receiveBank) {
+//        this.receiveBank = receiveBank;
+//    }
+//
+//    /**
+//     * @return recharge_account.max_amount: 上限额度：0为不限制
+//     *
+//     * @mbggenerated
+//     */
+//    public BigDecimal getMaxAmount() {
+//        return maxAmount;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.max_amount<br/>
+//     * 必填: false<br/>
+//     * 缺省: 0<br/>
+//     * 长度: 20<br/>
+//     * 说明: 上限额度：0为不限制
+//     *
+//     * @mbggenerated
+//     */
+//    public void setMaxAmount(BigDecimal maxAmount) {
+//        this.maxAmount = maxAmount;
+//    }
+//
+//    /**
+//     * @return recharge_account.min_amount: 最小额度
+//     *
+//     * @mbggenerated
+//     */
+//    public BigDecimal getMinAmount() {
+//        return minAmount;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.min_amount<br/>
+//     * 必填: false<br/>
+//     * 缺省: 100<br/>
+//     * 长度: 20<br/>
+//     * 说明: 最小额度
+//     *
+//     * @mbggenerated
+//     */
+//    public void setMinAmount(BigDecimal minAmount) {
+//        this.minAmount = minAmount;
+//    }
+//
+//    /**
+//     * @return recharge_account.receive_amount: 已收款额度
+//     *
+//     * @mbggenerated
+//     */
+//    public BigDecimal getReceiveAmount() {
+//        return receiveAmount;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.receive_amount<br/>
+//     * 必填: false<br/>
+//     * 缺省: 0<br/>
+//     * 长度: 20<br/>
+//     * 说明: 已收款额度
+//     *
+//     * @mbggenerated
+//     */
+//    public void setReceiveAmount(BigDecimal receiveAmount) {
+//        this.receiveAmount = receiveAmount;
+//    }
+//
+//    /**
+//     * @return recharge_account.sort: 排序：从小到大排序
+//     *
+//     * @mbggenerated
+//     */
+//    public Integer getSort() {
+//        return sort;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.sort<br/>
+//     * 必填: false<br/>
+//     * 缺省: 0<br/>
+//     * 长度: 10<br/>
+//     * 说明: 排序：从小到大排序
+//     *
+//     * @mbggenerated
+//     */
+//    public void setSort(Integer sort) {
+//        this.sort = sort;
+//    }
+//
+//    /**
+//     * @return recharge_account.remark: 备注
+//     *
+//     * @mbggenerated
+//     */
+//    public String getRemark() {
+//        return remark;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.remark<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 255<br/>
+//     * 说明: 备注
+//     *
+//     * @mbggenerated
+//     */
+//    public void setRemark(String remark) {
+//        this.remark = remark;
+//    }
+//
+//    /**
+//     * @return recharge_account.recharge_type: 充值类型[预留字段]（1：人工充值；2：在线充值；3：第三方充值）
+//     *
+//     * @mbggenerated
+//     */
+//    public Integer getRechargeType() {
+//        return rechargeType;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.recharge_type<br/>
+//     * 必填: false<br/>
+//     * 缺省: 1<br/>
+//     * 长度: 10<br/>
+//     * 说明: 充值类型[预留字段]（1：人工充值；2：在线充值；3：第三方充值）
+//     *
+//     * @mbggenerated
+//     */
+//    public void setRechargeType(Integer rechargeType) {
+//        this.rechargeType = rechargeType;
+//    }
+//
+//    /**
+//     * @return recharge_account.work_status: 是否启用（0：禁用；1：启用；2：自动启用）
+//     *
+//     * @mbggenerated
+//     */
+//    public Integer getWorkStatus() {
+//        return workStatus;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.work_status<br/>
+//     * 必填: false<br/>
+//     * 缺省: 1<br/>
+//     * 长度: 10<br/>
+//     * 说明: 是否启用（0：禁用；1：启用；2：自动启用）
+//     *
+//     * @mbggenerated
+//     */
+//    public void setWorkStatus(Integer workStatus) {
+//        this.workStatus = workStatus;
+//    }
+//
+//    /**
+//     * @return recharge_account.auto_enable_start: 自动启用开始时间
+//     *
+//     * @mbggenerated
+//     */
+//    public Integer getAutoEnableStart() {
+//        return autoEnableStart;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.auto_enable_start<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 10<br/>
+//     * 说明: 自动启用开始时间
+//     *
+//     * @mbggenerated
+//     */
+//    public void setAutoEnableStart(Integer autoEnableStart) {
+//        this.autoEnableStart = autoEnableStart;
+//    }
+//
+//    /**
+//     * @return recharge_account.auto_enable_end: 自动启用结束时间
+//     *
+//     * @mbggenerated
+//     */
+//    public Integer getAutoEnableEnd() {
+//        return autoEnableEnd;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.auto_enable_end<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 10<br/>
+//     * 说明: 自动启用结束时间
+//     *
+//     * @mbggenerated
+//     */
+//    public void setAutoEnableEnd(Integer autoEnableEnd) {
+//        this.autoEnableEnd = autoEnableEnd;
+//    }
+//
+//    /**
+//     * @return recharge_account.pay_way_id: 支付方式
+//     *
+//     * @mbggenerated
+//     */
+//    public Integer getPayWayId() {
+//        return payWayId;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.pay_way_id<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 10<br/>
+//     * 说明: 支付方式
+//     *
+//     * @mbggenerated
+//     */
+//    public void setPayWayId(Integer payWayId) {
+//        this.payWayId = payWayId;
+//    }
+//
+//    /**
+//     * @return recharge_account.is_delete: 是否删除（0：未删除；1：删除）
+//     *
+//     * @mbggenerated
+//     */
+//    public Boolean getIsDelete() {
+//        return isDelete;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.is_delete<br/>
+//     * 必填: false<br/>
+//     * 缺省: b'0'<br/>
+//     * 长度: 1<br/>
+//     * 说明: 是否删除（0：未删除；1：删除）
+//     *
+//     * @mbggenerated
+//     */
+//    public void setIsDelete(Boolean isDelete) {
+//        this.isDelete = isDelete;
+//    }
+//
+//    /**
+//     * @return recharge_account.created_at: 创建时间
+//     *
+//     * @mbggenerated
+//     */
+//    public Date getCreatedAt() {
+//        return createdAt;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.created_at<br/>
+//     * 必填: false<br/>
+//     * 缺省: CURRENT_TIMESTAMP<br/>
+//     * 长度: 19<br/>
+//     * 说明: 创建时间
+//     *
+//     * @mbggenerated
+//     */
+//    public void setCreatedAt(Date createdAt) {
+//        this.createdAt = createdAt;
+//    }
+//
+//    /**
+//     * @return recharge_account.update_at: 更新时间
+//     *
+//     * @mbggenerated
+//     */
+//    public Date getUpdateAt() {
+//        return updateAt;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.update_at<br/>
+//     * 必填: false<br/>
+//     * 缺省: CURRENT_TIMESTAMP<br/>
+//     * 长度: 19<br/>
+//     * 说明: 更新时间
+//     *
+//     * @mbggenerated
+//     */
+//    public void setUpdateAt(Date updateAt) {
+//        this.updateAt = updateAt;
+//    }
+//
+//    /**
+//     * @return recharge_account.user_id: 操作用户id
+//     *
+//     * @mbggenerated
+//     */
+//    public Integer getUserId() {
+//        return userId;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.user_id<br/>
+//     * 必填: false<br/>
+//     * 缺省: 0<br/>
+//     * 长度: 10<br/>
+//     * 说明: 操作用户id
+//     *
+//     * @mbggenerated
+//     */
+//    public void setUserId(Integer userId) {
+//        this.userId = userId;
+//    }
+//
+//    /**
+//     * @return recharge_account.user_name: 操作用户名
+//     *
+//     * @mbggenerated
+//     */
+//    public String getUserName() {
+//        return userName;
+//    }
+//
+//    /**
+//     * 字段: recharge_account.user_name<br/>
+//     * 必填: false<br/>
+//     * 缺省: <br/>
+//     * 长度: 32<br/>
+//     * 说明: 操作用户名
+//     *
+//     * @mbggenerated
+//     */
+//    public void setUserName(String userName) {
+//        this.userName = userName;
+//    }
+//
+//    /**
+//     * This method was generated by MyBatis Generator.
+//     * This method corresponds to the database table recharge_account
+//     *
+//     * @mbggenerated
+//     */
+//    @Override
+//    public boolean equals(Object that) {
+//        if (this == that) {
+//            return true;
+//        }
+//        if (that == null) {
+//            return false;
+//        }
+//        if (getClass() != that.getClass()) {
+//            return false;
+//        }
+//        RechargeAccount other = (RechargeAccount) that;
+//        return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
+//            && (this.getName() == null ? other.getName() == null : this.getName().equals(other.getName()))
+//            && (this.getReceiveType() == null ? other.getReceiveType() == null : this.getReceiveType().equals(other.getReceiveType()))
+//            && (this.getReceiveName() == null ? other.getReceiveName() == null : this.getReceiveName().equals(other.getReceiveName()))
+//            && (this.getReceiveCardNo() == null ? other.getReceiveCardNo() == null : this.getReceiveCardNo().equals(other.getReceiveCardNo()))
+//            && (this.getReceiveBank() == null ? other.getReceiveBank() == null : this.getReceiveBank().equals(other.getReceiveBank()))
+//            && (this.getMaxAmount() == null ? other.getMaxAmount() == null : this.getMaxAmount().equals(other.getMaxAmount()))
+//            && (this.getMinAmount() == null ? other.getMinAmount() == null : this.getMinAmount().equals(other.getMinAmount()))
+//            && (this.getReceiveAmount() == null ? other.getReceiveAmount() == null : this.getReceiveAmount().equals(other.getReceiveAmount()))
+//            && (this.getSort() == null ? other.getSort() == null : this.getSort().equals(other.getSort()))
+//            && (this.getRemark() == null ? other.getRemark() == null : this.getRemark().equals(other.getRemark()))
+//            && (this.getRechargeType() == null ? other.getRechargeType() == null : this.getRechargeType().equals(other.getRechargeType()))
+//            && (this.getWorkStatus() == null ? other.getWorkStatus() == null : this.getWorkStatus().equals(other.getWorkStatus()))
+//            && (this.getAutoEnableStart() == null ? other.getAutoEnableStart() == null : this.getAutoEnableStart().equals(other.getAutoEnableStart()))
+//            && (this.getAutoEnableEnd() == null ? other.getAutoEnableEnd() == null : this.getAutoEnableEnd().equals(other.getAutoEnableEnd()))
+//            && (this.getPayWayId() == null ? other.getPayWayId() == null : this.getPayWayId().equals(other.getPayWayId()))
+//            && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()))
+//            && (this.getCreatedAt() == null ? other.getCreatedAt() == null : this.getCreatedAt().equals(other.getCreatedAt()))
+//            && (this.getUpdateAt() == null ? other.getUpdateAt() == null : this.getUpdateAt().equals(other.getUpdateAt()))
+//            && (this.getUserId() == null ? other.getUserId() == null : this.getUserId().equals(other.getUserId()))
+//            && (this.getUserName() == null ? other.getUserName() == null : this.getUserName().equals(other.getUserName()));
+//    }
+//
+//    /**
+//     * This method was generated by MyBatis Generator.
+//     * This method corresponds to the database table recharge_account
+//     *
+//     * @mbggenerated
+//     */
+//    @Override
+//    public int hashCode() {
+//        final int prime = 31;
+//        int result = 1;
+//        result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
+//        result = prime * result + ((getName() == null) ? 0 : getName().hashCode());
+//        result = prime * result + ((getReceiveType() == null) ? 0 : getReceiveType().hashCode());
+//        result = prime * result + ((getReceiveName() == null) ? 0 : getReceiveName().hashCode());
+//        result = prime * result + ((getReceiveCardNo() == null) ? 0 : getReceiveCardNo().hashCode());
+//        result = prime * result + ((getReceiveBank() == null) ? 0 : getReceiveBank().hashCode());
+//        result = prime * result + ((getMaxAmount() == null) ? 0 : getMaxAmount().hashCode());
+//        result = prime * result + ((getMinAmount() == null) ? 0 : getMinAmount().hashCode());
+//        result = prime * result + ((getReceiveAmount() == null) ? 0 : getReceiveAmount().hashCode());
+//        result = prime * result + ((getSort() == null) ? 0 : getSort().hashCode());
+//        result = prime * result + ((getRemark() == null) ? 0 : getRemark().hashCode());
+//        result = prime * result + ((getRechargeType() == null) ? 0 : getRechargeType().hashCode());
+//        result = prime * result + ((getWorkStatus() == null) ? 0 : getWorkStatus().hashCode());
+//        result = prime * result + ((getAutoEnableStart() == null) ? 0 : getAutoEnableStart().hashCode());
+//        result = prime * result + ((getAutoEnableEnd() == null) ? 0 : getAutoEnableEnd().hashCode());
+//        result = prime * result + ((getPayWayId() == null) ? 0 : getPayWayId().hashCode());
+//        result = prime * result + ((getIsDelete() == null) ? 0 : getIsDelete().hashCode());
+//        result = prime * result + ((getCreatedAt() == null) ? 0 : getCreatedAt().hashCode());
+//        result = prime * result + ((getUpdateAt() == null) ? 0 : getUpdateAt().hashCode());
+//        result = prime * result + ((getUserId() == null) ? 0 : getUserId().hashCode());
+//        result = prime * result + ((getUserName() == null) ? 0 : getUserName().hashCode());
+//        return result;
+//    }
+//
+//    /**
+//     * This method was generated by MyBatis Generator.
+//     * This method corresponds to the database table recharge_account
+//     *
+//     * @mbggenerated
+//     */
+//    @Override
+//    public String toString() {
+//        StringBuilder sb = new StringBuilder();
+//        sb.append(getClass().getSimpleName());
+//        sb.append(" [");
+//        sb.append("Hash = ").append(hashCode());
+//        sb.append(", id=").append(id);
+//        sb.append(", name=").append(name);
+//        sb.append(", receiveType=").append(receiveType);
+//        sb.append(", receiveName=").append(receiveName);
+//        sb.append(", receiveCardNo=").append(receiveCardNo);
+//        sb.append(", receiveBank=").append(receiveBank);
+//        sb.append(", maxAmount=").append(maxAmount);
+//        sb.append(", minAmount=").append(minAmount);
+//        sb.append(", receiveAmount=").append(receiveAmount);
+//        sb.append(", sort=").append(sort);
+//        sb.append(", remark=").append(remark);
+//        sb.append(", rechargeType=").append(rechargeType);
+//        sb.append(", workStatus=").append(workStatus);
+//        sb.append(", autoEnableStart=").append(autoEnableStart);
+//        sb.append(", autoEnableEnd=").append(autoEnableEnd);
+//        sb.append(", payWayId=").append(payWayId);
+//        sb.append(", isDelete=").append(isDelete);
+//        sb.append(", createdAt=").append(createdAt);
+//        sb.append(", updateAt=").append(updateAt);
+//        sb.append(", userId=").append(userId);
+//        sb.append(", userName=").append(userName);
+//        sb.append("]");
+//        return sb.toString();
+//    }
+//}

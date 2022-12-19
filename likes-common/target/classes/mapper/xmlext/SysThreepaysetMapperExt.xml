@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.sys.SysThreepaysetMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysThreepayset">
+        <id column="tpaysetid" jdbcType="BIGINT" property="tpaysetid"/>
+        <result column="providerid" jdbcType="BIGINT" property="providerid"/>
+        <result column="tpayname" jdbcType="VARCHAR" property="tpayname"/>
+        <result column="paytype" jdbcType="VARCHAR" property="paytype"/>
+        <result column="paycode" jdbcType="VARCHAR" property="paycode"/>
+        <result column="payvalue" jdbcType="VARCHAR" property="payvalue"/>
+        <result column="minamt" jdbcType="DECIMAL" property="minamt"/>
+        <result column="maxamt" jdbcType="DECIMAL" property="maxamt"/>
+        <result column="minmemlevel" jdbcType="VARCHAR" property="minmemlevel"/>
+        <result column="maxmemlevel" jdbcType="VARCHAR" property="maxmemlevel"/>
+        <result column="stopamt" jdbcType="DECIMAL" property="stopamt"/>
+        <result column="easyrecharge" jdbcType="VARCHAR" property="easyrecharge"/>
+        <result column="isinput" jdbcType="DECIMAL" property="isinput"/>
+        <result column="status" jdbcType="DECIMAL" property="status"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <resultMap id="BaseResultDtoMap" type="com.likes.common.model.dto.sys.SysThreepaysetDO">
+        <id column="tpaysetid" jdbcType="BIGINT" property="tpaysetid"/>
+        <result column="providerid" jdbcType="BIGINT" property="providerid"/>
+        <result column="tpayname" jdbcType="VARCHAR" property="tpayname"/>
+        <result column="paytype" jdbcType="VARCHAR" property="paytype"/>
+        <result column="paycode" jdbcType="VARCHAR" property="paycode"/>
+        <result column="payvalue" jdbcType="VARCHAR" property="payvalue"/>
+        <result column="minamt" jdbcType="DECIMAL" property="minamt"/>
+        <result column="maxamt" jdbcType="DECIMAL" property="maxamt"/>
+        <result column="minmemlevel" jdbcType="VARCHAR" property="minmemlevel"/>
+        <result column="maxmemlevel" jdbcType="VARCHAR" property="maxmemlevel"/>
+        <result column="stopamt" jdbcType="DECIMAL" property="stopamt"/>
+        <result column="easyrecharge" jdbcType="VARCHAR" property="easyrecharge"/>
+        <result column="isinput" jdbcType="DECIMAL" property="isinput"/>
+        <result column="status" jdbcType="DECIMAL" property="status"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="rechargeamt" javaType="java.math.BigDecimal" jdbcType="DECIMAL" property="rechargeamt"></result>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    tpaysetid, providerid, tpayname, paytype, paycode, payvalue, minamt, maxamt, minmemlevel,
+    maxmemlevel, stopamt, easyrecharge, isinput, status, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+    <select id="getRepeateByAccounttype"
+            parameterType="com.likes.common.mybatis.entity.SysThreepayset"
+            resultType="com.likes.common.mybatis.entity.SysThreepayset">
+        select *
+        from sys_threepayset
+        where accounttype = #{accounttype}
+        AND is_delete = b'0'
+        <if test=" tpaysetid != null ">
+            and tpaysetid != #{tpaysetid}
+        </if>
+    </select>
+
+    <select id="getlist" parameterType="com.likes.common.mybatis.entity.SysThreepayset"
+            resultMap="BaseResultDtoMap">
+        select
+        *
+        from
+        (
+        SELECT IFNULL(SUM(MM.realamt),0) AS rechargeamt ,sp.*
+        FROM sys_threepayset sp
+        LEFT JOIN (SELECT * FROM tra_orderinfom t WHERE t.ordertype = 1 AND t.is_delete = b'0'
+        AND t.orderstatus ="ord08") MM ON sp.tpaysetid = MM.tpaysetid
+        INNER JOIN sys_payprovider spa on sp.providerid = spa.providerid and spa.is_delete = b'0'
+        WHERE 1=1 AND sp.is_delete = b'0'
+
+        GROUP BY sp.tpaysetid
+        ORDER BY sp.tpaysetid DESC , sp.`status` asc
+        ) AS TT
+        where 1 = 1
+        AND is_delete = b'0'
+        <if test=" providerid != null ">
+            AND providerid = #{providerid}
+        </if>
+
+        <if test="tpayname != null and  tpayname !='' ">
+            AND tpayname
+            LIKE CONCAT('%',#{tpayname,jdbcType=VARCHAR},'%')
+        </if>
+        order by tpaysetid desc
+    </select>
+
+    <select id="getAllList" parameterType="com.likes.common.mybatis.entity.SysThreepayset"
+            resultType="com.likes.common.model.dto.sys.SysThreepaysetDO">
+  	 select
+    		*
+	    from
+	    (
+	    SELECT IFNULL(SUM(MM.realamt),0) AS  rechargeamt ,sp.*
+		FROM sys_threepayset sp
+		LEFT JOIN (SELECT * FROM tra_orderinfom t WHERE t.ordertype = 1 AND t.is_delete = b'0'
+		AND t.orderstatus ="ord08") MM ON sp.tpaysetid = MM.tpaysetid
+		WHERE 1=1 AND sp.is_delete = b'0'
+		GROUP BY sp.tpaysetid
+		ORDER BY sp.tpaysetid DESC , sp.`status` asc
+	    ) AS TT
+		where 1 = 1
+	  	AND is_delete = b'0'
+  		AND providerid = #{providerid}
+  		order by tpaysetid desc
+  </select>
+
+
+    <select id="commonPay"
+            resultType="com.likes.common.mybatis.entity.SysThreepayset">
+		SELECT
+		tpaysetid,
+		providerid,
+		tpayname,
+		paytype,
+		paycode,
+		payvalue,
+		minamt,
+		maxamt,
+		minmemlevel,
+		maxmemlevel,
+		stopamt,
+		easyrecharge,
+		isinput,
+		`status`,
+		is_delete,
+		create_user,
+		create_time,
+		update_user,
+		update_time
+		FROM
+		sys_threepayset
+		WHERE
+		(
+		is_delete = FALSE
+		AND `status` = 0
+		AND minmemlevel &lt;= #{memLevel}
+		AND maxmemlevel &gt;= #{memLevel}
+		AND paytype = #{payType}
+		)
+	</select>
+    <select id="findbyOrderno" parameterType="java.lang.String" resultType="com.likes.common.model.dto.pay.SysThreePaysetDTO">
+		SELECT st.*, sp.provider, sp.paydns,sp.backurl,sp.torderurl,sp.paygateway,sp.accountno,
+		sp.secretcode,sp.pubsecret,sp.prisecret,sp.serversecret,sp.providercode,sp.allowips
+		FROM sys_threepayset st
+		INNER JOIN sys_payprovider sp ON st.providerid = sp.providerid
+		WHERE st.tpaysetid in (
+			SELECT DISTINCT t.tpaysetid FROM tra_orderinfom t WHERE t.orderno = #{orderno}
+		)
+		LIMIT 1
+  </select>
+
+	<select id="getAllSysThreePaySet" parameterType="java.lang.String" resultType="java.lang.Long">
+	SELECT t.tpaysetid from sys_threepayset t where t.providerid=#{providerid}
+  </select>
+    <select id="getAllsetAndProvider" resultType="com.likes.common.model.dto.report.ProviderSetDO">
+
+select sys_threepayset.providerid as providerid,sys_threepayset.tpayname as tpayname,sys_threepayset.tpaysetid as tpaysetid ,sys_payprovider.provider as provider,sys_threepayset.paytype as paytype
+from sys_threepayset left join sys_payprovider on sys_threepayset.providerid =sys_payprovider.providerid where sys_threepayset.is_delete = 0
+
+	</select>
+    <select id="getAllids" resultType="java.lang.Long">
+        	SELECT t.tpaysetid from sys_threepayset t where t.providerid=#{provider}
+    </select>
+</mapper>

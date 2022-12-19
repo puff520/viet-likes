@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.SysAppInfoMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysAppInfo">
+        <id column="appid" jdbcType="BIGINT" property="appid"/>
+        <result column="appname" jdbcType="VARCHAR" property="appname"/>
+        <result column="version" jdbcType="VARCHAR" property="version"/>
+        <result column="versionname" jdbcType="VARCHAR" property="versionname"/>
+        <result column="appsize" jdbcType="VARCHAR" property="appsize"/>
+        <result column="versioninfo" jdbcType="VARCHAR" property="versioninfo"/>
+        <result column="isnew" jdbcType="INTEGER" property="isnew"/>
+        <result column="appdownurl" jdbcType="VARCHAR" property="appdownurl"/>
+        <result column="is_force" jdbcType="INTEGER" property="isForce"/>
+        <result column="app_type" jdbcType="INTEGER" property="appType"/>
+        <result column="publishedtime" jdbcType="TIMESTAMP" property="publishedtime"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete" />
+        <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <sql id="Base_Column_List">
+    appid, appname, version, versionname, appsize, versioninfo, isnew, appdownurl, is_force, 
+    app_type, publishedtime, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+
+    <select id="getMaxXin" resultType="com.likes.common.model.dto.AppinfoDO">
+		SELECT * from
+		(
+				(select
+				*
+				from sys_app_info
+				where is_delete = b'0'
+				and isnew = 0
+				and app_type = 1
+				order by publishedtime desc
+				LIMIT 1
+				)
+		
+				UNION ALL
+		
+				(select
+				*
+				from sys_app_info
+				where is_delete = b'0'
+				and isnew = 0
+				and app_type = 2
+				order by publishedtime desc
+				LIMIT 1
+				)
+		) AS A
+
+	</select>
+    <select id="getList" parameterType="com.likes.common.mybatis.entity.SysAppInfo" resultType="com.likes.common.model.dto.sys.SysAppInfoDO">
+        SELECT * ,s.app_type as appType , s.is_force as isForce,
+        (select b.bdusername FROM bd_user b WHERE b.accno = s.create_user LIMIT 1 ) AS createusername,
+        (select b.bdusername FROM bd_user b WHERE b.accno = s.update_user LIMIT 1 ) AS modifyusername
+        from sys_app_info s
+        where s.app_type = #{appType}
+        and s.is_delete = b'0'
+        <if test="version != null and  version != '' ">
+            and (
+            s.version like CONCAT('%',#{version,jdbcType=VARCHAR},'%')
+            or
+            s.versionname like CONCAT('%',#{version,jdbcType=VARCHAR},'%')
+            )
+        </if>
+        order by s.publishedtime desc, s.is_force asc
+    </select>
+
+
+    <update id="noNew" parameterType="java.lang.Integer">
+	  update sys_app_info s
+	  set s.isnew = 9
+	  where s.isnew = 0
+	  and app_type = #{appType}
+  </update>
+
+
+    <select id="getSysAppInfoLast" parameterType="com.likes.common.mybatis.entity.SysAppInfo" resultMap="BaseResultMap">
+		select
+		*
+		from sys_app_info
+		where is_delete = b'0'
+		and isnew = 0
+		and app_type = #{appType}
+		order by create_time desc
+		LIMIT 1
+  </select>
+</mapper>

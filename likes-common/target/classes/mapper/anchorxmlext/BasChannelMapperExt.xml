@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.BasChannelMapperExt">
+
+  <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.anchor.BasChannel">
+    <id column="channelid" jdbcType="BIGINT" property="channelid" />
+    <result column="channelname" jdbcType="VARCHAR" property="channelname" />
+    <result column="channellog" jdbcType="VARCHAR" property="channellog" />
+    <result column="channeldesc" jdbcType="VARCHAR" property="channeldesc" />
+    <result column="roomnum" jdbcType="INTEGER" property="roomnum" />
+    <result column="anchornum" jdbcType="INTEGER" property="anchornum" />
+    <result column="sortby" jdbcType="INTEGER" property="sortby" />
+    <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+    <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    channelid, channelname, channellog, channeldesc, roomnum, anchornum, sortby, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+  <select id="channellist" parameterType="com.likes.common.mybatis.entity.anchor.BasChannel"
+          resultType="com.likes.common.model.dto.bas.BasChannelDO">
+    select <include refid="Base_Column_List" />
+    from bas_channel
+    where is_delete = b'0'
+    <if test="channelname != null and  channelname != '' ">
+      and (
+      channelname like CONCAT('%',#{channelname,jdbcType=VARCHAR},'%')
+      or
+      channeldesc like CONCAT('%',#{channelname,jdbcType=VARCHAR},'%')
+      )
+    </if>
+    order by sortby desc, update_time desc
+  </select>
+
+  <select id="repeat" parameterType="com.likes.common.mybatis.entity.anchor.BasChannel"
+          resultType="com.likes.common.mybatis.entity.anchor.BasChannel">
+    select <include refid="Base_Column_List" />
+    from bas_channel
+    where is_delete = b'0'
+    <if test="channelname != null and  channelname != '' ">
+      and channelname = #{channelname,jdbcType=VARCHAR}
+    </if>
+    <if test="channelid != null ">
+      and channelid != #{channelid,jdbcType=BIGINT}
+    </if>
+    limit 1
+  </select>
+
+  <select id="getAllList" resultType="com.likes.common.mybatis.entity.anchor.BasChannel">
+    select <include refid="Base_Column_List" />
+    from bas_channel
+    where is_delete = b'0'
+    order by sortby desc
+  </select>
+
+  <select id="getList" parameterType="com.likes.common.model.dto.bas.BasChannelReq" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" />
+    from bas_channel
+    where is_delete = b'0'
+    <if test="channelname != null and channelname != ''">
+      and channelname LIKE CONCAT('%',#{channelname,jdbcType=VARCHAR},'%')
+    </if>
+    <if test="channeldesc != null and channeldesc != ''">
+      and channeldesc LIKE CONCAT('%',#{channeldesc,jdbcType=VARCHAR},'%')
+    </if>
+    order by sortby desc, channelid desc
+  </select>
+
+</mapper>

@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.likes.common.mybatis.mapperext.StatementMapperExt">
+    <select id="validBet" resultType="com.likes.common.mybatis.entity.OrderBetRecord">
+        SELECT
+        SUM(1) as id,
+        obr.source as betNumber,
+        SUM(obr.bet_amount) as betAmount,
+        SUM(obr.win_amount) as winAmount
+        FROM order_bet_record obr
+        where obr.tb_status in('WIN', 'NO_WIN', 'HE') and obr.is_delete=0
+        <if test="startTime !=null and startTime !=''">
+            <![CDATA[ and obr.create_time  >=  #{startTime}  ]]>
+        </if>
+        <if test="endTime !=null and endTime !=''">
+            <![CDATA[ and obr.create_time <=  #{endTime}  ]]>
+        </if>
+        GROUP BY obr.source
+    </select>
+
+    <select id="successCharge" resultType="com.likes.common.mybatis.entity.PaymentSummary">
+        select
+        SUM(real_amount) as realAmount,
+        source
+        from payment_summary
+        where status=1
+        <if test="startTime !=null and startTime !=''">
+            <![CDATA[ and create_time  >=  #{startTime}  ]]>
+        </if>
+        <if test="endTime !=null and endTime !=''">
+            <![CDATA[ and create_time <=  #{endTime}  ]]>
+        </if>
+        GROUP BY source
+    </select>
+
+    <select id="successWithdraw" resultType="com.likes.common.mybatis.entity.WithdrawPick">
+        select
+        SUM(money) AS money,
+        source
+        from withdraw_pick
+        where status=4
+        <if test="startTime !=null and startTime !=''">
+            <![CDATA[ and create_time  >=  #{startTime}  ]]>
+        </if>
+        <if test="endTime !=null and endTime !=''">
+            <![CDATA[ and create_time <=  #{endTime}  ]]>
+        </if>
+        GROUP BY source
+    </select>
+
+    <!--只统计线上，线下充值-->
+    <select id="chargeUser" resultType="java.lang.Integer">
+        select
+        count(distinct user_id)
+        from payment_summary
+        where status=1 and way in(1,3)
+        <if test="startTime !=null and startTime !=''">
+            <![CDATA[ and create_time  >=  #{startTime}  ]]>
+        </if>
+        <if test="endTime !=null and endTime !=''">
+            <![CDATA[ and create_time <=  #{endTime}  ]]>
+        </if>
+    </select>
+
+    <select id="getBenefitsBet" resultType="com.likes.common.model.vo.money.BenefitsBetVo">
+        SELECT
+        t.*,
+        count( p.user_id ) AS paynum
+        FROM
+        (
+        SELECT
+        a.id as uid,
+        a.account,
+        a.nickname,
+        a.real_name as realName,
+        a.balance,
+        a.login_ip as loginip,
+        sum(o.bet_count) as betnum,
+        a.register_resource as soure,
+        a.pay_amount as totalpay,
+        o.create_time,
+        lp.name as playname,
+        lt.name as lotteryname,
+        sum( o.bet_amount ) AS totalBet,
+        sum( o.win_amount - o.bet_amount ) AS winBet,
+        sum( o.win_count ) / sum( o.bet_count ) AS winrate
+        FROM
+        order_bet_record o left join lottery_play lp on o.play_id= lp.play_tag_id left join lottery lt on
+        lt.lottery_id=o.lottery_id
+        left JOIN app_member a ON o.user_id = a.id
+        WHERE
+        o.tb_status IN ( 'WIN', 'NO_WIN' )
+        <if test="account !=null and account !=''">
+            <![CDATA[ and a.account  =  #{account}  ]]>
+        </if>
+        <if test="memberId !=null and memberId !=''">
+            <![CDATA[ and o.user_id =  #{memberId}  ]]>
+        </if>
+        <if test="realName !=null and realName !=''">
+            <![CDATA[ and a.real_name  =  #{realName}  ]]>
+        </if>
+        <if test="nickname !=null and nickname !=''">
+            <![CDATA[ and a.nickname =  #{nickname}  ]]>
+        </if>
+
+        <if test="lottery !=null and lottery !=''">
+            <![CDATA[ and o.lottery_id  =  #{lottery}  ]]>
+        </if>
+        <if test="play !=null and play !=''">
+            <![CDATA[ and o.play_id =  #{play}  ]]>
+        </if>
+        <if test="startTime !=null and startTime !=''">
+            <![CDATA[ and o.create_time  >=  #{startTime}  ]]>
+        </if>
+        <if test="endTime !=null and endTime !=''">
+            <![CDATA[ and o.create_time <=  #{endTime}  ]]>
+        </if>
+        GROUP BY
+        o.user_id
+        ) AS t
+        left JOIN payment_summary p ON t.uid = p.user_id
+        WHERE
+        p.STATUS = '1'
+        GROUP BY
+        p.user_id
+        order by ${orderbyname} DESC limit #{pageNo},#{pageSize}
+
+    </select>
+
+
+    <select id="benefitsBetCount" resultType="java.lang.Integer">
+        SELECT count(uid) from(
+        SELECT
+        t.uid
+
+        FROM
+        (
+        SELECT
+        a.id as uid,
+        a.account,
+        a.nickname,
+        a.real_name as realName,
+        a.balance,
+        a.login_ip as loginip,
+        a.register_resource as soure,
+        o.bet_count as betnum,
+        a.pay_amount as totalpay,
+        o.create_time,
+        sum( o.bet_amount ) AS totalBet,
+        sum( o.win_amount - o.bet_amount ) AS winBet,
+        sum( o.win_count ) / sum( o.bet_count ) AS winrate
+        FROM
+        order_bet_record o
+        left JOIN app_member a ON o.user_id = a.id
+        WHERE
+        o.tb_status IN ( 'WIN', 'NO_WIN' )
+        <if test="account !=null and account !=''">
+            <![CDATA[ and a.account  =  #{account}  ]]>
+        </if>
+        <if test="memberId !=null and memberId !=''">
+            <![CDATA[ and o.user_id =  #{memberId}  ]]>
+        </if>
+        <if test="realName !=null and realName !=''">
+            <![CDATA[ and a.real_name  =  #{realName}  ]]>
+        </if>
+        <if test="nickname !=null and nickname !=''">
+            <![CDATA[ and a.nickname =  #{nickname}  ]]>
+        </if>
+
+        <if test="lottery !=null and lottery !=''">
+            <![CDATA[ and o.lottery_id  =  #{lottery}  ]]>
+        </if>
+        <if test="play !=null and play !=''">
+            <![CDATA[ and o.play_id =  #{play}  ]]>
+        </if>
+        <if test="startTime !=null and startTime !=''">
+            <![CDATA[ and o.create_time  >=  #{startTime}  ]]>
+        </if>
+        <if test="endTime !=null and endTime !=''">
+            <![CDATA[ and o.create_time <=  #{endTime}  ]]>
+        </if>
+        GROUP BY
+        o.user_id
+        ) AS t
+        left JOIN payment_summary p ON t.uid = p.user_id
+        WHERE
+        p.STATUS = '1'
+        GROUP BY
+        p.user_id
+        ) x
+
+    </select>
+</mapper>

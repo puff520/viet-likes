@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.likes.common.mybatis.mapperext.GodPlanMapperExt">
+    <insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        insert into god_plan (
+        id,
+        `god_id`,
+        `head`,
+        `god_nick_name`,
+        `lottery_id`,
+        `play_tag_id`,
+        `plan_type`,
+        `status`,
+        `reward_amount`,
+        `win_count`,
+        `probability`,
+        `total_issue_count`,
+        `order_num`,
+        `create_time`,
+        `update_time`,
+        `play_show_name`,
+        `play_name`,
+        `plan_id`
+        )
+        values
+        <foreach collection="godPlans" item="godPlan" separator=",">
+            (#{godPlan.id,jdbcType=INTEGER}, #{godPlan.godId,jdbcType=INTEGER}, #{godPlan.head,jdbcType=INTEGER},
+            #{godPlan.godNickName,jdbcType=VARCHAR},
+            #{godPlan.lotteryId,jdbcType=INTEGER}, #{godPlan.playTagId,jdbcType=INTEGER},
+            #{godPlan.planType,jdbcType=INTEGER},
+            #{godPlan.status,jdbcType=VARCHAR}, #{godPlan.rewardAmount,jdbcType=DECIMAL},
+            #{godPlan.winCount,jdbcType=INTEGER},
+            #{godPlan.probability,jdbcType=VARCHAR}, #{godPlan.totalIssueCount,jdbcType=INTEGER},
+            #{godPlan.orderNum,jdbcType=INTEGER},
+            #{godPlan.createTime,jdbcType=TIMESTAMP},
+            #{godPlan.updateTime,jdbcType=TIMESTAMP},#{godPlan.playShowName,jdbcType=VARCHAR},
+            #{godPlan.playName,jdbcType=VARCHAR},
+            #{godPlan.planId,jdbcType=BIGINT})
+        </foreach>
+        ON DUPLICATE KEY UPDATE total_issue_count = VALUES(total_issue_count)
+    </insert>
+
+    <update id="updateGodPlanHead">
+        update god_plan set head = #{fileData} where id=#{planId}
+    </update>
+</mapper>

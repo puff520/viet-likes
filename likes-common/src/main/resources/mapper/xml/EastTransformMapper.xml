@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.EastTransformMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.model.EastTransform">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="muid" jdbcType="VARCHAR" property="muid" />
+    <result column="os" jdbcType="VARCHAR" property="os" />
+    <result column="imei" jdbcType="VARCHAR" property="imei" />
+    <result column="androidid" jdbcType="VARCHAR" property="androidid" />
+    <result column="idfa" jdbcType="VARCHAR" property="idfa" />
+    <result column="callback" jdbcType="VARCHAR" property="callback" />
+    <result column="oaid" jdbcType="VARCHAR" property="oaid" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+  </resultMap>
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.tra.TraApplyauditMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.TraApplyaudit">
+        <id column="apauditid" jdbcType="BIGINT" property="apauditid"/>
+        <result column="apycid" jdbcType="BIGINT" property="apycid"/>
+        <result column="orderid" jdbcType="BIGINT" property="orderid"/>
+        <result column="paysetid" jdbcType="BIGINT" property="paysetid"/>
+        <result column="auditamt" jdbcType="DECIMAL" property="auditamt"/>
+        <result column="codesize" jdbcType="DECIMAL" property="codesize"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        apauditid, apycid, orderid, paysetid, auditamt, codesize, is_delete, create_user, create_time, update_user, update_time
+    </sql>
+
+    <select id="getByApycid" parameterType="java.lang.Long"
+            resultType="com.likes.common.model.dto.TraApplyauditDO">
+  	select tt.* ,
+	(SELECT tr.create_time FROM tra_orderinfom tr WHERE tr.orderid = tt.orderid LIMIT 1) AS orderdate,
+	(SELECT tr.sumamt FROM tra_orderinfom tr WHERE tr.orderid = tt.orderid LIMIT 1) AS sumamt
+	,(SELECT tr.realamt FROM tra_orderinfom tr WHERE tr.orderid = tt.orderid LIMIT 1) AS realamt
+  	from tra_applyaudit tt
+  	where tt.is_delete = b'0'
+  	AND tt.apycid = #{apycid}
+  	order by orderid asc
+  </select>
+
+    <select id="getListById" parameterType="java.lang.Long" resultType="com.likes.common.mybatis.entity.TraApplyaudit">
+        select tt.*
+        from tra_applyaudit tt
+        where tt.is_delete = b'0'
+        AND tt.apycid = #{apycid}
+        order by orderid asc
+  </select>
+
+    <update id="doDelJihe" parameterType="java.lang.Long">
+        update tra_applyaudit
+        set is_delete = b'1'
+        where apycid = #{apycid}
+  </update>
+</mapper>

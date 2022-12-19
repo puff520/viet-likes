@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.SysOperlogMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.model.SysOperlog">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="accno" jdbcType="VARCHAR" property="accno" />
+    <result column="method" jdbcType="VARCHAR" property="method" />
+    <result column="optcontent" jdbcType="VARCHAR" property="optcontent" />
+    <result column="params" jdbcType="VARCHAR" property="params" />
+    <result column="ip" jdbcType="VARCHAR" property="ip" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+</mapper>

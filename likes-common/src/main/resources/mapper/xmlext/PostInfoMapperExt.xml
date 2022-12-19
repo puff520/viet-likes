@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.likes.common.mybatis.mapperext.PostInfoMapperExt">
+    <select id="getFansOrFocusList" resultType="com.likes.common.model.vo.circle.PostMemberVO">
+        select
+        memid as userId,
+        IFNULL(headimg, '') heads,
+        nickname
+        from mem_baseinfo
+        WHERE memid IN
+        <foreach collection="idList" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="hadReplyMePostIds" resultType="java.lang.Integer">
+        SELECT DISTINCT
+        ( cpc.post_id )
+        FROM
+        circle_post_comments cpc,
+        circle_post cp
+        WHERE
+        cpc.post_id = cp.id
+        AND (cp.account = #{account}
+        OR cpc.reply_id IN ( SELECT id FROM circle_post_comments WHERE account = #{account}) )
+        ORDER BY
+        cpc.post_id DESC;
+    </select>
+
+    <select id="gzList" resultType="java.lang.Integer">
+        select to_uid from circle_post_focus where from_uid=#{meId} and is_delete=0
+    </select>
+
+    <select id="isFocus" resultType="java.lang.Integer">
+        select count(1) from circle_post_focus where from_uid=#{meId} and to_uid=#{otherId} and is_delete=0
+        limit 1
+    </select>
+
+    <select id="getPostCommentsByPostId" resultType="com.likes.common.mybatis.entity.CirclePostComments">
+        SELECT id,account,content,reply_id as replyId
+        FROM circle_post_comments
+        WHERE post_id=#{postId}
+        ORDER BY create_time asc
+    </select>
+
+    <select id="getUserByAccount" resultType="com.likes.common.model.vo.circle.PostMemberVO">
+        select
+          memid as userId,
+          IFNULL(headimg, '') heads,
+          IF(IFNULL(nickname,'')='',accno,nickname) nickname
+        from mem_baseinfo
+        where memid=#{userId}
+    </select>
+
+    <select id="countAccountByTime" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT account) FROM circle_post where 1=1
+        <if test="startTime !=null and startTime !='' ">
+            <![CDATA[ and create_time  >=  #{startTime}  ]]>
+        </if>
+        <if test="endTime !=null and endTime!='' ">
+            <![CDATA[ and create_time <=  #{endTime}  ]]>
+        </if>
+        and channel=0
+    </select>
+
+    <select id="getPersonnalSettingList" resultType="com.likes.common.model.dto.circle.PostSettingDTO">
+        select
+          aps.setting_id as settingId,
+          aps.on_off as onOff,
+          ast.name as settingName,
+          ast.id as id,
+          ast.parent_id as parentId
+        from app_personal_setting aps left join app_setting_type ast on aps.setting_id=ast.id
+        where ast.is_delete=0 AND ast.classify=#{classify} and aps.user_id=#{userId}
+    </select>
+
+    <select id="getPostCommentsReplyIdByMe" resultType="com.likes.common.mybatis.entity.CirclePostComments">
+        SELECT id,account,content,reply_id as replyId
+        FROM circle_post_comments
+        WHERE post_id=#{postId}
+    </select>
+
+    <select id="getPostCommentsReplyByReplyId" resultType="com.likes.common.mybatis.entity.CirclePostComments">
+        SELECT id,account,content,reply_id as replyId
+        FROM circle_post_comments
+        WHERE id IN
+        <foreach collection="idList" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+</mapper>

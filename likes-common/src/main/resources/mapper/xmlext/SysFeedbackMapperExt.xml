@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+        namespace="com.likes.common.mybatis.mapperext.sys.SysFeedbackMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysFeedback">
+        <id column="feedid" jdbcType="BIGINT" property="feedid" />
+        <result column="feedtype" jdbcType="DECIMAL" property="feedtype" />
+        <result column="accno" jdbcType="VARCHAR" property="accno" />
+        <result column="unique_id" jdbcType="VARCHAR" property="uniqueId" />
+        <result column="feedbody" jdbcType="VARCHAR" property="feedbody" />
+        <result column="feedimgs" jdbcType="VARCHAR" property="feedimgs" />
+        <result column="status" jdbcType="DECIMAL" property="status" />
+        <result column="handlenote" jdbcType="VARCHAR" property="handlenote" />
+        <result column="is_delete" jdbcType="BIT" property="isDelete" />
+        <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+		feedid, feedtype, accno, feedbody, feedimgs, status, handlenote, is_delete, create_user, create_time, update_user, update_time
+	</sql>
+
+
+    <select
+            id="getList"
+            parameterType="com.likes.common.mybatis.entity.SysFeedback"
+            resultType="com.likes.common.model.dto.sys.SysFeedbackDO">
+        select s.* ,m.nickname , m.mobileno
+        from sys_feedback s
+        inner join mem_baseinfo m on m.accno = s.accno
+        where s.is_delete = b'0'
+        <if test="feedbody != null and feedbody != ''   ">
+            and ( s.feedbody like CONCAT('%',#{feedbody,jdbcType=VARCHAR},'%')
+            or m.nickname like CONCAT('%',#{feedbody,jdbcType=VARCHAR},'%')
+            or m.mobileno like CONCAT('%',#{feedbody,jdbcType=VARCHAR},'%')
+            )
+        </if>
+        <if test="uniqueId != null and uniqueId != '' ">
+            and s.unique_id = #{uniqueId}
+        </if>
+        <if test="feedtype != null  ">
+            and s.feedtype = #{feedtype}
+        </if>
+        <if test="status != null  ">
+            and s.status = #{status}
+        </if>
+        order by s.status desc,s.update_time desc
+    </select>
+
+    <update
+            id="updateSysFeedback"
+            parameterType="com.likes.common.mybatis.entity.SysFeedback">
+        update sys_feedback
+        <set>
+            <if test="feedtype != null">
+                feedtype = #{feedtype,jdbcType=DECIMAL},
+            </if>
+            <if test="accno != null">
+                accno = #{accno,jdbcType=VARCHAR},
+            </if>
+            <if test="feedbody != null">
+                feedbody = #{feedbody,jdbcType=VARCHAR},
+            </if>
+            <if test="feedimgs != null">
+                feedimgs = #{feedimgs,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                status = #{status,jdbcType=DECIMAL},
+            </if>
+            <if test="handlenote != null">
+                handlenote = #{handlenote,jdbcType=VARCHAR},
+            </if>
+            <if test="isDelete != null">
+                is_delete = #{isDelete,jdbcType=DECIMAL},
+            </if>
+            <if test="createUser != null">
+                create_user = #{createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where feedid = #{feedid,jdbcType=BIGINT}
+        and is_delete = b'0'
+        and status = 9
+    </update>
+
+
+</mapper>

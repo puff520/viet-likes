@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.TaskMapper">
+
+    <resultMap id="BaseResultMap" type="com.likes.common.model.TaskDetail">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="category_id" jdbcType="INTEGER" property="categoryId"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="sort" jdbcType="INTEGER" property="sort"/>
+        <result column="price" jdbcType="DECIMAL" property="price"/>
+        <result column="total_price" jdbcType="DECIMAL" property="totalPrice"/>
+        <result column="apiece_num" jdbcType="INTEGER" property="apieceNum"/>
+        <result column="task_type" jdbcType="INTEGER" property="taskType"/>
+        <result column="task_url" jdbcType="VARCHAR" property="taskUrl"/>
+        <result column="send_sdk_url" jdbcType="VARCHAR" property="sendSdkUrl"/>
+        <result column="task_level_ids" jdbcType="VARCHAR" property="taskLevelIds"/>
+        <result column="condition" jdbcType="VARCHAR" property="condition"/>
+        <result column="sample_url" jdbcType="VARCHAR" property="sampleUrl"/>
+        <result column="info" jdbcType="VARCHAR" property="info"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_mobile" jdbcType="VARCHAR" property="createMobile"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="finish_date" jdbcType="TIMESTAMP" property="finishDate"/>
+        <result column="status" jdbcType="BIT" property="status"/>
+        <result column="max_num" jdbcType="INTEGER" property="maxNum"/>
+        <result column="apply_num" jdbcType="INTEGER" property="applyNum"/>
+        <result column="surplus_num" jdbcType="INTEGER" property="surplusNum"/>
+        <result column="task_require" jdbcType="VARCHAR" property="taskRequire"/>
+        <result column="video_url" jdbcType="VARCHAR" property="videoUrl"/>
+        <result column="step_Info" jdbcType="VARCHAR" property="stepInfo"/>
+        <result column="category_name" jdbcType="VARCHAR" property="categoryName"/>
+    </resultMap>
+
+
+    <select id="selectTaskList" parameterType="com.likes.common.model.request.TaskRequest" resultMap="BaseResultMap">
+        SELECT
+        dt.*,dt.task_level as levelSeq,dt.task_level_ids as taskLevelIds,  dtc.`name` AS category_name
+        FROM
+        dz_task dt
+        LEFT JOIN dz_task_category dtc ON dt.category_id = dtc.id
+        WHERE
+        1 = 1
+        <if test="createUser != null and  createUser !='' ">
+            and dt.create_user LIKE CONCAT('%',#{createUser,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="title != null and  title !='' ">
+            and dt.title = #{title}
+        </if>
+        <if test="status != null">
+            and dt.status = #{status}
+        </if>
+        <if test="statusStr != null and  statusStr == '1'.toString() ">
+            and dt.status = 1 and dt.finish_date &gt;= NOW()
+        </if>
+        <if test="statusStr != null and  statusStr == '-1'.toString() ">
+            and dt.status !=3 and dt.finish_date &lt; NOW()
+        </if>
+        <if test="categoryId != null">
+            and dtc.id = #{categoryId}
+        </if>
+        <if test="levelSeq != null">
+            and dt.task_level = #{levelSeq}
+        </if>
+        <if test="startTime != null">
+            <![CDATA[  and dt.create_time >= #{startTime} ]]>
+        </if>
+        <if test="endTime != null">
+            <![CDATA[  and dt.create_time <= #{endTime} ]]>
+        </if>
+        order by dt.id desc
+    </select>
+
+    <select id="selectTaskAppList" parameterType="com.likes.common.model.request.TaskRequest"
+            resultType="com.likes.common.model.TaskAppDto">
+        SELECT * from (
+        SELECT
+        dt.id AS taskId,
+        dt.create_mobile AS mobile,
+        dt.create_user AS createUser,
+        dt.create_time as createTime,
+        ( SELECT COUNT(1) from dz_task_order dto WHERE dto.mem_no = #{accno} and task_id = dt.id ) as lqNum,
+        dt.price AS price,
+        dt.task_level_ids AS taskLevelIds,
+        dt.apiece_num AS apieceNum,
+        dt.surplus_num AS surplusNum,
+        dt.task_require AS taskRequire,
+        dt.finish_date as finishDate,
+        dtc.icon AS taskIcon,
+        dtc.id AS categoryId,
+        dtc.`name` AS categoryName
+        FROM
+        dz_task dt
+        LEFT JOIN dz_task_category dtc ON dt.category_id = dtc.id
+        LEFT JOIN mem_level_config mlc ON FIND_IN_SET( dt.task_level_ids, mlc.level_seq )
+
+        WHERE
+        1 = 1
+        and dt.surplus_num &gt; 0
+        ) b
+        where 1= 1
+        and b.apieceNum &gt; b.lqNum
+        <if test="categoryId != null">
+            and b.categoryId = #{categoryId}
+        </if>
+        <if test="levelSeq != null">
+            and b.taskLevelIds LIKE CONCAT('%',#{levelSeqStr},'%')
+        </if>
+        and b.finishDate &gt;= NOW()
+        order by b.createTime desc
+    </select>
+
+
+    <select id="selectTaskAppDetail" parameterType="java.lang.Long" resultType="com.likes.common.model.TaskAppDetail">
+        SELECT
+            dt.id AS id,
+            dtc.id AS categoryId,
+            dtc.`name` AS categoryName,
+            dt.surplus_num AS surplusNum,
+            dt.price AS price,
+            dt.create_mobile AS createMobile,
+            dt.create_user AS createUser,
+            dt.task_url AS taskUrl,
+            dt.send_sdk_url AS sendSdkUrl,
+            dt.info AS info,
+            dt.`condition` AS `condition`,
+            dt.`status` AS `status`,
+            dt.create_time as createTime,
+            dt.task_require AS taskRequire,
+            dt.step_Info AS stepInfo,
+            dt.sample_url AS sampleUrl,
+            dt.task_source AS taskSource
+        FROM
+            dz_task dt
+                LEFT JOIN dz_task_category dtc ON dt.category_id = dtc.id
+        WHERE
+            1 = 1
+          and  dt.id = #{taskId}
+    </select>
+
+
+    <delete id="deleteTasks">
+        delete from dz_task where id in
+        <foreach open="(" close=")" collection="ids" item="id" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="getDoTaskInf" resultType="com.likes.common.model.dto.MemDoTaskDTO">
+        select
+        COUNT(0) as sumcount,
+        sum(case when status = 1 then 1 else 0 end) as conduct,
+        sum(case when status = 2 then 1 else 0 end) as examine,
+        sum(case when status = 3 then 1 else 0 end) as finish,
+        sum(case when status = 4 then 1 else 0 end) as failed,
+        sum(case when status = 5 then 1 else 0 end) as malice,
+        sum(case when status = 6 then 1 else 0 end) as abandon
+        from
+        dz_task_order
+        where 1=1
+        <if test="null != startTime">
+            and create_time <![CDATA[ >= ]]> #{startTime}
+        </if>
+        <if test="null != endTime">
+            and create_time <![CDATA[ <= ]]> #{endTime}
+        </if>
+    </select>
+
+    <select id="getDoTaskMemberNum" resultType="java.lang.Integer">
+
+        select count(0) from
+        (
+        select mem_no from dz_task_order
+        where 1=1
+        <if test="null != startTime">
+            and create_time <![CDATA[ >= ]]> #{startTime}
+        </if>
+        <if test="isnew">
+            and mem_no in (select accno from mem_baseinfo where 1=1
+            <if test="null != startTime">
+                and create_time <![CDATA[ >= ]]> #{startTime}
+            </if>
+            )
+        </if>
+        GROUP BY mem_no) ms
+    </select>
+</mapper>

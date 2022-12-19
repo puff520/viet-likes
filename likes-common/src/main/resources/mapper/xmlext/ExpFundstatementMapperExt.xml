@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.report.ExpFundstatementMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.ExpFundstatement">
+        <!--@mbg.generated-->
+        <!--@Table exp_fundstatement-->
+        <id column="fundid" jdbcType="BIGINT" property="fundid"/>
+        <result column="rechargeamt" jdbcType="DECIMAL" property="rechargeamt"/>
+        <result column="firstrecharge" jdbcType="BIGINT" property="firstrecharge"/>
+        <result column="lotamt" jdbcType="DECIMAL" property="lotamt"/>
+        <result column="lotawardamt" jdbcType="DECIMAL" property="lotawardamt"/>
+        <result column="gameamt" jdbcType="DECIMAL" property="gameamt"/>
+        <result column="gameawardamt" jdbcType="DECIMAL" property="gameawardamt"/>
+        <result column="giftamt" jdbcType="DECIMAL" property="giftamt"/>
+        <result column="giftsumamt" jdbcType="DECIMAL" property="giftsumamt"/>
+        <result column="profitamt" jdbcType="DECIMAL" property="profitamt"/>
+        <result column="platformamt" jdbcType="DECIMAL" property="platformamt"/>
+        <result column="operateamt" jdbcType="DECIMAL" property="operateamt"/>
+        <result column="payamt" jdbcType="DECIMAL" property="payamt"/>
+        <result column="paymentamt" jdbcType="DECIMAL" property="paymentamt"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        fundid, rechargeamt, firstrecharge, lotamt, lotawardamt, gameamt, gameawardamt, giftamt,
+        giftsumamt, profitamt, platformamt, operateamt, payamt, paymentamt, is_delete, create_user,
+        create_time, update_user, update_time
+    </sql>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        select
+        <include refid="Base_Column_List"/>
+        from exp_fundstatement
+        where fundid = #{fundid,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        <!--@mbg.generated-->
+        delete
+        from exp_fundstatement
+        where fundid = #{fundid,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" keyColumn="fundid" keyProperty="fundid" parameterType="com.likes.common.mybatis.entity.ExpFundstatement" useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into exp_fundstatement (rechargeamt, firstrecharge, lotamt,
+                                       lotawardamt, gameamt, gameawardamt,
+                                       giftamt, giftsumamt, profitamt,
+                                       platformamt, operateamt, payamt,
+                                       paymentamt, is_delete, create_user,
+                                       create_time, update_user, update_time)
+        values (#{rechargeamt,jdbcType=DECIMAL}, #{firstrecharge,jdbcType=BIGINT}, #{lotamt,jdbcType=DECIMAL},
+                #{lotawardamt,jdbcType=DECIMAL}, #{gameamt,jdbcType=DECIMAL}, #{gameawardamt,jdbcType=DECIMAL},
+                #{giftamt,jdbcType=DECIMAL}, #{giftsumamt,jdbcType=DECIMAL}, #{profitamt,jdbcType=DECIMAL},
+                #{platformamt,jdbcType=DECIMAL}, #{operateamt,jdbcType=DECIMAL}, #{payamt,jdbcType=DECIMAL},
+                #{paymentamt,jdbcType=DECIMAL}, #{isDelete,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR},
+                #{createTime,jdbcType=TIMESTAMP}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" keyColumn="fundid" keyProperty="fundid" parameterType="com.likes.common.mybatis.entity.ExpFundstatement" useGeneratedKeys="true">
+        <!--@mbg.generated-->
+        insert into exp_fundstatement
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="rechargeamt != null">
+                rechargeamt,
+            </if>
+            <if test="firstrecharge != null">
+                firstrecharge,
+            </if>
+            <if test="lotamt != null">
+                lotamt,
+            </if>
+            <if test="lotawardamt != null">
+                lotawardamt,
+            </if>
+            <if test="gameamt != null">
+                gameamt,
+            </if>
+            <if test="gameawardamt != null">
+                gameawardamt,
+            </if>
+            <if test="giftamt != null">
+                giftamt,
+            </if>
+            <if test="giftsumamt != null">
+                giftsumamt,
+            </if>
+            <if test="profitamt != null">
+                profitamt,
+            </if>
+            <if test="platformamt != null">
+                platformamt,
+            </if>
+            <if test="operateamt != null">
+                operateamt,
+            </if>
+            <if test="payamt != null">
+                payamt,
+            </if>
+            <if test="paymentamt != null">
+                paymentamt,
+            </if>
+            <if test="isDelete != null">
+                is_delete,
+            </if>
+            <if test="createUser != null and createUser != ''">
+                create_user,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                update_user,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="rechargeamt != null">
+                #{rechargeamt,jdbcType=DECIMAL},
+            </if>
+            <if test="firstrecharge != null">
+                #{firstrecharge,jdbcType=BIGINT},
+            </if>
+            <if test="lotamt != null">
+                #{lotamt,jdbcType=DECIMAL},
+            </if>
+            <if test="lotawardamt != null">
+                #{lotawardamt,jdbcType=DECIMAL},
+            </if>
+            <if test="gameamt != null">
+                #{gameamt,jdbcType=DECIMAL},
+            </if>
+            <if test="gameawardamt != null">
+                #{gameawardamt,jdbcType=DECIMAL},
+            </if>
+            <if test="giftamt != null">
+                #{giftamt,jdbcType=DECIMAL},
+            </if>
+            <if test="giftsumamt != null">
+                #{giftsumamt,jdbcType=DECIMAL},
+            </if>
+            <if test="profitamt != null">
+                #{profitamt,jdbcType=DECIMAL},
+            </if>
+            <if test="platformamt != null">
+                #{platformamt,jdbcType=DECIMAL},
+            </if>
+            <if test="operateamt != null">
+                #{operateamt,jdbcType=DECIMAL},
+            </if>
+            <if test="payamt != null">
+                #{payamt,jdbcType=DECIMAL},
+            </if>
+            <if test="paymentamt != null">
+                #{paymentamt,jdbcType=DECIMAL},
+            </if>
+            <if test="isDelete != null">
+                #{isDelete,jdbcType=BIT},
+            </if>
+            <if test="createUser != null and createUser != ''">
+                #{createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.likes.common.mybatis.entity.ExpFundstatement">
+        <!--@mbg.generated-->
+        update exp_fundstatement
+        <set>
+            <if test="rechargeamt != null">
+                rechargeamt = #{rechargeamt,jdbcType=DECIMAL},
+            </if>
+            <if test="firstrecharge != null">
+                firstrecharge = #{firstrecharge,jdbcType=BIGINT},
+            </if>
+            <if test="lotamt != null">
+                lotamt = #{lotamt,jdbcType=DECIMAL},
+            </if>
+            <if test="lotawardamt != null">
+                lotawardamt = #{lotawardamt,jdbcType=DECIMAL},
+            </if>
+            <if test="gameamt != null">
+                gameamt = #{gameamt,jdbcType=DECIMAL},
+            </if>
+            <if test="gameawardamt != null">
+                gameawardamt = #{gameawardamt,jdbcType=DECIMAL},
+            </if>
+            <if test="giftamt != null">
+                giftamt = #{giftamt,jdbcType=DECIMAL},
+            </if>
+            <if test="giftsumamt != null">
+                giftsumamt = #{giftsumamt,jdbcType=DECIMAL},
+            </if>
+            <if test="profitamt != null">
+                profitamt = #{profitamt,jdbcType=DECIMAL},
+            </if>
+            <if test="platformamt != null">
+                platformamt = #{platformamt,jdbcType=DECIMAL},
+            </if>
+            <if test="operateamt != null">
+                operateamt = #{operateamt,jdbcType=DECIMAL},
+            </if>
+            <if test="payamt != null">
+                payamt = #{payamt,jdbcType=DECIMAL},
+            </if>
+            <if test="paymentamt != null">
+                paymentamt = #{paymentamt,jdbcType=DECIMAL},
+            </if>
+            <if test="isDelete != null">
+                is_delete = #{isDelete,jdbcType=BIT},
+            </if>
+            <if test="createUser != null and createUser != ''">
+                create_user = #{createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                update_user = #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where fundid = #{fundid,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.likes.common.mybatis.entity.ExpFundstatement">
+        <!--@mbg.generated-->
+        update exp_fundstatement
+        set rechargeamt   = #{rechargeamt,jdbcType=DECIMAL},
+            firstrecharge = #{firstrecharge,jdbcType=BIGINT},
+            lotamt        = #{lotamt,jdbcType=DECIMAL},
+            lotawardamt   = #{lotawardamt,jdbcType=DECIMAL},
+            gameamt       = #{gameamt,jdbcType=DECIMAL},
+            gameawardamt  = #{gameawardamt,jdbcType=DECIMAL},
+            giftamt       = #{giftamt,jdbcType=DECIMAL},
+            giftsumamt    = #{giftsumamt,jdbcType=DECIMAL},
+            profitamt     = #{profitamt,jdbcType=DECIMAL},
+            platformamt   = #{platformamt,jdbcType=DECIMAL},
+            operateamt    = #{operateamt,jdbcType=DECIMAL},
+            payamt        = #{payamt,jdbcType=DECIMAL},
+            paymentamt    = #{paymentamt,jdbcType=DECIMAL},
+            is_delete     = #{isDelete,jdbcType=BIT},
+            create_user   = #{createUser,jdbcType=VARCHAR},
+            create_time   = #{createTime,jdbcType=TIMESTAMP},
+            update_user   = #{updateUser,jdbcType=VARCHAR},
+            update_time   = #{updateTime,jdbcType=TIMESTAMP}
+        where fundid = #{fundid,jdbcType=BIGINT}
+    </update>
+
+
+    <select id="getListByYearMonth" resultMap="BaseResultMap">
+        select *
+        from exp_fundstatement
+        where is_delete = b'0'
+          AND date_format(create_time, '%Y%m') = #{yearmonth}
+        order BY create_time desc
+    </select>
+
+    <select id="getOneMonthSum" resultType="com.likes.common.model.dto.report.ExpFundsSummaryDO">
+        SELECT date_format(create_time, '%Y%m')             AS dateStr,
+               ROUND(SUM(rechargeamt), 2)                   AS rechargeamt,
+               ROUND(SUM(paymentamt), 2)                    AS paymentamt,
+               SUM(firstrecharge)                           AS firstrecharge,
+               ROUND(SUM(lotamt), 2)                        AS lotamt,
+               ROUND(SUM(lotawardamt), 2)                   AS lotawardamt,
+               ROUND(SUM(lotamt) - SUM(lotawardamt), 2)     AS lotprofit,
+               ROUND(SUM(gameamt), 2)                       AS gameamt,
+               ROUND(SUM(gameawardamt), 2)                  AS gameawardamt,
+               ROUND(SUM(gameamt) - SUM(gameawardamt), 2)   AS gameprofit,
+               IFNULL(ROUND(SUM(giftsumamt), 2), 0.000)     AS giftsumamt,
+               ROUND(SUM(giftamt), 2)                       AS giftamt,
+               ROUND(SUM(profitamt), 2)                     AS profitamt,
+               ROUND(SUM(platformamt), 2)                   AS platformamt,
+               ROUND(MAX(operateamt), 2)                    AS operateamt,
+               ROUND(SUM(platformamt) + MAX(operateamt), 2) AS payamt
+        FROM exp_fundstatement as ef
+        WHERE is_delete = b'0'
+          AND date_format(create_time, '%Y%m') = #{yearmonth}
+        GROUP BY dateStr;
+    </select>
+
+    <select id="getSuperOneMonthSum" resultType="com.likes.common.model.dto.report.SuperExpFundsSummaryDO">
+        SELECT date_format(create_time, '%Y%m')             AS dateStr,
+               ROUND(SUM(rechargeamt), 2)                   AS rechargeamt,
+               ROUND(SUM(lotamt) - SUM(lotawardamt), 2)     AS lotprofit,
+               ROUND(SUM(gameamt) - SUM(gameawardamt), 2)   AS gameprofit,
+               IFNULL(ROUND(SUM(giftsumamt), 2), 0.000)     AS giftsumamt,
+               ROUND(SUM(profitamt), 2)                     AS profitamt
+        FROM exp_fundstatement as ef
+        WHERE is_delete = b'0'
+          AND date_format(create_time, '%Y%m') = #{yearmonth}
+        GROUP BY dateStr;
+    </select>
+
+
+    <select id="existsByDate" resultMap="BaseResultMap">
+        SELECT ef.*
+        FROM exp_fundstatement as ef
+        WHERE is_delete = b'0'
+          AND date_format(create_time, '%Y-%m-%d') = #{dateStr}
+        limit 1
+    </select>
+    <!--auto generated by MybatisCodeHelper on 2020-07-29-->
+    <update id="updateIsDeleteByDate">
+        update exp_fundstatement
+        set is_delete=#{updatedIsDelete,jdbcType=BIT}
+         where date_format(create_time, '%Y-%m-%d') = #{dateStr}
+    </update>
+</mapper>

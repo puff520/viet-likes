@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.lottery.ChessOrderMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.ChessOrder">
+        <id column="cheorderid" jdbcType="BIGINT" property="cheorderid"/>
+        <result column="orderid" jdbcType="BIGINT" property="orderid"/>
+        <result column="chekindid" jdbcType="BIGINT" property="chekindid"/>
+        <result column="kindid" jdbcType="BIGINT" property="kindid"/>
+        <result column="channelid" jdbcType="BIGINT" property="channelid"/>
+        <result column="gameid" jdbcType="VARCHAR" property="gameid"/>
+        <result column="account" jdbcType="VARCHAR" property="account"/>
+        <result column="sumamt" jdbcType="DECIMAL" property="sumamt"/>
+        <result column="status" jdbcType="DECIMAL" property="status"/>
+        <result column="winamt" jdbcType="DECIMAL" property="winamt"/>
+        <result column="revenue" jdbcType="DECIMAL" property="revenue"/>
+        <result column="buttonnote" jdbcType="VARCHAR" property="buttonnote"/>
+        <result column="startdate" jdbcType="TIMESTAMP" property="startdate"/>
+        <result column="stopdate" jdbcType="TIMESTAMP" property="stopdate"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    cheorderid, orderid, chekindid, kindid, channelid, gameid, account, sumamt, status, 
+    winamt, revenue, buttonnote, startdate, stopdate, is_delete
+  </sql>
+
+
+    <select id="getOrderByPaycode" parameterType="java.lang.String" resultType="java.lang.Integer">
+  	select count(1) 
+  	from chess_sssorder t
+  	where
+  	t.is_delete = b'0' and gameid = #{gameid}
+    limit 1
+  </select>
+
+    <insert id="insertShessSssorder" keyColumn="cheorderid" keyProperty="cheorderid"
+            parameterType="com.likes.common.model.dto.chess.ChessSssorderDO" useGeneratedKeys="true">
+    insert into chess_sssorder (orderid, chekindid,
+      kindid, channelid, gameid, 
+      account, sumamt, status, 
+      winamt, revenue, buttonnote, 
+      startdate, stopdate, is_delete
+      )
+      
+  	  SELECT MM.orderid , #{chekindid,jdbcType=BIGINT}, 
+      #{kindid,jdbcType=BIGINT}, #{channelid,jdbcType=BIGINT}, #{gameid,jdbcType=VARCHAR}, 
+      #{account,jdbcType=VARCHAR}, TRUNCATE(#{sumamt,jdbcType=DECIMAL},3), #{status,jdbcType=DECIMAL}, 
+      TRUNCATE(#{winamt,jdbcType=DECIMAL},3), TRUNCATE(#{revenue,jdbcType=DECIMAL},3), #{buttonnote,jdbcType=VARCHAR}, 
+      #{startdate,jdbcType=TIMESTAMP}, #{stopdate,jdbcType=TIMESTAMP}, #{is_delete,jdbcType=BIT}
+      
+      from (
+      SELECT t.orderid FROM tra_orderinfom t 
+		WHERE t.ordertype = 7
+		AND (t.orderstatus = "ord08" or t.orderstatus = "ord98")
+		<![CDATA[     AND t.createdate <= #{startdate,jdbcType=TIMESTAMP}  ]]> 
+		AND t.accno in (SELECT ml.accno FROM mem_login ml WHERE ml.acclogin = #{acclogin} AND ml.logintype in (1,2))
+		ORDER BY t.createdate DESC 
+		LIMIT 1
+      ) as MM
+  
+  </insert>
+
+
+</mapper>

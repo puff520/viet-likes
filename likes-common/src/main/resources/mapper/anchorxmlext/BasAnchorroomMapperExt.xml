@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.BasAnchorroomMapperExt">
+
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.anchor.BasAnchorroom">
+        <id column="roomid" jdbcType="BIGINT" property="roomid"/>
+        <result column="channelid" jdbcType="BIGINT" property="channelid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="roomname" jdbcType="VARCHAR" property="roomname"/>
+        <result column="roomtheme" jdbcType="VARCHAR" property="roomtheme"/>
+        <result column="cover" jdbcType="VARCHAR" property="cover"/>
+        <result column="manageaccno" jdbcType="VARCHAR" property="manageaccno"/>
+        <result column="praisenum" jdbcType="BIGINT" property="praisenum"/>
+        <result column="sharenum" jdbcType="BIGINT" property="sharenum"/>
+        <result column="viewnum" jdbcType="BIGINT" property="viewnum"/>
+        <result column="onlinenum" jdbcType="BIGINT" property="onlinenum"/>
+        <result column="roomstatus" jdbcType="DECIMAL" property="roomstatus"/>
+        <result column="istalk" jdbcType="DECIMAL" property="istalk"/>
+        <result column="clientid" jdbcType="VARCHAR" property="clientid"/>
+        <result column="streamkey" jdbcType="VARCHAR" property="streamkey"/>
+        <result column="onlinedate" jdbcType="TIMESTAMP" property="onlinedate"/>
+        <result column="offlinedate" jdbcType="TIMESTAMP" property="offlinedate"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="lotkindid" jdbcType="BIGINT" property="lotkindid"/>
+        <result column="client_ip" jdbcType="VARCHAR" property="clientIp"/>
+        <result column="client_address" jdbcType="VARCHAR" property="clientAddress"/>
+    </resultMap>
+
+    <resultMap extends="BaseResultMap" id="ResultMapExtent" type="com.likes.common.model.dto.bas.BasAnchorroomDO">
+        <result column="zuihoushouru" jdbcType="BIGINT" property="zuihoushouru"/>
+        <result column="renci" jdbcType="BIGINT" property="renci"/>
+        <result column="hotnum" jdbcType="BIGINT" property="hotnum"/>
+    </resultMap>
+
+    <resultMap id="ResultResp" type="com.likes.common.model.dto.bas.BasAnchorroomResp">
+        <id column="roomid" jdbcType="BIGINT" property="roomid"/>
+        <result column="lotkindid" jdbcType="BIGINT" property="lotkindid"/>
+        <result column="channelid" jdbcType="BIGINT" property="channelid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="roomname" jdbcType="VARCHAR" property="roomname"/>
+        <result column="roomtheme" jdbcType="VARCHAR" property="roomtheme"/>
+        <result column="cover" jdbcType="VARCHAR" property="cover"/>
+        <result column="manageaccno" jdbcType="VARCHAR" property="manageaccno"/>
+        <result column="praisenum" jdbcType="BIGINT" property="praisenum"/>
+        <result column="sharenum" jdbcType="BIGINT" property="sharenum"/>
+        <result column="viewnum" jdbcType="BIGINT" property="viewnum"/>
+        <result column="onlinenum" jdbcType="BIGINT" property="onlinenum"/>
+        <result column="roomstatus" jdbcType="DECIMAL" property="roomstatus"/>
+        <result column="istalk" jdbcType="DECIMAL" property="istalk"/>
+        <result column="clientid" jdbcType="VARCHAR" property="clientid"/>
+        <result column="onlinedate" jdbcType="DATE" property="onlinedate"/>
+        <result column="offlinedate" jdbcType="DATE" property="offlinedate"/>
+        <result column="nickname" jdbcType="VARCHAR" property="nickname"/>
+        <result column="mobileno" jdbcType="VARCHAR" property="mobileno"/>
+        <result column="hotnum" jdbcType="BIGINT" property="hotnum"/>
+        <result column="allquantity" jdbcType="BIGINT" property="allquantity"/>
+        <result column="channelname" jdbcType="VARCHAR" property="channelname"/>
+        <result column="lotteryname" jdbcType="VARCHAR" property="lotteryname"/>
+        <result column="toolstatus" jdbcType="BIGINT" property="toolstatus"/>
+        <result column="renci" jdbcType="BIGINT" property="renci"/>
+        <result column="zuihoushouru" jdbcType="DECIMAL" property="zuihoushouru"/>
+        <result column="client_ip" jdbcType="VARCHAR" property="clientIp"/>
+        <result column="client_address" jdbcType="VARCHAR" property="clientAddress"/>
+        <result column="bet_amount" jdbcType="DECIMAL" property="betAmount"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        roomid, channelid, accno, roomname, roomtheme, cover, manageaccno, praisenum, sharenum,
+        viewnum, onlinenum, roomstatus, istalk, clientid, streamkey, onlinedate, offlinedate,
+        is_delete, create_user, create_time, update_user, update_time,lotkindid,client_ip,client_address
+    </sql>
+
+    <select id="selectByStream" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from bas_anchorroom
+        where streamkey = #{streamkey,jdbcType=VARCHAR}
+        and is_delete = b'0'
+        order by update_time desc
+        limit 1
+    </select>
+
+    <select id="getRoomidByAccno" resultType="com.likes.common.mybatis.entity.anchor.BasAnchorroom" parameterType="java.util.List">
+        select *
+        from bas_anchorroom
+        where accno in
+        <foreach close=")" collection="list" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        And is_delete = b'0'
+    </select>
+
+    <select id="selectByClientid" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from bas_anchorroom
+        where clientid = #{clientid,jdbcType=VARCHAR}
+        and is_delete = b'0'
+        limit 1
+    </select>
+
+    <select id="selectByAccno" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from bas_anchorroom
+        where accno = #{accno,jdbcType=VARCHAR}
+        and is_delete = b'0'
+        limit 1
+    </select>
+
+    <select id="getOnlinStreams" resultType="java.lang.String">
+        select streamkey
+        from bas_anchorroom
+        where roomstatus = 0
+        and is_delete = b'0'
+        order by update_time asc
+    </select>
+
+    <select id="getOnlinBasRoomIdList" resultType="java.lang.Long">
+        select roomid
+        from bas_anchorroom
+        where roomstatus = 0
+        and is_delete = b'0'
+        order by update_time asc
+    </select>
+
+    <select id="getTheHostOnlineRoom" resultType="com.likes.common.model.vo.BasAnchorroomVO">
+        select a.*,b.nickname
+        from bas_anchorroom a inner join anchor_mem_familymem b
+        on a.accno = b.accno and a.roomstatus = 0
+        and a.is_delete = b'0'
+        order by update_time asc
+    </select>
+
+    <update id="updateManageaccno" parameterType="com.likes.common.mybatis.entity.anchor.BasAnchorroom">
+        update bas_anchorroom
+        set manageaccno = #{manageaccno},
+            update_user = #{updateUser},
+            update_time = #{updateTime}
+        where roomid = #{roomid,jdbcType=BIGINT}
+	</update>
+
+    <select id="getList" parameterType="com.likes.common.model.dto.bas.BasAnchorroomReq" resultMap="ResultResp">
+        select ba.*,
+        (select nickname from anchor_mem_baseinfo where accno = ba.accno and is_delete = b'0' limit 1) as nickname
+        from bas_anchorroom ba
+        where ba.is_delete = b'0'
+        <if test="accno != null and accno != ''">
+            and ba.accno = #{accno,jdbcType=VARCHAR}
+        </if>
+        <if test="accnoList != null and accnoList.size != 0">
+            and ba.accno in
+            <foreach close=")" collection="accnoList" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+        <if test="roomname != null and roomname != ''">
+            and ba.roomname LIKE CONCAT('%',#{roomname,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="roomtheme != null and roomtheme != ''">
+            and ba.roomtheme LIKE CONCAT('%',#{roomtheme,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="roomstatus != null">
+            and ba.roomstatus = #{roomstatus,jdbcType=DECIMAL}
+        </if>
+        <if test="clientid != null and clientid != ''">
+            and ba.clientid = #{clientid,jdbcType=VARCHAR}
+        </if>
+        <if test="channelid != null ">
+            and ba.channelid = #{channelid}
+        </if>
+        order by ba.roomstatus asc, ba.update_time desc
+    </select>
+
+    <select id="getIsmanage" resultType="java.lang.Integer">
+        select if(count(*) &gt; 0,0,9)
+        from bas_anchorroom
+        where roomid = #{roomid,jdbcType=BIGINT}
+        and FIND_IN_SET(#{accno,jdbcType=VARCHAR}, manageaccno)
+    </select>
+
+    <select id="getRoomDetail" parameterType="com.likes.common.model.dto.bas.BasAnchorroomReq" resultMap="ResultResp">
+        SELECT ba.*,
+        ( SELECT nickname FROM anchor_mem_baseinfo WHERE accno = ba.accno AND is_delete = b'0' LIMIT 1 ) AS nickname
+        FROM bas_anchorroom ba
+        WHERE ba.roomid = #{roomid}
+        AND ba.is_delete = b'0'
+        order by ba.roomstatus asc
+    </select>
+
+    <update id="removeManager" parameterType="java.lang.Long">
+        update bas_anchorroom ba
+        set ba.manageaccno = NULL
+        where ba.roomid = #{roomid}
+    </update>
+
+    <update id="initRoomStatus">
+        update bas_anchorroom
+        set roomstatus = 9,
+            toolstatus = 9 ,
+            offlinedate = now(),
+            update_time = now()
+        where roomstatus = 0
+    </update>
+
+    <select id="getWsclienturl" resultType="java.lang.String">
+        select CONCAT("ws://127.0.0.1:${port}/talkserver?acctoken=",#{acctoken,jdbcType=VARCHAR},"&amp;stream=",streamkey)
+        from bas_anchorroom
+        where is_delete = b'0'
+        and !isnull(streamkey)
+        limit 1
+    </select>
+
+    <select id="getOnlineTime" parameterType="java.util.Map" resultType="java.lang.Double">
+        SELECT ifnull(sum(round(TIME_TO_SEC(TIMEDIFF(ifnull(b.offlinedate,NOW()),b.onlinedate))/60,2)),0) as onlineTime
+        from bas_anchoronline b
+        where b.roomid = #{roomid}
+        and is_delete = b'0'
+        and b.onlinedate BETWEEN #{startDate} and #{endDate}
+    </select>
+
+    <select id="getAllTotalTime" resultType="java.lang.Double">
+        SELECT ifnull(sum(round(TIME_TO_SEC(TIMEDIFF(ifnull(b.offlinedate,NOW()),b.onlinedate))/60,2)),0) as todayTime
+        from bas_anchoronline b
+        where b.accno = #{accno}
+        and is_delete = b'0'
+        <if test="startDate != null and startDate !='' and endDate != null and endDate !='' ">
+            and b.onlinedate BETWEEN #{startDate} and #{endDate}
+        </if>
+    </select>
+
+    <select id="getOnLineBasAnchorRoom" resultType="java.lang.Long">
+        select roomid
+        from bas_anchorroom
+        where roomstatus = 0
+    </select>
+
+</mapper>

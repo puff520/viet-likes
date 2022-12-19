@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.AnchorMemRelationshipMapperExt">
+
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.anchor.AnchorMemRelationship">
+        <id column="relaid" jdbcType="BIGINT" property="relaid"/>
+        <result column="refaccno" jdbcType="VARCHAR" property="refaccno"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="memname" jdbcType="VARCHAR" property="memname"/>
+        <result column="is_delete" jdbcType="DECIMAL" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="BaseSysResultMap" type="com.likes.common.model.dto.member.MemRelationshipDO">
+        <id column="relaid" jdbcType="BIGINT" property="relaid" />
+        <result column="refaccno" jdbcType="VARCHAR" property="refaccno" />
+        <result column="accno" jdbcType="VARCHAR" property="accno" />
+        <result column="memname" jdbcType="VARCHAR" property="memname" />
+        <result column="is_delete" jdbcType="DECIMAL" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <collection column="accno" property="children" select="com.likes.common.mybatis.mapperext.member.MemRelationshipMapperExt.selectByPCode" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+    	relaid, refaccno, accno, memname, is_delete, create_user, create_time, update_user, update_time
+  	</sql>
+
+    <insert id="insertSelectiveMemRelationship" keyColumn="relaid" keyProperty="relaid"
+            parameterType="com.likes.common.mybatis.entity.anchor.AnchorMemRelationship" useGeneratedKeys="true">
+		insert into anchor_mem_relationship (refaccno,
+		accno, memname, create_user, update_user
+		)
+		select
+		#{refaccno},
+		#{accno},
+		#{memname},
+		#{createUser},
+		#{updateUser}
+
+		 WHERE
+		NOT EXISTS
+		(select
+		accno
+		from anchor_mem_relationship
+		where accno = #{accno}
+		AND is_delete = b'0'
+		)
+	</insert>
+
+    <select id="getMyPromotion" parameterType="java.lang.String" resultType="com.likes.common.model.dto.PromotionDo">
+		SELECT m.create_time,m.mobileno,m.nickname,m.memname
+		FROM
+		anchor_mem_baseinfo m WHERE m.accno IN (
+		SELECT mr.accno
+		FROM anchor_mem_relationship
+		mr WHERE mr.refaccno = #{accno})
+	</select>
+
+    <select id="getMyPromotionList" parameterType="java.lang.String" resultType="com.likes.common.model.dto.PromotionDo">
+		SELECT mr.create_time,
+		(SELECT m.mobileno FROM anchor_mem_baseinfo m WHERE m.accno = mr.accno )  as mobileno,
+		(SELECT m.nickname FROM anchor_mem_baseinfo m WHERE m.accno = mr.accno )  as nickname
+		FROM
+		anchor_mem_relationship mr
+		WHERE
+		mr.refaccno = #{accno}
+		and mr.is_delete = b'0'
+	</select>
+
+
+    <!--<select id="xiangxia" parameterType="java.lang.String" resultType="java.lang.String">-->
+		<!--select accno from (-->
+		<!--select t1.accno,-->
+		<!--if(find_in_set(paraccno, @pids) &gt; 0, @pids := concat(@pids, ',', accno), 0) as ischild-->
+		<!--from (-->
+		<!--select accno,paraccno from-->
+		<!--(SELECT mf.accno , mf.refaccno as paraccno-->
+		<!--FROM anchor_mem_relationship mf WHERE mf.is_delete = b'0')-->
+		<!--as t-->
+		<!--) t1,-->
+		<!--(select @pids := #{accno}) t2-->
+		<!--) t3 where ischild != "0" ORDER BY accno asc-->
+	<!--</select>-->
+
+    <select id="findByAccno" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from anchor_mem_relationship
+        where accno = #{accno}
+        and is_delete = b'0'
+        limit 1
+    </select>
+
+    <select id="getRecomcode" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT
+		(SELECT mb.recomcode  FROM anchor_mem_baseinfo mb WHERE mb.accno = mr.refaccno LIMIT 1 ) as recomcode
+		FROM anchor_mem_relationship mr
+		WHERE mr.accno = #{accno}
+		and mr.is_delete = b'0'
+		LIMIT 1
+	</select>
+
+    <select id="selectByPCode"
+            parameterType="java.lang.String"
+            resultMap="BaseSysResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from anchor_mem_relationship
+        where is_delete = 0
+        AND refaccno = #{accno,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getAllChild"
+            parameterType="java.lang.String"
+            resultMap="BaseSysResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from anchor_mem_relationship
+        where is_delete = 0
+        AND refaccno = #{refaccno,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getRefaccnos" resultType="com.likes.common.mybatis.entity.anchor.AnchorMemRelationship">
+		select DISTINCT(rel.refaccno) as refaccno
+		from anchor_mem_relationship rel
+		INNER JOIN anchor_mem_baseinfo ba
+		on rel.refaccno= ba.accno
+		and ba.is_delete=FALSE
+		and rel.is_delete=FALSE
+	</select>
+
+</mapper>

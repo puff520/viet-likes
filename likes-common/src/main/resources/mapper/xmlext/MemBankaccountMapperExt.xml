@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.member.MemBankaccountMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemBankaccount">
+        <id column="bankaccid" jdbcType="BIGINT" property="bankaccid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="familyid" jdbcType="BIGINT" property="familyid"/>
+        <result column="accounttype" jdbcType="DECIMAL" property="accounttype"/>
+        <result column="bankaddress" jdbcType="VARCHAR" property="bankaddress"/>
+        <result column="bankname" jdbcType="VARCHAR" property="bankname"/>
+        <result column="accountname" jdbcType="VARCHAR" property="accountname"/>
+        <result column="accountno" jdbcType="VARCHAR" property="accountno"/>
+        <result column="accidcardno" jdbcType="VARCHAR" property="accidcardno"/>
+        <result column="idcardpic1" jdbcType="VARCHAR" property="idcardpic1"/>
+        <result column="idcardpic2" jdbcType="VARCHAR" property="idcardpic2"/>
+        <result column="checkstatus" jdbcType="DECIMAL" property="checkstatus"/>
+        <result column="checknote" jdbcType="VARCHAR" property="checknote"/>
+        <result column="emailaddress" jdbcType="VARCHAR" property="emailaddress"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete" javaType="boolean"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    bankaccid, accno, familyid, accounttype, bankaddress, bankname, accountname, accountno,
+    accidcardno, idcardpic1, idcardpic2, checkstatus, checknote, emailaddress, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+    <select id="findByFamilyId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mem_bankaccount
+        where familyid = #{familyid} and is_delete = b'0'
+        limit 1
+    </select>
+
+    <select id="findByAccno" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.MemBankaccount">
+        select
+        <include refid="Base_Column_List"/>
+        from mem_bankaccount
+        where accno = #{accno}
+        and is_delete = b'0'
+        order by update_time desc,create_time desc
+        limit 1
+    </select>
+
+    <select id="findBankByAccno" parameterType="com.likes.common.mybatis.entity.MemBankaccount"
+            resultType="com.likes.common.mybatis.entity.MemBankaccount">
+        select
+        <include refid="Base_Column_List"/>
+        from mem_bankaccount m
+        where m.accno = #{accno}
+        AND m.accountno = #{accountno}
+        AND m.accounttype = #{accounttype}
+        order by m.update_time desc,m.create_time desc
+        limit 1
+    </select>
+
+    <insert id="insertBank" keyColumn="bankaccid"
+            keyProperty="bankaccid" parameterType="com.likes.common.mybatis.entity.MemBankaccount"
+            useGeneratedKeys="true">
+    insert into mem_bankaccount ( accno, familyid,
+      accounttype, bankaddress, bankname,
+      accountname, accountno, accidcardno,
+      idcardpic1, idcardpic2, checkstatus,
+      checknote, emailaddress,  create_user,   update_user)
+
+      SELECT
+      #{accno,jdbcType=VARCHAR}, #{familyid,jdbcType=BIGINT},
+      #{accounttype,jdbcType=DECIMAL}, #{bankaddress,jdbcType=VARCHAR}, #{bankname,jdbcType=VARCHAR},
+      #{accountname,jdbcType=VARCHAR}, #{accountno,jdbcType=VARCHAR}, #{accidcardno,jdbcType=VARCHAR},
+      #{idcardpic1,jdbcType=VARCHAR}, #{idcardpic2,jdbcType=VARCHAR}, #{checkstatus,jdbcType=DECIMAL},
+      #{checknote,jdbcType=VARCHAR}, #{emailaddress,jdbcType=VARCHAR},
+      #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}
+
+      WHERE
+		NOT EXISTS
+		(SELECT m.accno FROM mem_bankaccount m
+		WHERE
+		 m.accno = #{accno}
+		 AND m.accountno = #{accountno}
+		 AND m.accounttype = #{accounttype}
+		LIMIT 1
+		)
+  </insert>
+
+
+    <update id="doDelAllBank" parameterType="com.likes.common.mybatis.entity.MemBankaccount">
+  	 update mem_bankaccount
+    set
+      is_delete = #{isDelete,jdbcType=DECIMAL},
+      update_user = #{updateUser,jdbcType=VARCHAR}
+      where accno = #{accno,jdbcType=VARCHAR}
+  </update>
+
+    <update id="deleteByPrimaryKey" parameterType="com.likes.common.mybatis.entity.MemBankaccount">
+        update mem_bankaccount
+    set
+      is_delete = #{isDelete,jdbcType=DECIMAL},
+      update_user = #{updateUser,jdbcType=VARCHAR}
+      where bankaccid = #{bankaccid,jdbcType=BIGINT}
+    </update>
+
+    <select id="getMemberbankLst" parameterType="com.likes.common.model.request.MemberBankRequest"
+            resultType="com.likes.common.model.dto.member.MemberBankDTO">
+        select
+        mba.bankaccid,
+        mb.memid,mb.unique_id as uniqueId,mb.accno,mb.email,mb.nickname,
+        mba.bankaddress as moneyAddress,mba.create_time as createTime
+        from mem_bankaccount mba
+        INNER JOIN mem_baseinfo mb on mb.accno = mba.accno
+        where
+        mb.is_delete = b'0'
+        and mba.is_delete = b'0'
+        <if test="email != null  and  email != '' ">
+            and mb.email = #{email}
+        </if>
+        <if test="moneyAddress != null  and  moneyAddress != '' ">
+            and mba.bankaddress = #{moneyAddress}
+        </if>
+        <if test="beginTime != null and  beginTime !='' ">
+            <![CDATA[  and mba.create_time >= #{beginTime} ]]>
+        </if>
+        <if test="endTime != null and  endTime !='' ">
+            <![CDATA[  and mba.create_time <= #{endTime} ]]>
+        </if>
+        order by mba.create_time desc
+    </select>
+
+
+</mapper>

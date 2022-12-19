@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.QutoutiaoTransformMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.model.QutoutiaoTransform">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="CID" jdbcType="VARCHAR" property="cid" />
+    <result column="OS" jdbcType="INTEGER" property="os" />
+    <result column="IMEIMD5" jdbcType="VARCHAR" property="imeimd5" />
+    <result column="IDFA" jdbcType="VARCHAR" property="idfa" />
+    <result column="TS" jdbcType="BIGINT" property="ts" />
+    <result column="TSMS" jdbcType="BIGINT" property="tsms" />
+    <result column="CALLBACK_URL" jdbcType="VARCHAR" property="callbackUrl" />
+    <result column="UNIT" jdbcType="VARCHAR" property="unit" />
+    <result column="PLAN" jdbcType="VARCHAR" property="plan" />
+    <result column="UID" jdbcType="VARCHAR" property="uid" />
+    <result column="UA" jdbcType="VARCHAR" property="ua" />
+    <result column="ANDROIDIDMD5" jdbcType="VARCHAR" property="androididmd5" />
+    <result column="IP" jdbcType="VARCHAR" property="ip" />
+    <result column="OAID" jdbcType="VARCHAR" property="oaid" />
+    <result column="DP_LINK" jdbcType="VARCHAR" property="dpLink" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="status" jdbcType="INTEGER" property="status" />
+  </resultMap>
+</mapper>

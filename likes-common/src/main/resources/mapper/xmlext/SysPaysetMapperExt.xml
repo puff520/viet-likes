@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.sys.SysPaysetMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysPayset">
+        <id column="paysetid" jdbcType="BIGINT" property="paysetid"/>
+        <result column="setname" jdbcType="VARCHAR" property="setname"/>
+        <result column="settype" jdbcType="DECIMAL" property="settype"/>
+        <result column="rechargetype" jdbcType="DECIMAL" property="rechargetype"/>
+        <result column="giftrate" jdbcType="DECIMAL" property="giftrate"/>
+        <result column="maxgift" jdbcType="DECIMAL" property="maxgift"/>
+        <result column="auditper" jdbcType="DECIMAL" property="auditper"/>
+        <result column="auditfree" jdbcType="DECIMAL" property="auditfree"/>
+        <result column="administrative" jdbcType="DECIMAL" property="administrative"/>
+        <result column="freechargenums" jdbcType="INTEGER" property="freechargenums"/>
+        <result column="servicecharge" jdbcType="DECIMAL" property="servicecharge"/>
+        <result column="maxchargeamt" jdbcType="DECIMAL" property="maxchargeamt"/>
+        <result column="minchargeamt" jdbcType="DECIMAL" property="minchargeamt"/>
+        <result column="status" jdbcType="DECIMAL" property="status"/>
+        <result column="sortby" jdbcType="INTEGER" property="sortby"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    paysetid, setname, settype, rechargetype, giftrate, maxgift, auditper, auditfree, 
+    administrative, freechargenums, servicecharge, maxchargeamt, minchargeamt, status, 
+    sortby, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+
+    <select id="getList" parameterType="com.likes.common.model.request.PaySetRequest"
+            resultType="com.likes.common.mybatis.entity.SysPayset">
+  	select * from sys_payset
+  	where is_delete = b'0' 
+  	order by status asc,sortby desc
+  </select>
+
+
+    <select id="getRepeate" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.SysPayset">
+  	select * from sys_payset
+  	where is_delete = b'0' 
+  	and setname = #{setname}
+  	limit 1
+  </select>
+
+    <update id="doAllJingyong2" parameterType="com.likes.common.model.request.PaySetRequest">
+        update sys_payset s
+        set s.status = 9
+        where s.is_delete = b'0'
+        <if test=" setname != null ">
+            and s.setname != #{setname}
+        </if>
+    </update>
+
+    <select id="getAllList" parameterType="com.likes.common.model.request.PaySetRequest"
+            resultMap="BaseResultMap">
+        select * from sys_payset
+        where is_delete = b'0'
+        <if test=" setname != null and setname != '' ">
+            and s.setname LIKE CONCAT('%',#{setname,jdbcType=VARCHAR},'%')
+        </if>
+        order by sortby desc,update_time desc ,paysetid desc
+    </select>
+
+    <update id="doUpdate2" parameterType="com.likes.common.mybatis.entity.SysPayset">
+  	update sys_payset s
+     set s.status = #{status} , s.is_delete = #{isDelete} ,
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      update_time = SYSDATE()
+     where 
+     	s.setname = #{setname}
+  </update>
+
+    <select id="getOneBySettypeByOrderid" parameterType="java.lang.Long"
+            resultType="com.likes.common.mybatis.entity.SysPayset">
+  	select * from sys_payset s
+  	where s.paysetid = (SELECT t.paysetid FROM tra_rechargeaudit t WHERE t.orderid = #{orderid})
+  </select>
+
+
+    <update id="doAllJingyong" parameterType="com.likes.common.mybatis.entity.SysPayset">
+        update sys_payset s
+        set s.status = 9
+        where s.is_delete = b'0'
+        <if test=" paysetid != null ">
+            and s.paysetid != #{paysetid}
+        </if>
+    </update>
+
+
+    <select id="getUseOne" parameterType="java.lang.Integer"
+            resultType="com.likes.common.mybatis.entity.SysPayset">
+  	select *
+  	from sys_payset
+  	where status = 0
+  	AND is_delete = b'0'
+  	AND settype = #{settype}
+  	limit 1
+  </select>
+
+
+</mapper>

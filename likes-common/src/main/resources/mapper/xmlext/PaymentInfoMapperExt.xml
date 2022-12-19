@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.likes.common.mybatis.mapperext.PaymentInfoMapperExt">
+    <select id="selOfflinePaymentMenu" resultType="com.likes.common.model.vo.money.OfflinePaymentVO">
+        select
+        ps.user_id as userId,
+        (SELECT name FROM `vip_grade` where id = am.vip_id limit 1) as vipLevel,
+        am.login_ip as loginIp,
+        am.account as userName,
+        am.real_name as realName,
+        (SELECT receive_bank FROM `recharge_account` where id = ps.type_detail limit 1) as channelName,
+        SUBSTRING(ra.receive_card_no, -4) as bankAccountLastFour,
+        ps.id as id,
+        ra.receive_name as bankName,
+        ra.receive_bank as bankSkf,
+        ps.source as source,
+        ps.order_no as orderNo,
+        ps.amount as amount,
+        ps.real_amount as realAmount,
+        ps.fee as fee,
+        ps.reserve as reserve,
+        ps.status as status,
+        ps.create_time as createTime,
+        ps.check_time as checkTime,
+        ps.check_user as checkUser,
+        ps.remark as remark,
+        ps.quick as quick
+        from payment_summary ps left join app_member am on am.id=ps.user_id
+        left join recharge_account ra on ra.id = ps.type_detail
+        <where>
+            way = 1
+            <include refid="queryPaymentCondition"/>
+        </where>
+        ORDER BY ps.check_time DESC
+        LIMIT #{pageNo},#{pageSize}
+    </select>
+
+    <sql id="queryPaymentCondition">
+        <if test="offlinePaymentDTO.userId !=null and offlinePaymentDTO.userId !=''">
+            and ps.user_id = #{offlinePaymentDTO.userId}
+        </if>
+        <if test="offlinePaymentDTO.status !=null and offlinePaymentDTO.status !=''">
+            and ps.status = #{offlinePaymentDTO.status}
+        </if>
+        <if test="offlinePaymentDTO.userName !=null and offlinePaymentDTO.userName !=''">
+            and am.account LIKE CONCAT('%',#{offlinePaymentDTO.userName},'%')
+        </if>
+        <if test="offlinePaymentDTO.realName !=null and offlinePaymentDTO.realName !=''">
+            and am.real_name = #{offlinePaymentDTO.realName}
+        </if>
+        <if test="offlinePaymentDTO.checkUser !=null and offlinePaymentDTO.checkUser !=''">
+            and ps.check_user = #{offlinePaymentDTO.checkUser}
+        </if>
+        <if test="offlinePaymentDTO.vipLevel !=null">
+            and am.vip_id = #{offlinePaymentDTO.vipLevel}
+        </if>
+        <if test="offlinePaymentDTO.orderNo !=null and offlinePaymentDTO.orderNo !=''">
+            <!-- and ps.order_no LIKE CONCAT('%',#{offlinePaymentDTO.orderNo},'%') -->
+            and ps.order_no = #{offlinePaymentDTO.orderNo}
+        </if>
+        <if test="offlinePaymentDTO.bankName !=null and offlinePaymentDTO.bankName !=''">
+            and ra.receive_name LIKE CONCAT(#{offlinePaymentDTO.bankName},'%')
+        </if>
+        <if test="offlinePaymentDTO.pid !=null and offlinePaymentDTO.pid !=''">
+            and ps.id = #{offlinePaymentDTO.pid}
+        </if>
+        <if test="offlinePaymentDTO.reserve !=null and offlinePaymentDTO.reserve !=''">
+            and ps.reserve = #{offlinePaymentDTO.reserve}
+        </if>
+        <if test="offlinePaymentDTO.fuyan !=null and offlinePaymentDTO.fuyan !=''">
+            and ps.quick = #{offlinePaymentDTO.fuyan}
+        </if>
+        <if test="offlinePaymentDTO.channelId !=null">
+            and ps.type_detail in
+            <foreach item='channelId' index='index' collection='offlinePaymentDTO.channelId' open='(' separator=',' close=')'>#{channelId}</foreach>
+        </if>
+        <if test="offlinePaymentDTO.bankAccountLastFour !=null and offlinePaymentDTO.bankAccountLastFour !=''">
+            and SUBSTRING(ra.account, -4) = #{offlinePaymentDTO.bankAccountLastFour}
+        </if>
+        <if test="offlinePaymentDTO.startTime !=null and offlinePaymentDTO.startTime !=''">
+            <![CDATA[ and ps.create_time  >=  #{offlinePaymentDTO.startTime}  ]]>
+        </if>
+        <if test="offlinePaymentDTO.endTime !=null and offlinePaymentDTO.endTime !=''">
+            <![CDATA[ and ps.create_time <=  #{offlinePaymentDTO.endTime}  ]]>
+        </if>
+        <if test="offlinePaymentDTO.minAmount !=null ">
+            and ps.amount &gt;= #{offlinePaymentDTO.minAmount}
+        </if>
+        <if test="offlinePaymentDTO.maxAmount !=null ">
+            and ps.amount &lt;= #{offlinePaymentDTO.maxAmount}
+        </if>
+    </sql>
+
+    <select id="queryPaymentExcelExportContent" resultType="com.likes.common.model.vo.money.OfflinePaymentVO">
+        select
+        ps.user_id as userId,
+        (SELECT name FROM `vip_grade` where id = am.vip_id limit 1) as vipLevel,
+        am.login_ip as loginIp,
+        am.account as userName,
+        am.real_name as realName,
+        (SELECT receive_bank FROM `recharge_account` where id = ps.type_detail limit 1) as channelName,
+        SUBSTRING(ra.receive_card_no, -4) as bankAccountLastFour,
+        ps.id as id,
+        ra.receive_name as bankName,
+        ra.receive_bank as bankSkf,
+        ps.source as source,
+        ps.order_no as orderNo,
+        ps.amount as amount,
+        ps.real_amount as realAmount,
+        ps.fee as fee,
+        ps.reserve as reserve,
+        ps.status as status,
+        ps.create_time as createTime,
+        ps.check_time as checkTime,
+        ps.check_user as checkUser,
+        ps.remark as remark,
+        ps.quick as quick
+        from payment_summary ps left join app_member am on am.id=ps.user_id
+        left join recharge_account ra on ra.id = ps.type_detail
+        <where>
+            way = 1
+            <if test="null != idList and idList.size > 0">
+                and ps.id in
+                <foreach collection="idList" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY ps.check_time DESC
+    </select>
+
+    <select id="selOfflinePaymentMenuCount" resultType="java.lang.Integer">
+        select
+        count(*)
+        from payment_summary ps left join app_member am on am.id=ps.user_id
+        left join recharge_account ra on ra.id = ps.type_detail
+        <where>
+            way = 1
+            <include refid="queryPaymentCondition"/>
+        </where>
+    </select>
+
+    <select id="calcMoneyOfflinePayment" resultType="java.util.Map">
+        select
+        sum(ps.real_amount) as sumall ,
+        SUM( case when ps.`status` = 3 then ps.real_amount else 0 end) as wait,
+        SUM( case when ps.`status` = 2 then ps.real_amount else 0 end) as fall,
+        SUM( case when ps.`status` = 1 then ps.real_amount else 0 end) as success
+        from payment_summary ps left join app_member am on am.id=ps.user_id
+        left join payment_account pa on pa.id=ps.type_detail
+        left join payment_account_channel pac on pac.id=pa.channel_id
+        <where>
+            way = 1
+            <include refid="queryPaymentCondition"/>
+        </where>
+    </select>
+
+    <select id="selHandPaymentMenu" resultType="com.likes.common.model.vo.money.HandPaymentVO">
+        select
+        am.id as userId,
+        am.account as userName,
+        am.balance as balance,
+        ps.id as id,
+        ps.order_no as orderNo,
+        ps.amount as amount,
+        ps.real_amount as realAmount,
+        am.balance-am.no_withdrawal_amount as ketibalance,
+        ps.type_detail as typeDetail,
+        ps.remark as remark,
+        ps.type_status as typeStatus,
+        ps.check_user as checkUser,
+        ps.create_time as createTime
+        from payment_summary ps left join app_member am on ps.user_id=am.id
+        <where>
+            ps.quick=0
+            <if test="handPaymentDTO.startTime !=null and handPaymentDTO.startTime !=''">
+                <![CDATA[ and ps.create_time  >=  #{handPaymentDTO.startTime}  ]]>
+            </if>
+            <if test="handPaymentDTO.endTime !=null and handPaymentDTO.endTime !=''">
+                <![CDATA[ and ps.create_time <=  #{handPaymentDTO.endTime}  ]]>
+            </if>
+            <if test="handPaymentDTO.userId !=null and handPaymentDTO.userId !=''">
+                and ps.user_id = #{handPaymentDTO.userId}
+            </if>
+            <if test="handPaymentDTO.userName !=null and handPaymentDTO.userName !=''">
+                and am.account LIKE CONCAT('%',#{handPaymentDTO.userName},'%')
+            </if>
+            <if test="handPaymentDTO.checkUser !=null and handPaymentDTO.checkUser !=''">
+                and ps.check_user = #{handPaymentDTO.checkUser}
+            </if>
+            <if test="handPaymentDTO.typeDetail !=null and handPaymentDTO.typeDetail !=''">
+                and ps.type_detail = #{handPaymentDTO.typeDetail}
+            </if>
+        </where>
+        ORDER BY ps.create_time DESC
+        LIMIT #{pageNo},#{pageSize}
+    </select>
+
+    <select id="countHandPayment" resultType="java.util.Map">
+        select
+        sum(case when ps.`type_Detail`='1' then ps.real_amount else 0 end) as onlinesum,
+        sum(case when ps.`type_Detail`='2' then ps.real_amount else 0 end) as offlinesum,
+        sum(case when ps.`type_Detail`='3' then ps.real_amount else 0 end) as lijisum,
+        sum(case when ps.`type_Detail`='4' then ps.real_amount else 0 end) as cancelsum
+        from payment_summary ps left join app_member am on ps.user_id=am.id
+        <where>
+            ps.quick=0
+            <if test="handPaymentDTO.startTime !=null and handPaymentDTO.startTime !=''">
+                <![CDATA[ and ps.create_time  >=  #{handPaymentDTO.startTime}  ]]>
+            </if>
+            <if test="handPaymentDTO.endTime !=null and handPaymentDTO.endTime !=''">
+                <![CDATA[ and ps.create_time <=  #{handPaymentDTO.endTime}  ]]>
+            </if>
+            <if test="handPaymentDTO.userId !=null and handPaymentDTO.userId !=''">
+                and ps.user_id = #{handPaymentDTO.userId}
+            </if>
+            <if test="handPaymentDTO.userName !=null and handPaymentDTO.userName !=''">
+                and am.account LIKE CONCAT('%',#{handPaymentDTO.userName},'%')
+            </if>
+            <if test="handPaymentDTO.checkUser !=null and handPaymentDTO.checkUser !=''">
+                and ps.check_user = #{handPaymentDTO.checkUser}
+            </if>
+            <if test="handPaymentDTO.typeDetail !=null and handPaymentDTO.typeDetail !=''">
+                and ps.type_detail = #{handPaymentDTO.typeDetail}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="selHandPaymentMenuCount" resultType="java.lang.Integer">
+        select
+        count(*)
+        from payment_summary ps left join app_member am on ps.user_id=am.id
+        <where>
+            ps.quick=0
+            <if test="handPaymentDTO.startTime !=null and handPaymentDTO.startTime !=''">
+                <![CDATA[ and ps.create_time  >=  #{handPaymentDTO.startTime}  ]]>
+            </if>
+            <if test="handPaymentDTO.endTime !=null and handPaymentDTO.endTime !=''">
+                <![CDATA[ and ps.create_time <=  #{handPaymentDTO.endTime}  ]]>
+            </if>
+            <if test="handPaymentDTO.userId !=null and handPaymentDTO.userId !=''">
+                and ps.user_id = #{handPaymentDTO.userId}
+            </if>
+            <if test="handPaymentDTO.userName !=null and handPaymentDTO.userName !=''">
+                and am.account LIKE CONCAT('%',#{handPaymentDTO.userName},'%')
+            </if>
+            <if test="handPaymentDTO.checkUser !=null and handPaymentDTO.checkUser !=''">
+                and ps.check_user = #{handPaymentDTO.checkUser}
+            </if>
+            <if test="handPaymentDTO.typeDetail !=null and handPaymentDTO.typeDetail !=''">
+                and ps.type_detail = #{handPaymentDTO.typeDetail}
+            </if>
+        </where>
+    </select>
+
+    <select id="selSummaryPaymentMenu" resultType="com.likes.common.model.vo.money.HandPaymentVO">
+        select
+        am.id as userId,
+        am.account as userName,
+        ps.id as id,
+        ps.way as way,
+        ps.order_no as orderNo,
+        ps.real_amount as realAmount,
+        ps.status as status,
+        ps.remark as remark,
+        ps.check_user as checkUser,
+        ps.create_time as createTime
+        from payment_summary ps left join app_member am on ps.user_id=am.id
+        <where>
+            <if test="handPaymentDTO.startTime !=null and handPaymentDTO.startTime !=''">
+                <![CDATA[ and ps.create_time  >=  #{handPaymentDTO.startTime}  ]]>
+            </if>
+            <if test="handPaymentDTO.endTime !=null and handPaymentDTO.endTime !=''">
+                <![CDATA[ and ps.create_time <=  #{handPaymentDTO.endTime}  ]]>
+            </if>
+            <if test="handPaymentDTO.userId !=null and handPaymentDTO.userId !=''">
+                and ps.user_id = #{handPaymentDTO.userId}
+            </if>
+            <if test="handPaymentDTO.userName !=null and handPaymentDTO.userName !=''">
+                and am.account LIKE CONCAT('%',#{handPaymentDTO.userName},'%')
+            </if>
+            <if test="handPaymentDTO.orderNo !=null and handPaymentDTO.orderNo !=''">
+                and ps.order_no = #{handPaymentDTO.orderNo}
+            </if>
+            <if test="handPaymentDTO.status !=null and handPaymentDTO.status !=''">
+                and ps.status = #{handPaymentDTO.status}
+            </if>
+            <if test="handPaymentDTO.way !=null and handPaymentDTO.way !=''">
+                and ps.way = #{handPaymentDTO.way}
+            </if>
+            <if test="handPaymentDTO.way ==null ">
+                and ps.way in (1,2,3,4)
+            </if>
+        </where>
+
+        ORDER BY ps.create_time DESC
+        LIMIT #{pageNo},#{pageSize}
+    </select>
+
+    <select id="selSummaryPaymentMenuCount" resultType="java.lang.Integer">
+        select
+        count(*)
+        from payment_summary ps left join app_member am on ps.user_id=am.id
+        <where>
+            <if test="handPaymentDTO.startTime !=null and handPaymentDTO.startTime !=''">
+                <![CDATA[ and ps.create_time  >=  #{handPaymentDTO.startTime}  ]]>
+            </if>
+            <if test="handPaymentDTO.endTime !=null and handPaymentDTO.endTime !=''">
+                <![CDATA[ and ps.create_time <=  #{handPaymentDTO.endTime}  ]]>
+            </if>
+            <if test="handPaymentDTO.userId !=null and handPaymentDTO.userId !=''">
+                and ps.user_id = #{handPaymentDTO.userId}
+            </if>
+            <if test="handPaymentDTO.userName !=null and handPaymentDTO.userName !=''">
+                and am.account LIKE CONCAT('%',#{handPaymentDTO.userName},'%')
+            </if>
+            <if test="handPaymentDTO.orderNo !=null and handPaymentDTO.orderNo !=''">
+                and ps.order_no = #{handPaymentDTO.orderNo}
+            </if>
+            <if test="handPaymentDTO.status !=null and handPaymentDTO.status !=''">
+                and ps.status = #{handPaymentDTO.status}
+            </if>
+            <if test="handPaymentDTO.way !=null and handPaymentDTO.way !=''">
+                and ps.way = #{handPaymentDTO.way}
+            </if>
+            <if test="handPaymentDTO.way ==null">
+                and ps.way in (1,2,3,4)
+            </if>
+        </where>
+    </select>
+
+<!--    <select id="selBalanceChange" resultType="com.likes.common.model.vo.money.BalanceChangeVO">-->
+<!--        select-->
+<!--        mbc.member_id as memberId,-->
+<!--        am.account account,-->
+<!--        mbc.type,-->
+<!--        mbc.change_money as changeMoney,-->
+<!--        mbc.old_balance as oldBalance,-->
+<!--        mbc.new_balance as newBalance,-->
+<!--        mbc.remark,-->
+<!--        mbc.create_time as createTime-->
+<!--        from member_balance_change mbc left join app_member am on(am.id = mbc.member_id)-->
+<!--        <where>-->
+<!--            <if test="memberId != null">-->
+<!--                and mbc.member_id = #{memberId}-->
+<!--            </if>-->
+<!--            <if test="null != typeList and typeList.size == 1">-->
+<!--                and `type` = #{typeList[0]}-->
+<!--            </if>-->
+<!--            <if test="null != typeList and typeList.size > 1">-->
+<!--                and `type` in-->
+<!--                <foreach collection="typeList" item="type" open="(" close=")" separator=",">-->
+<!--                    #{type}-->
+<!--                </foreach>-->
+<!--            </if>-->
+<!--            <if test="startTime !=null and startTime !=''">-->
+<!--                <![CDATA[ and mbc.create_time  >=  #{startTime}  ]]>-->
+<!--            </if>-->
+<!--            <if test="endTime !=null and endTime !=''">-->
+<!--                <![CDATA[ and mbc.create_time <=  #{endTime}  ]]>-->
+<!--            </if>-->
+<!--        </where>-->
+<!--        ORDER BY mbc.snow_sn DESC-->
+<!--        LIMIT #{pageNo},#{pageSize}-->
+<!--    </select>-->
+
+    <select id="selBalanceChangeCount" resultType="java.lang.Integer">
+        select
+        count(*)
+        from member_balance_change
+        <where>
+            <if test="memberId != null">
+                and member_id = #{memberId}
+            </if>
+            <if test="null != typeList and typeList.size == 1">
+                and `type` = #{typeList[0]}
+            </if>
+            <if test="null != typeList and typeList.size > 1">
+                and `type` in
+                <foreach collection="typeList" item="type" open="(" close=")" separator=",">
+                    #{type}
+                </foreach>
+            </if>
+            <if test="startTime !=null and startTime !=''">
+                <![CDATA[ and create_time  >=  #{startTime}  ]]>
+            </if>
+            <if test="endTime !=null and endTime !=''">
+                <![CDATA[ and create_time <=  #{endTime}  ]]>
+            </if>
+        </where>
+    </select>
+
+    <select id="tatolBalanceChange" resultType="java.math.BigDecimal">
+        select sum(change_money) totalAmount
+        from member_balance_change
+        <where>
+            <if test="memberId != null  and memberId > 0 ">
+                and member_id = #{memberId}
+            </if>
+            <if test="null != typeList and typeList.size == 1">
+                and `type` = #{typeList[0]}
+            </if>
+            <if test="null != typeList and typeList.size > 1">
+                and `type` in
+                <foreach collection="typeList" item="type" open="(" close=")" separator=",">
+                    #{type}
+                </foreach>
+            </if>
+            <if test="startTime !=null and startTime !=''">
+                <![CDATA[ and create_time  >=  #{startTime}  ]]>
+            </if>
+            <if test="endTime !=null and endTime !=''">
+                <![CDATA[ and create_time <=  #{endTime}  ]]>
+            </if>
+        </where>
+    </select>
+</mapper>

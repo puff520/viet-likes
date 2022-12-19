@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.AnchorMemFamilyMapperExt">
+
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.anchor.AnchorMemFamily">
+        <id column="familyid" jdbcType="BIGINT" property="familyid"/>
+        <result column="familyname" jdbcType="VARCHAR" property="familyname"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="familyman" jdbcType="VARCHAR" property="familyman"/>
+        <result column="idcardno" jdbcType="VARCHAR" property="idcardno"/>
+        <result column="telephone" jdbcType="VARCHAR" property="telephone"/>
+        <result column="royaltypercent" jdbcType="DECIMAL" property="royaltypercent"/>
+        <result column="memnums" jdbcType="BIGINT" property="memnums"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        familyid, familyname, accno, familyman, idcardno, telephone, royaltypercent, memnums,
+        is_delete, create_user, create_time, update_user, update_time
+    </sql>
+
+    <select id="getMemFamilyByAccno" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.anchor.AnchorMemFamily">
+        select *
+        from anchor_mem_family
+        where accno = #{accno}
+        and is_delete = 0
+        limit 1
+    </select>
+
+    <update id="updateAddMemnums">
+        update anchor_mem_family
+        set memnums = IFNULL(memnums,0) + #{size}
+        where familyid = #{familyid}
+        and is_delete = b'0'
+    </update>
+
+    <select id="getRepeat" parameterType="com.likes.common.model.dto.member.MemFamilyReq"
+            resultType="com.likes.common.mybatis.entity.anchor.AnchorMemFamily">
+        select *
+        from anchor_mem_family
+        where 1=1
+        and familyname = #{familyname}
+        <if test="familyid != null">
+            and familyid != #{familyid}
+        </if>
+    </select>
+
+    <update id="doDelFamily" parameterType="com.likes.common.mybatis.entity.anchor.AnchorMemFamily">
+       update anchor_mem_family
+       set is_delete = #{isDelete,jdbcType=BIT},
+            update_user = #{updateUser,jdbcType=VARCHAR}
+        where familyid = #{familyid,jdbcType=BIGINT}
+        and memnums = 0
+    </update>
+
+    <select id="familyList" parameterType="com.likes.common.model.dto.member.MemFamilyListReq"
+            resultType="com.likes.common.model.dto.member.MemFamilyResponse">
+        SELECT mf.accno, mf.familyname,mf.familyman,mf.idcardno,mf.memnums,mf.telephone,mf.familyid,mf.bettingpercentage,
+            mfm.accounttype,mfm.bankname,mfm.accountno,mfm.accountname,mfm.bankaddress,TRUNCATE(mf.royaltypercent,3) as royaltypercent
+            ,ml.acclogin ,ml.passwordmd5,mb.recomcode,
+            ( SELECT sum(ifnull(TIME_TO_SEC(TIMEDIFF(ifnull(b.offlinedate,NOW()),b.onlinedate)),0)) as duration
+              FROM bas_anchoronline b where b.accno in(select DISTINCT(accno) from anchor_mem_familymem where familyid=mf.familyid and is_delete=b'0')
+            <if test="startTime != null and startTime !=''  ">
+                AND onlinedate <![CDATA[>=]]> #{startTime}
+            </if>
+            <if test="endTime != null and endTime !=''  ">
+                AND onlinedate <![CDATA[<= ]]> #{endTime}
+            </if>
+            ) as timeTotal
+        FROM anchor_mem_family mf
+        LEFT JOIN anchor_mem_bankaccount mfm ON mf.familyid = mfm.familyid AND mfm.accno IS NULL AND mfm.is_delete = b'0'
+        INNER JOIN anchor_mem_login ml ON mf.accno = ml.accno
+        <if test="acclogin != null and acclogin != ''  ">
+            AND ml.acclogin=#{acclogin,jdbcType=VARCHAR}
+        </if>
+        INNER JOIN anchor_mem_baseinfo mb ON mb.accno = ml.accno
+        WHERE mf.is_delete = b'0'
+        AND mb.is_delete = b'0'
+        <if test="familyname != null and familyname != ''  ">
+            AND ( mf.familyname LIKE CONCAT('%',#{familyname,jdbcType=VARCHAR},'%')
+                or mf.familyman LIKE CONCAT('%',#{familyname,jdbcType=VARCHAR},'%') )
+        </if>
+        order by mf.memnums desc
+    </select>
+
+    <update id="updateSubtractMemnums">
+        update anchor_mem_family
+        set memnums = memnums - #{size}
+        where familyid = #{familyid}
+        and is_delete = b'0'
+        and memnums &gt; 0
+    </update>
+
+    <select id="findAllFamilyList" resultType="com.likes.common.model.response.FamilyIncarnateResponse">
+        SELECT mf.familyid,mf.familyname,mf.familyman,mf.accno,mb.accounttype,mb.accountname,mb.accountno,
+            mb.bankname,mb.bankaddress,TRUNCATE(mf.royaltypercent,3) as royaltypercent,mf.bettingpercentage as bettingpercentage
+        FROM anchor_mem_family mf
+        INNER JOIN anchor_mem_bankaccount mb ON mf.familyid = mb.familyid AND mb.is_delete = b'0'
+        INNER JOIN anchor_mem_login ml ON mf.accno = ml.accno
+        WHERE mf.is_delete = b'0'
+        GROUP BY mf.accno
+    </select>
+
+    <select id="findOneByFamilyId" parameterType="java.lang.Long"
+            resultType="com.likes.common.model.response.FamilyIncarnateResponse">
+        SELECT mf.familyid,mf.familyname,mf.familyman,mf.accno,mb.accounttype,mb.accountname,mb.accountno,
+            mb.bankname,mb.bankaddress,TRUNCATE(mf.royaltypercent,3) as royaltypercent
+        FROM anchor_mem_family mf
+        INNER JOIN anchor_mem_bankaccount mb ON mf.familyid = mb.familyid AND mb.is_delete = b'0'
+        WHERE mf.is_delete = b'0'
+        AND mf.familyid = #{familyid}
+    </select>
+
+    <select id="allFamilyList" resultType="com.likes.common.mybatis.entity.anchor.AnchorMemFamily">
+        select *
+        from anchor_mem_family
+        where is_delete = b'0'
+        order by familyid desc
+    </select>
+
+    <select id="getByAnchorAccno" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.anchor.AnchorMemFamily">
+        SELECT mf.*
+        FROM anchor_mem_family mf
+        WHERE mf.familyid = ( SELECT m.familyid
+                            FROM anchor_mem_familymem m
+                            WHERE m.accno = #{accno}
+                            AND m.is_delete = b'0'
+                            LIMIT 1 )
+    </select>
+
+    <select id="getFamilyByAccno" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.anchor.AnchorMemFamily">
+         SELECT mf.*
+         FROM anchor_mem_family mf
+         WHERE mf.accno = #{accno}
+         AND mf.is_delete = b'0'
+         LIMIT 1
+    </select>
+
+
+    <select id="getFamilyAcountById" parameterType="java.lang.Long"
+            resultType="com.likes.common.model.response.anchor.AnchorMemFamilyResp">
+         SELECT mf.familyid,mf.familyname,mf.familyman,mb.accounttype,mb.accountno
+         <!-- INNER JOIN mem_family mf ON mf.familyid  = d.roomid and d.accno = mf.accno
+        INNER JOIN mem_bankaccount mb ON mf.familyid = mb.familyid AND mb.is_delete = b'0' -->
+         FROM anchor_mem_family mf
+         INNER JOIN anchor_mem_bankaccount mb on mf.familyid = mb.familyid and mb.is_delete = b'0'
+         WHERE mf.familyid = #{familyid}
+         AND mf.is_delete = b'0'
+    </select>
+
+</mapper>

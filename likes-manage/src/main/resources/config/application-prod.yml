@@ -1,0 +1,163 @@
+server:
+  port: 5859
+  servlet:
+    session:
+      timeout: 21600
+  #tomcat.max-threads: 6
+  tomcat.uri-encoding: UTF-8
+
+spring:
+  application:
+    name: likes-manage #在注册中心显示的名字
+
+  datasource:
+    dynamic:
+      primary: master #设置默认的数据源或者数据源组,默认值即为master
+      strict: true #严格匹配数据源,默认false. true未匹配到指定数据源时抛异常,false使用默认数据源
+      datasource:
+        master:
+          type: com.alibaba.druid.pool.DruidDataSource
+          url: jdbc:mysql://mysql:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
+          username: root
+          password: Antsidc78!
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          druid:
+            initial-size: 3
+            max-active: 50
+            min-idle: 3
+            max-wait: 5000
+            time-between-eviction-runs-millis: 60000
+            min-evictable-idle-time-millis: 180000
+            validation-query: SELECT 'x' FROM DUAL
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
+            filters: stat,wall,log4j2
+        slave:
+          type: com.alibaba.druid.pool.DruidDataSource
+          url: jdbc:mysql://mysqlreadonly:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
+          username: root
+          password: Antsidc78!
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          druid:
+            initial-size: 3
+            max-active: 50
+            min-idle: 3
+            max-wait: 5000
+            time-between-eviction-runs-millis: 60000
+            min-evictable-idle-time-millis: 180000
+            validation-query: SELECT 'x' FROM DUAL
+            test-while-idle: true
+            test-on-borrow: false
+            test-on-return: false
+            filters: stat,wall,log4j2
+
+
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: admin
+    password: admin
+    virtual-host: /
+    # 消息失败重回队列
+    publisher-returns: true
+    publisher-confirms: true
+    template:
+      mandatory: true
+    listener:
+      simple:
+        retry:
+          enabled: true   #开启重试
+          max-attempts: 3  # 最大重试次数
+          initial-interval: 3000 #重试时间间隔
+        # 手动签收模式
+        acknowledge-mode: manual
+  #        prefetch: 1  #消费者每次从队列中取几个消息
+  #        default-requeue-rejected: false #消息消费失败后，重新进入消费队列中
+
+  redis:
+    # 连接超时时间（毫秒）
+    timeout: 8000
+    database: 0
+    # Redis服务器地址
+    host: redis
+    #host: 127.0.0.1
+    # Redis服务器连接端口
+    port: 6379
+    # Redis服务器连接密码（默认为空）
+    #    password: 1qaz2wsx
+    password:
+    # 连接池最大连接数（使用负值表示没有限制）
+    lettuce:
+      pool:
+        max-active: -1
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1
+        # 连接池中的最大空闲连接
+        max-idle: 10
+        # 连接池中的最小空闲连接
+        min-idle: 0
+      timeout: 8000
+      # cluster:
+      # max-redirects: 3
+      # nodes: 127.0.0.1:6380,127.0.0.1:6381,127.0.0.1:6382,127.0.0.1:6383,127.0.0.1:6384,127.0.0.1:6385
+      # timeout: 1000
+  main:
+    allow-bean-definition-overriding: true
+
+mybatis:
+  type-aliases-package: com.likes.common.mybatis.entity
+  mapper-locations: classpath:mapper/xml*/*.xml
+  type-handlers-package: com.likes.common.config.JsonTypeHandle
+  configuration:
+    map-underscore-to-camel-case: true
+pagehelper:
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+  rowBoundsWithCount: true
+  returnPageInfo: check
+  pageSizeZero: true
+
+
+# MinIO 分布式文件系统
+minio:
+  endpoint: http://minio:9000
+  access-key: shuadan123
+  secret-key: shuadan123
+  # 自定义域名(非必须)，Nginx配置反向代理转发文件路径
+  custom-domain:
+  # 默认的桶名称，每个微服务有单独的默认存储桶，可查看youlai-admin.yaml配置
+  default-bucket: picture
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
+
+ali:
+  oss:
+    uploadzip:
+      url: http://localhost:8061/fileEntry/oss/uploadFileZIP
+
+
+#session加密key
+userSessionKey:
+
+
+
+udun:
+  gateway: https://sig10.udun.io
+  merchant-id: 309066
+  merchant-key: 0c7c2181d55c8c9a0886c1f425306f9f
+  call-url: https://smart-parttime.com/api/udunBack/notify
+
+logging:
+  level:
+    com.likes: WARN
+  config: classpath:log4j2.xml

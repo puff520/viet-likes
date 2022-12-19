@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.likes.common.mybatis.mapper.AgentAdminMapper">
+
+
+    <select id="levelCount" parameterType="List" resultType="java.lang.Integer">
+        SELECT count(1) from (
+        SELECT count(1) from mem_level ml
+        INNER JOIN mem_relationship mr
+        ON ml.accno = mr.accno
+        and ml.level_config_id > 1
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND ml.create_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND ml.create_time  <=  #{endTime} ]]>
+        </if>
+        <if test="accno != null and accno !='' ">
+            AND mr.head_accno = #{accno}
+        </if>
+        GROUP BY  ml.accno
+        )a
+    </select>
+
+
+    <select id="addVipNum"  resultType="java.lang.Integer">
+        SELECT count(1) from (
+            SELECT count(1) from mem_level ml
+            INNER JOIN mem_relationship mr
+            ON ml.accno = mr.accno
+            and ml.level_config_id > 1
+            <if test="beginTime != null and beginTime !=''">
+                <![CDATA[ AND ml.create_time  >=  #{beginTime} ]]>
+
+            </if>
+            <if test="endTime != null and endTime !='' ">
+                <![CDATA[ AND ml.create_time  <=  #{endTime} ]]>
+            </if>
+        GROUP BY  ml.accno
+        )a
+    </select>
+
+
+    <select id="rechargeAmount"  resultType="java.math.BigDecimal">
+        SELECT sum( mg.quantity )
+        FROM
+        mem_goldchange mg
+        WHERE
+        1 =1
+        and mg.changetype in (1,55)
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND mg.create_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND mg.create_time  <=  #{endTime} ]]>
+        </if>
+        and mg.accno in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+    </select>
+
+
+    <select id="changeTypeAmount"  resultType="com.likes.common.model.dto.ChangeTypeData">
+        SELECT
+        mg.changetype AS changeType,
+        sum( mg.quantity ) AS amount
+        FROM
+        mem_goldchange mg
+        WHERE
+        1 = 1
+        AND mg.changetype IN ( 1, 12, 55, 100, 200, 301, 302, 303 )
+            <if test="beginTime != null and beginTime !=''">
+                <![CDATA[ AND mg.create_time  >=  #{beginTime} ]]>
+
+            </if>
+            <if test="endTime != null and endTime !='' ">
+                <![CDATA[ AND mg.create_time  <=  #{endTime} ]]>
+            </if>
+             and mg.accno in
+            <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+                #{accno}
+            </foreach>
+        GROUP BY
+        changetype
+    </select>
+
+
+    <select id="withdrawAmount"  resultType="java.math.BigDecimal">
+            SELECT sum( mg.quantity )
+            FROM
+            mem_goldchange mg
+            WHERE
+            1 =1
+        and mg.changetype = 12
+            <if test="beginTime != null and beginTime !=''">
+                <![CDATA[ AND mg.create_time  >=  #{beginTime} ]]>
+
+            </if>
+            <if test="endTime != null and endTime !='' ">
+                <![CDATA[ AND mg.create_time  <=  #{endTime} ]]>
+            </if>
+            and mg.accno in
+            <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+                #{accno}
+            </foreach>
+    </select>
+
+    <select id="subTaskBrokerage"  resultType="java.math.BigDecimal">
+        SELECT sum( mg.quantity )
+        FROM
+        mem_goldchange mg
+        WHERE
+        1 =1
+        and mg.changetype in (301,302,303)
+        and mg.accno in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND mg.create_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND mg.create_time  <=  #{endTime} ]]>
+        </if>
+    </select>
+
+
+    <select id="buyVip"  resultType="java.math.BigDecimal">
+        SELECT sum( mg.quantity )
+        FROM
+        mem_goldchange mg
+        WHERE
+        1 =1
+        and mg.changetype =  100
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND mg.create_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND mg.create_time  <=  #{endTime} ]]>
+        </if>
+        and mg.accno in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+    </select>
+
+
+    <select id="taskAmount"  resultType="java.math.BigDecimal">
+        SELECT sum( mg.quantity )
+        FROM
+        mem_goldchange mg
+        WHERE
+        1 =1
+        and mg.changetype =  200
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND mg.create_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND mg.create_time  <=  #{endTime} ]]>
+        </if>
+        and mg.accno in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+    </select>
+
+
+    <select id="teamVipList"  resultType="Map">
+        SELECT
+            k.memlevel,
+            count(k.accno)
+        FROM
+            (
+                SELECT
+                    ml.memlevel,
+                    ml.accno
+                FROM
+                    mem_level ml
+                        INNER JOIN mem_relationship mr ON ml.accno = mr.accno
+                        AND ml.level_config_id > 1
+                        AND mr.head_accno =#{accno}
+                GROUP BY
+                    ml.memlevel,
+                    ml.accno
+            ) k
+        GROUP BY
+            k.memlevel
+    </select>
+
+
+    <select id="teamAdminList" parameterType="com.likes.common.model.request.TeamRequest"
+            resultType="com.likes.common.model.response.TeamAdminResponse">
+        SELECT
+            mb.email,
+            mb.accno,
+            mr.head_accno as headAccno,
+            mb.register_ip as registerIp,
+            mr.create_time as createTime,
+            mb.recomcode,
+            mb.goldnum
+        FROM
+            mem_baseinfo mb
+        inner join mem_relationship mr
+        on mb.accno = mr.accno
+        WHERE
+              1=1
+        <if test="req.email != null and req.email !='' ">
+            AND mb.email = #{req.email}
+        </if>
+        order by mb.create_time desc
+    </select>
+
+
+    <select id="agentList" parameterType="com.likes.common.model.request.AgentAdminRequest"
+            resultType="com.likes.common.model.response.AgentAdminResponse">
+        SELECT T.*,
+        (SELECT count(1) FROM mem_relationship mr WHERE mr.refaccno = T.accno LIMIT 1 ) AS subNum
+            from
+             (
+            SELECT
+            mb.email,
+            mb.accno,
+            mb.recomcode,
+            mb.create_time as createTime,
+            mr.relaid as relaid,
+            mr.head_accno as headAccno
+            FROM
+            mem_baseinfo mb
+            inner join mem_relationship mr
+            on mb.accno = mr.accno
+            WHERE 1=1
+            and mb.accno IN ( SELECT DISTINCT refaccno FROM mem_relationship WHERE is_delete = b'0' )
+            <if test="req.email != null and req.email !='' ">
+                AND mb.email = #{req.email}
+            </if>
+            order by mb.create_time desc
+        ) T
+
+    </select>
+
+
+    <select id="agentSubList" parameterType="com.likes.common.model.request.AgentAdminRequest"
+            resultType="com.likes.common.model.response.AgentAdminResponse">
+        SELECT T.*,
+        (SELECT count(1) FROM mem_relationship mr WHERE mr.refaccno = T.accno LIMIT 1 ) AS subNum
+        from
+        (
+        SELECT
+        mb.email,
+        mb.accno,
+        mb.recomcode,
+        mb.create_time as createTime,
+        mr.relaid as relaid,
+        mr.head_accno as headAccno
+        FROM
+        mem_baseinfo mb
+        inner join mem_relationship mr
+        on mb.accno = mr.accno
+        WHERE 1=1
+        <if test="req.lookSub != null and req.lookSub !='' ">
+            AND mr.refaccno = #{req.accno}
+        </if>
+        <if test="req.subEmail != null and req.subEmail !='' ">
+            AND mb.email = #{req.subEmail}
+        </if>
+        ) T
+
+    </select>
+
+
+    <select id="teamNum"   resultType="java.lang.String">
+        SELECT
+            t3.accno
+        FROM
+            (
+                SELECT
+                    t1.relaid,accno,
+                    IF
+                        ( find_in_set( parent_id, @pids ) > 0, @pids := concat( @pids, ',', relaid ), 0 ) AS ischild
+                FROM
+                    ( SELECT relaid, parent_id,accno FROM mem_relationship t
+                      ORDER BY parent_id, relaid ) t1,
+                    ( SELECT @pids := #{relaid} ) t2
+            ) t3
+        WHERE
+            ischild != 0
+    </select>
+
+    <select id="subNum"   resultType="java.lang.Integer">
+
+        SELECT  count(1)  from mem_relationship WHERE refaccno = #{accno}
+    </select>
+
+
+    <select id="recMemNum" parameterType="List" resultType="java.lang.Integer">
+        SELECT
+        count(DISTINCT tof.accno ) AS recMemNum
+        FROM
+        tra_orderinfom tof
+        INNER JOIN mem_relationship mr
+        ON tof.accno = mr.accno
+        and tof.orderstatus IN ('ord08')
+<!--        <![CDATA[  and mr.create_time > #{createTime} ]]>-->
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND tof.update_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND tof.update_time  <=  #{endTime} ]]>
+        </if>
+        and tof.accno in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+
+    </select>
+
+
+    <select id="cashMemNum" parameterType="List" resultType="java.lang.Integer">
+        SELECT
+        count(DISTINCT tof.accno ) AS recMemNum
+        FROM
+        tra_orderinfom tof
+        INNER JOIN mem_relationship mr
+        ON tof.accno = mr.accno
+        and tof.orderstatus IN ('ord12')
+<!--        <![CDATA[  and mr.create_time > #{createTime} ]]>-->
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND tof.update_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND tof.update_time  <=  #{endTime} ]]>
+        </if>
+        and tof.accno in
+        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+            #{accno}
+        </foreach>
+    </select>
+
+
+    <select id="subTimeOrderListByAccno" parameterType="List" resultType="java.util.Map">
+        SELECT
+        tof.orderstatus,
+        IFNULL(sum(tof.realamt),'0.00') AS realamt,
+        count( tof.accno ) AS operNum
+        FROM
+        tra_orderinfom tof
+        INNER JOIN mem_relationship mr
+        ON tof.accno = mr.accno
+        and tof.orderstatus IN ( 'ord08', 'ord12' )
+        <![CDATA[  and mr.create_time > #{createTime} ]]>
+        <if test="beginTime != null and beginTime !=''">
+            <![CDATA[ AND tof.update_time  >=  #{beginTime} ]]>
+
+        </if>
+        <if test="endTime != null and endTime !='' ">
+            <![CDATA[ AND tof.update_time  <=  #{endTime} ]]>
+        </if>
+        <if test="accno != null and accno !='' ">
+            AND mr.head_accno = #{accno}
+        </if>
+        GROUP BY
+        tof.orderstatus
+    </select>
+
+
+</mapper>

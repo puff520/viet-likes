@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    active: dev
+  main:
+    allow-bean-definition-overriding: true
+
+  servlet:
+    multipart:
+      file-size-threshold: 5
+      max-file-size: 105MB
+      max-request-size: 105MB
+      resolve-lazily: false

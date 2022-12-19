@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.member.MemFamilymemMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemFamilymem">
+        <id column="familymemid" jdbcType="BIGINT" property="familymemid"/>
+        <result column="familyid" jdbcType="BIGINT" property="familyid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="nickname" jdbcType="VARCHAR" property="nickname"/>
+        <result column="royaltypercent" jdbcType="DECIMAL" property="royaltypercent"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    familymemid, familyid, accno, nickname, royaltypercent, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+    <insert id="insertMemFamilymem" keyColumn="familymemid" keyProperty="familymemid"
+            parameterType="com.likes.common.mybatis.entity.MemFamilymem"
+            useGeneratedKeys="true">
+    insert into mem_familymem (familyid, accno,
+      nickname, royaltypercent, is_delete, create_user, update_user)
+
+    select #{familyid},#{accno},#{nickname},#{royaltypercent}
+    ,#{isDelete},#{createUser},#{updateUser}
+
+   WHERE
+		NOT EXISTS
+		(SELECT m.accno FROM mem_familymem m
+		WHERE
+		m.accno = #{accno}
+		AND m.is_delete = b'0'
+		LIMIT 1
+		)
+  </insert>
+
+    <!-- 没有在家族的主播成员 -->
+    <select id="getNoFamilyAnchorList" parameterType="com.likes.common.mybatis.entity.MemFamilymem"
+            resultType="com.likes.common.model.dto.member.UserDO">
+        SELECT * FROM
+        (SELECT ml.accno ,
+        (SELECT mb.nickname FROM mem_baseinfo mb WHERE mb.accno = ml.accno AND mb.is_delete = b'0' LIMIT 1) as nickname
+        FROM mem_login ml
+        WHERE ml.logintype = 2 AND ml.accstatus = 1
+        ) AS B
+        WHERE (SELECT COUNT(1) AS num FROM mem_familymem A WHERE A.accno = B.accno AND A.is_delete = b'0') = 0
+
+        <if test="nickname != null and nickname != '' ">
+            AND B.nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+        </if>
+
+    </select>
+
+    <select id="getFamilyAnchorList"
+            parameterType="com.likes.common.mybatis.entity.MemFamilymem"
+            resultType="com.likes.common.mybatis.entity.MemFamilymem">
+        select * from (
+        SELECT mf.familymemid,mf.accno,mf.familyid,mf.royaltypercent,mf.create_time as createTime,
+        (SELECT mb.nickname FROM mem_baseinfo mb WHERE mb.accno = mf.accno AND mb.is_delete = b'0' LIMIT 1) AS nickname
+        FROM mem_familymem mf
+        WHERE mf.familyid = #{familyid}
+        AND mf.is_delete = b'0'
+        ) AS B
+        where 1 = 1
+        <if test="nickname != null and nickname != '' ">
+            AND nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+        </if>
+
+        order by createTime desc
+    </select>
+
+
+    <update id="doDelFamilyAnchor" parameterType="com.likes.common.mybatis.entity.MemFamilymem">
+  	update mem_familymem
+  	set is_delete = b'1'
+  	where is_delete = b'0'
+  	and
+    familymemid = #{familymemid,jdbcType=BIGINT}
+  </update>
+
+    <select id="getMemFamilymem" parameterType="com.likes.common.mybatis.entity.MemFamilymem"
+            resultType="com.likes.common.mybatis.entity.MemFamilymem">
+  	select *
+  	from mem_familymem m
+  	where is_delete = b'0'
+  	and familyid = #{familyid}
+  	and accno = #{accno}
+  	limit 1
+  </select>
+
+    <select id="getMemFamilymemByAncorAccno" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.MemFamilymem">
+  	select *
+  	from mem_familymem m
+  	where is_delete = b'0' and
+  	 accno = #{accno}
+  	limit 1
+  </select>
+
+    <select id="getAllFamilyAnchor" parameterType="java.lang.Long"
+            resultType="com.likes.common.mybatis.entity.MemFamilymem">
+        SELECT mf.*
+        <!-- ,(SELECT mb.nickname FROM mem_baseinfo mb WHERE mb.accno = mf.accno AND mb.is_delete = b'0'  LIMIT 1) AS nickname -->
+        FROM mem_familymem mf
+        WHERE mf.familyid = #{familyid}
+        AND mf.is_delete = b'0'
+    </select>
+
+
+    <update id="doDelMemFamilymemAnchor">
+	  update mem_familymem
+	  	set is_delete = b'1' ,
+	  	update_user =  #{accno}
+	  	where is_delete = b'0' and
+	    familyid = #{familyid}
+  </update>
+
+    <select id="findFamilyByAnchorAccno" parameterType="java.lang.String"
+            resultType="com.likes.common.model.dto.member.MemFamilyDO">
+  		SELECT mfy.familyid,mfy.royaltypercent,mfy.accno,
+			(SELECT mf.accno FROM mem_family mf WHERE mf.is_delete = b'0'  AND mf.familyid = mfy.familyid) AS familyaccno
+		FROM mem_familymem mfy
+		WHERE mfy.accno = #{accno}
+		AND mfy.is_delete = b'0'
+  </select>
+
+    <select id="getAnchorList" parameterType="java.lang.Long"
+            resultType="com.likes.common.model.dto.AnchorDO">
+  	SELECT bbb.onlinedate,ba.roomid,ba.roomstatus  , #{familyid} as familyid,m.accno,
+	(SELECT mb.nickname FROM mem_baseinfo mb WHERE mb.accno = m.accno LIMIT 1 ) AS nickname
+	FROM
+	(SELECT * FROM mem_familymem mf WHERE mf.is_delete = b'0' AND mf.familyid = #{familyid}) as m
+
+	LEFT JOIN (SELECT * FROM bas_anchorroom b WHERE b.is_delete = b'0'
+	AND b.accno in (SELECT mf.accno FROM mem_familymem mf WHERE mf.is_delete = b'0' AND mf.familyid = #{familyid}) ) as ba
+
+	ON m.accno = ba.accno
+
+	LEFT JOIN (SELECT MAX(bb.onlinedate) as onlinedate , bb.roomid
+				FROM bas_anchoronline bb
+				WHERE bb.is_delete = b'0' GROUP BY bb.roomid) AS bbb
+				ON ba.roomid = bbb.roomid
+
+				order by ba.roomstatus ASC ,bbb.onlinedate DESC
+  </select>
+
+    <select id="getAllAnchorList" parameterType="java.lang.Long"
+            resultType="com.likes.common.model.dto.AnchorDO">
+  	SELECT bbb.onlinedate,ba.roomid,ba.roomstatus, #{familyid} as familyid,m.accno,
+	(SELECT mb.nickname FROM mem_baseinfo mb WHERE mb.accno = m.accno LIMIT 1 ) AS nickname
+	FROM
+	(SELECT * FROM mem_familymem mf WHERE mf.is_delete = b'0' AND mf.familyid = #{familyid}) as m
+	LEFT JOIN (SELECT * FROM bas_anchorroom b WHERE b.is_delete = b'0'
+	AND b.accno in (SELECT mf.accno FROM mem_familymem mf WHERE mf.is_delete = b'0' AND mf.familyid = #{familyid}) ) as ba
+
+		ON m.accno = ba.accno
+
+	LEFT JOIN (SELECT MAX(bb.onlinedate) as onlinedate , bb.roomid
+				FROM bas_anchoronline bb
+				WHERE bb.is_delete = b'0' GROUP BY bb.roomid) AS bbb
+				ON ba.roomid = bbb.roomid
+
+				order by ba.roomstatus ASC ,bbb.onlinedate DESC
+  </select>
+
+</mapper>

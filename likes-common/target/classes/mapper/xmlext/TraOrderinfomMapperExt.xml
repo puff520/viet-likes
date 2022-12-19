@@ -1,0 +1,2556 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.tra.TraOrderinfomMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.TraOrderinfom">
+        <id column="orderid" jdbcType="BIGINT" property="orderid"/>
+        <result column="mealid" jdbcType="BIGINT" property="mealid"/>
+        <result column="bankid" jdbcType="BIGINT" property="bankid"/>
+        <result column="roomid" jdbcType="BIGINT" property="roomid"/>
+        <result column="lotkindid" jdbcType="BIGINT" property="lotkindid"/>
+        <result column="sschistoryid" jdbcType="BIGINT" property="sschistoryid"/>
+        <result column="oddsid" jdbcType="BIGINT" property="oddsid"/>
+        <result column="chekindid" jdbcType="BIGINT" property="chekindid"/>
+        <result column="tpaysetid" jdbcType="BIGINT" property="tpaysetid"/>
+        <result column="ordertype" jdbcType="DECIMAL" property="ordertype"/>
+        <result column="orderno" jdbcType="VARCHAR" property="orderno"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="paycode" jdbcType="VARCHAR" property="paycode"/>
+        <result column="orderdate" jdbcType="TIMESTAMP" property="orderdate"/>
+        <result column="expiredate" jdbcType="TIMESTAMP" property="expiredate"/>
+        <result column="paytype" jdbcType="VARCHAR" property="paytype"/>
+        <result column="oldamt" jdbcType="DECIMAL" property="oldamt"/>
+        <result column="sumamt" jdbcType="DECIMAL" property="sumamt"/>
+        <result column="realamt" jdbcType="DECIMAL" property="realamt"/>
+        <result column="isinvoice" jdbcType="DECIMAL" property="isinvoice"/>
+        <result column="orderstatus" jdbcType="VARCHAR" property="orderstatus"/>
+        <result column="accountstatus" jdbcType="VARCHAR" property="accountstatus"/>
+        <result column="cancelreason" jdbcType="VARCHAR" property="cancelreason"/>
+        <result column="payimg" jdbcType="VARCHAR" property="payimg"/>
+        <result column="paywechat" jdbcType="VARCHAR" property="paywechat"/>
+        <result column="paydate" jdbcType="TIMESTAMP" property="paydate"/>
+        <result column="payuser" jdbcType="VARCHAR" property="payuser"/>
+        <result column="paynote" jdbcType="VARCHAR" property="paynote"/>
+        <result column="ordernote" jdbcType="VARCHAR" property="ordernote"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        orderid
+        , mealid, bankid, roomid, lotkindid, sschistoryid, oddsid, chekindid, tpaysetid,
+    ordertype, orderno, accno, paycode, orderdate, expiredate, paytype, oldamt, sumamt,
+    realamt, isinvoice, orderstatus, accountstatus, cancelreason, payimg, paywechat,
+    paydate, payuser, paynote, ordernote, is_delete, create_user, create_time, update_user, update_time
+    </sql>
+
+    <!-- 公用 -->
+    <insert id="insertCommonOrder" keyColumn="orderid" keyProperty="orderid"
+            parameterType="com.likes.common.mybatis.entity.TraOrderinfom"
+            useGeneratedKeys="true">
+        insert into tra_orderinfom (mealid, ordertype,
+                                    bankid, roomid, lotkindid,
+                                    sschistoryid, oddsid, tpaysetid,
+                                    orderno, accno, paycode,
+                                    orderdate, expiredate, paytype,
+                                    oldamt, sumamt, realamt,
+                                    isinvoice, orderstatus, accountstatus, paywechat, ordernote,
+                                    create_user, update_user, payuser, paynote)
+
+        SELECT #{mealid,jdbcType=BIGINT},
+               #{ordertype,jdbcType=DECIMAL},
+               #{bankid,jdbcType=BIGINT},
+               #{roomid,jdbcType=BIGINT},
+               #{lotkindid,jdbcType=BIGINT},
+               #{sschistoryid,jdbcType=INTEGER},
+               #{oddsid,jdbcType=BIGINT},
+               #{tpaysetid,jdbcType=BIGINT},
+               MM.orderno,
+               #{accno,jdbcType=VARCHAR},
+               #{paycode,jdbcType=VARCHAR},
+               #{orderdate,jdbcType=TIMESTAMP},
+               #{expiredate,jdbcType=TIMESTAMP},
+               #{paytype,jdbcType=VARCHAR},
+               #{oldamt,jdbcType=DECIMAL},
+               #{sumamt,jdbcType=DECIMAL},
+               #{realamt,jdbcType=DECIMAL},
+               #{isinvoice,jdbcType=DECIMAL},
+               #{orderstatus,jdbcType=VARCHAR},
+               #{accountstatus,jdbcType=VARCHAR},
+               #{paywechat,jdbcType=VARCHAR},
+               #{ordernote,jdbcType=VARCHAR},
+               #{createUser,jdbcType=VARCHAR},
+               #{updateUser,jdbcType=VARCHAR},
+               #{payuser,jdbcType=VARCHAR},
+               #{paynote,jdbcType=VARCHAR}
+
+        FROM (SELECT concat(DATE_FORMAT(NOW(), "%Y%m%d"),
+                            LPAD(RIGHT(  IFNULL(MAX(t.orderno),concat(DATE_FORMAT(NOW(),"%Y%m%d"),"00000000"))  ,8)  + 1 ,8, "0")) AS orderno
+              FROM tra_orderinfom t) as MM
+
+    </insert>
+
+    <insert id="insertOrder" keyColumn="orderid" keyProperty="orderid"
+            parameterType="com.likes.common.mybatis.entity.TraOrderinfom"
+            useGeneratedKeys="true">
+        insert into tra_orderinfom (mealid, ordertype,
+                                    bankid, roomid, lotkindid,
+                                    sschistoryid, oddsid,
+                                    orderno, accno, paycode,
+                                    orderdate, expiredate, paytype,
+                                    oldamt, sumamt, realamt,
+                                    isinvoice, orderstatus, accountstatus, paywechat, ordernote,
+                                    create_user, update_user,
+                                    payuser, paynote, source,
+                                    buy_vip) value ( #{mealid,jdbcType=BIGINT}, #{ordertype,jdbcType=DECIMAL},
+            #{bankid,jdbcType=BIGINT},#{roomid,jdbcType=BIGINT},#{lotkindid,jdbcType=BIGINT},
+            #{sschistoryid,jdbcType=INTEGER}, #{oddsid,jdbcType=BIGINT},#{orderno,jdbcType=VARCHAR},
+            #{accno,jdbcType=VARCHAR}, #{paycode,jdbcType=VARCHAR},
+            #{orderdate,jdbcType=TIMESTAMP}, #{expiredate,jdbcType=TIMESTAMP},
+            #{paytype,jdbcType=VARCHAR},
+            #{oldamt,jdbcType=DECIMAL}, #{sumamt,jdbcType=DECIMAL}, #{realamt,jdbcType=DECIMAL},
+            #{isinvoice,jdbcType=DECIMAL}, #{orderstatus,jdbcType=VARCHAR},
+            #{accountstatus,jdbcType=VARCHAR},
+            #{paywechat,jdbcType=VARCHAR}, #{ordernote,jdbcType=VARCHAR},
+            #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR},
+            #{payuser,jdbcType=VARCHAR}, #{paynote,jdbcType=VARCHAR},
+            #{source,jdbcType=VARCHAR}, #{buyVip,jdbcType=VARCHAR}
+            )
+    </insert>
+
+
+    <insert id="insertXiaZhuOrder" keyColumn="orderid" keyProperty="orderid"
+            parameterType="com.likes.common.model.request.TraOrderinfomReq"
+            useGeneratedKeys="true">
+        insert into tra_orderinfom ( mealid, ordertype,
+        bankid, roomid , lotkindid ,
+        sschistoryid , oddsid,
+        orderno, accno, paycode,
+        orderdate, expiredate, paytype,
+        oldamt, sumamt, realamt,
+        isinvoice, orderstatus, accountstatus,
+        paywechat, ordernote,
+        create_user, update_user,
+        payuser,paynote)
+
+        <!-- insert into tra_orderinfom (
+        sschistoryid ,
+        orderno) -->
+
+        SELECT  <!-- * -->
+        #{mealid} as mealid, #{ordertype} as ordertype,
+        #{bankid} as bankid,#{roomid} as roomid ,#{lotkindid} as lotkindid,
+        #{sschistoryid},
+        #{oddsid} as oddsid,
+        MM.orderno,
+        #{accno} as accno, #{paycode} as paycode,
+        #{orderdate} as orderdate , #{expiredate} as expiredate, #{paytype} as paytype,
+        #{oldamt} as oldamt, #{sumamt} as sumamt, #{realamt} as realamt,
+        #{isinvoice} as isinvoice, #{orderstatus} as orderstatus, #{accountstatus} as accountstatus,
+        #{paywechat} as paywechat, #{ordernote} as ordernote,
+        #{createUser} as create_user, #{updateUser} as update_user,
+        #{payuser} as payuser, #{paynote} as paynote
+
+        FROM (
+        SELECT
+        <!-- (SELECT ls.sschistoryid FROM lot_sschistory ls WHERE ls.period = #{period} and ls.is_delete = b'0'  LIMIT 1) as sschistoryid,-->
+        concat ( DATE_FORMAT(NOW(),"%Y%m%d") ,
+        LPAD( RIGHT( IFNULL(MAX(t.orderno),concat(DATE_FORMAT(NOW(),"%Y%m%d"),"00000000")) ,8) + 1
+        ,8,"0" ) ) AS orderno
+        FROM tra_orderinfom t
+        ) as MM
+
+        <!-- 播币要大于下注 -->
+        WHERE (SELECT mb.accno FROM mem_baseinfo mb WHERE mb.accno = #{accno} AND mb.goldnum &gt;=
+        #{realamt} ) is NOT NULL
+        <!-- 当前期号是否存在 -->
+        <!-- AND (SELECT ls.period FROM lot_sschistory ls WHERE ls.period = #{period} and ls.is_delete = b'0'  ) IS NOT NULL -->
+    </insert>
+
+    <!--  SELECT MM.orderno FROM (
+   SELECT    concat ( DATE_FORMAT(NOW(),"%Y%m%d") ,
+   LPAD( RIGHT(  IFNULL(MAX(t.orderno),concat(DATE_FORMAT(NOW(),"%Y%m%d"),"00000000"))  ,8)  + 1 ,8,"0" ) )  AS orderno
+
+   FROM tra_orderinfom t
+   ) as MM
+   WHERE (SELECT t.orderno  FROM tra_orderinfom t  WHERE t.orderno = MM.orderno ) is NULL -->
+
+
+    <select id="getMyOrderList" parameterType="com.likes.common.model.dto.order.OrderRequest"
+            resultType="com.likes.common.model.dto.order.OrderResponse">
+        SELECT orderno,realamt,create_time as createdate ,orderstatus ,ordernote FROM tra_orderinfom
+        t WHERE t.is_delete = b'0'
+        and t.accno = #{accno}
+        <if test="orderstatus != null  and orderstatus !=''   ">
+            and orderstatus = #{orderstatus}
+        </if>
+        <!--  AND t.mealid IS NOT NULL -->
+        AND t.ordertype in (1,2)
+        order by createdate desc,orderstatus desc
+    </select>
+
+
+    <select id="selectWeiZhifuOne"
+            resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        select *
+        from tra_orderinfom t
+        WHERE t.is_delete = b'0'
+          and t.accno = #{accno}
+          and t.orderstatus = 'ord04'
+          and t.ordertype = 2
+          and t.sumamt = #{price} limit 1
+    </select>
+
+
+    <select id="findByOrderno" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select *
+        from tra_orderinfom t
+        WHERE t.is_delete = b'0'
+          and t.orderno = #{orderno} limit 1
+    </select>
+
+    <update id="updateStatus" parameterType="com.likes.common.mybatis.entity.TraOrderinfom">
+        update tra_orderinfom
+        set update_user = #{updateUser,jdbcType=VARCHAR},
+            sumamt      = #{sumamt,jdbcType=DECIMAL},
+            orderstatus = #{orderstatus,jdbcType=VARCHAR}
+        where orderno = #{orderno}
+          and orderstatus = 'ord04'
+    </update>
+
+    <select id="existOrderinfom"
+            parameterType="com.likes.common.model.dto.order.OrderRequest"
+            resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        SELECT * FROM tra_orderinfom t WHERE t.is_delete = b'0'
+        and t.accno = #{accno}
+        <!-- AND ordertype = 4 -->
+        <if test="orderstatusList != null and orderstatusList.size != 0">
+            AND t.orderstatus in
+            <foreach close=")" collection="orderstatusList" index="index" item="s" open="("
+                     separator=",">
+                #{s}
+            </foreach>
+        </if>
+        limit 1
+    </select>
+
+
+    <!-- 插入体现订单 -->
+    <insert id="insertIncarateOrder" keyColumn="orderid" keyProperty="orderid"
+            parameterType="com.likes.common.mybatis.entity.TraOrderinfom"
+            useGeneratedKeys="true">
+        insert into tra_orderinfom (mealid, ordertype,
+                                    orderno, accno, paycode,
+                                    orderdate, expiredate, paytype,
+                                    oldamt, sumamt, realamt,
+                                    isinvoice, orderstatus, accountstatus,payimg, paywechat, ordernote,
+                                    create_user, update_user,
+                                    source) value ( #{mealid,jdbcType=BIGINT}, #{ordertype,jdbcType=DECIMAL},
+            #{orderno,jdbcType=VARCHAR},
+            #{accno,jdbcType=VARCHAR}, #{paycode,jdbcType=VARCHAR},
+            #{orderdate,jdbcType=TIMESTAMP}, #{expiredate,jdbcType=TIMESTAMP},
+            #{paytype,jdbcType=VARCHAR},
+            #{oldamt,jdbcType=DECIMAL}, #{sumamt,jdbcType=DECIMAL}, #{realamt,jdbcType=DECIMAL},
+            #{isinvoice,jdbcType=DECIMAL}, #{orderstatus,jdbcType=VARCHAR},
+            #{accountstatus,jdbcType=VARCHAR},#{payimg,jdbcType=VARCHAR},
+            #{paywechat,jdbcType=VARCHAR}, #{ordernote,jdbcType=VARCHAR},
+            #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR},
+            #{source,jdbcType=VARCHAR}
+            )
+    </insert>
+
+    <select id="isNew" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        SELECT *
+        FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        and t.accno = #{accno}
+        and t.orderstatus = "ord08"
+        <!--   AND t.mealid IS NOT NULL -->
+        AND t.ordertype in (1,2)
+        limit 1
+    </select>
+
+
+    <!-- xjssc订单 -->
+    <!--<select id="getXjsscList"
+            parameterType="com.likes.common.model.request.BettingRecordRequest"
+            resultType="com.likes.common.model.dto.order.BettingRecordDO">
+        select * from (
+        SELECT
+        bs.period , bs.`status`,tm.lotkindid,
+        CONCAT(bs.luckynum1,",",bs.luckynum2,",",bs.luckynum3,",",bs.luckynum4,",",bs.luckynum5) as
+        luckynum,
+        tm.realamt,tm.orderno,tm.ordernote, tm.orderdate, tm.createdate,
+        (SELECT TRUNCATE( ts.winamt,2) FROM tra_sscprize ts WHERE ts.orderid = tm.orderid LIMIT 1)
+        as winamt,
+        (SELECT lk.kindimg FROM lot_kindinfo lk WHERE lk.lotkindid = tm.lotkindid LIMIT 1) AS
+        kindimg,
+        (SELECT lk.lotname FROM lot_kindinfo lk WHERE lk.lotkindid = tm.lotkindid LIMIT 1) AS
+        lotname
+
+        FROM tra_orderinfom tm
+        INNER JOIN lot_sschistory bs ON tm.sschistoryid = bs.sschistoryid and bs.is_delete = b'0'
+
+        WHERE tm.is_delete = b'0'
+        AND tm.ordertype = 5
+        AND tm.accno = #{accno}
+        AND tm.orderstatus = "ord08"
+        &lt;!&ndash; AND tm.lotkindid = #{lotkindid} &ndash;&gt;
+        AND tm.lotkindid is not NULL
+        AND DATE_FORMAT(tm.createdate,"%Y%m%d") BETWEEN #{starttime} AND #{endtime}
+        ) as A
+        WHERE 1 = 1
+        <if test="status != null">
+            <if test="status == 1">
+                AND (winamt = 0 or winamt is null)
+                AND A.`status`= 8
+            </if>
+            <if test="status == 2">
+                AND winamt &gt; 0
+            </if>
+            <if test="status == 9">
+                AND A.`status`= 9
+            </if>
+        </if>
+        <if test="status == null">
+            AND winamt &gt; 0
+        </if>
+
+        ORDER BY A.createdate DESC
+
+    </select>-->
+
+    <!-- xjssc订单  我的投注，不用默认状态 -->
+    <!--<select id="getMyBetrecordList"
+            parameterType="com.likes.common.model.request.BettingRecordRequest"
+            resultType="com.likes.common.model.dto.order.BettingRecordDO">
+        select * from (
+        SELECT
+        bs.period , bs.`status`,tm.lotkindid,
+        CONCAT(bs.luckynum1,",",bs.luckynum2,",",bs.luckynum3,",",bs.luckynum4,",",bs.luckynum5) as
+        luckynum,
+        tm.realamt,tm.orderno,tm.ordernote, tm.orderdate, tm.createdate,
+        (SELECT TRUNCATE( ts.winamt,2) FROM tra_sscprize ts WHERE ts.orderid = tm.orderid LIMIT 1)
+        as winamt,
+        (SELECT lk.kindimg FROM lot_kindinfo lk WHERE lk.lotkindid = tm.lotkindid LIMIT 1) AS
+        kindimg,
+        (SELECT lk.lotname FROM lot_kindinfo lk WHERE lk.lotkindid = tm.lotkindid LIMIT 1) AS
+        lotname
+
+        FROM tra_orderinfom tm
+        INNER JOIN lot_sschistory bs ON tm.sschistoryid = bs.sschistoryid and bs.is_delete = b'0'
+
+        WHERE tm.is_delete = b'0'
+        AND tm.ordertype = 5
+        AND tm.accno = #{accno}
+        AND tm.orderstatus = "ord08"
+        &lt;!&ndash; AND tm.lotkindid = #{lotkindid} &ndash;&gt;
+        AND tm.lotkindid is not NULL
+        &lt;!&ndash; AND DATE_FORMAT(tm.createdate,"%Y%m%d") BETWEEN #{starttime}  AND #{endtime} &ndash;&gt;
+        ) as A
+        WHERE 1 = 1
+        ORDER BY A.createdate DESC
+    </select>-->
+
+
+    <!-- 线下充值待结算得订单 -->
+    <select id="findChongZhiDaijiesuanByAccno" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        SELECT *
+        FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        AND t.accno = #{accno}
+        AND t.orderstatus = "ord08"
+        AND t.accountstatus = "acc04"
+        <!--   AND t.mealid IS NOT NULL -->
+        AND t.ordertype in (1,2)
+        order by t.create_time asc
+    </select>
+
+    <select id="findOrderByAccnoAndStatus"
+            parameterType="com.likes.common.model.dto.order.OrderRequest"
+            resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        and t.accno = #{accno}
+        and t.ordertype = 4
+        AND DATE_FORMAT(NOW(),"%Y%m%d") = DATE_FORMAT(t.orderdate,"%Y%m%d")
+        <if test="orderstatusList != null and orderstatusList.size != 0">
+            AND t.orderstatus in
+            <foreach close=")" collection="orderstatusList" index="index" item="s" open="("
+                     separator=",">
+                #{s}
+            </foreach>
+        </if>
+        order by t.create_time asc
+    </select>
+
+    <!-- 游戏统计-更多棋牌订单 -->
+    <select id="myMoreKaiyuanChessList"
+            parameterType="com.likes.common.model.dto.chess.ChessRequest"
+            resultType="com.likes.common.model.dto.chess.ChessKaiYuanResponse">
+        SELECT t.orderno,t.orderstatus , cs.startdate as paydate ,t.paycode,
+        TRUNCATE(cs.sumamt,3) as sumamt,TRUNCATE(cs.winamt,3) as
+        winamt,MM.chename,cs.`status`,cs.gameid,
+        ( SELECT cki.chename FROM chess_kindinfo cki WHERE cki.is_delete = b'0' AND cki.chekindid =
+        #{parchekindid} ) AS parchename
+
+        FROM tra_orderinfom t
+        INNER JOIN chess_order cs ON t.orderid = cs.orderid AND t.is_delete = b'0' AND cs.sumamt
+        &gt; 0
+        INNER JOIN (SELECT ck.* FROM chess_kindinfo ck
+        WHERE ck.is_delete = b'0'
+        AND ck.parchekindid = #{parchekindid}
+        )MM ON cs.chekindid = MM.chekindid AND MM.is_delete = b'0'
+
+        WHERE t.is_delete = b'0'
+        AND t.accno = #{accno}
+        AND t.ordertype = #{ordertype}
+        AND cs.sumamt &gt; 0
+        <!-- AND t.orderstatus = #{orderstatus} -->
+        ORDER BY t.orderid DESC , cs.startdate DESC
+    </select>
+
+    <!-- 游戏统计-棋牌统计 -->
+    <select id="getStatistics" parameterType="com.likes.common.model.dto.chess.ChessRequest"
+            resultType="com.likes.common.model.dto.chess.ChessKaiYuanStatisticsResponse">
+        SELECT
+        COUNT(1) as nums,
+        TRUNCATE(IFNULL(SUM(cs.sumamt),0),3) as sumamt,
+        TRUNCATE(IFNULL(SUM(cs.winamt),0),3) as winamt
+
+        FROM tra_orderinfom t
+        INNER JOIN chess_order cs ON t.orderid = cs.orderid AND t.is_delete = b'0' AND cs.sumamt
+        &gt; 0
+        INNER JOIN (SELECT * FROM chess_kindinfo ck
+        WHERE 1 = 1
+        and ck.parchekindid = #{parchekindid}
+        AND ck.is_delete = b'0' ) as B ON cs.chekindid = B.chekindid
+
+        WHERE t.is_delete = b'0'
+        AND t.ordertype = #{ordertype}
+        AND t.accno = #{accno}
+        AND cs.sumamt &gt; 0
+        <!-- AND t.orderstatus = #{orderstatus} -->
+        AND DATE_FORMAT(cs.startdate,"%Y%m%d") BETWEEN #{starttime} AND #{endtime}
+        ORDER BY t.orderid DESC , cs.startdate DESC
+
+    </select>
+
+    <!-- 获取一段时间内的 数据 用于提现 算稽核-->
+    <select id="getQiPaiStatisticsByPerson"
+            parameterType="com.likes.common.model.dto.chess.ChessRequest"
+            resultType="com.likes.common.mybatis.entity.ChessOrder">
+        <!-- SELECT cs.* , B.chename -->
+        SELECT cs.*
+        FROM
+        (
+        SELECT * FROM tra_orderinfom t
+        WHERE t.ordertype = 7
+        <!-- AND t.orderstatus in ("ord08","ord98") -->
+        AND t.orderstatus in ("ord98")
+        AND t.accno = #{accno}
+        AND t.is_delete = b'0'
+        <if test="starttime != null and  starttime !='' ">
+            <![CDATA[  and t.orderdate >= #{starttime} ]]>
+        </if>
+        <if test="endtime != null and  endtime !='' ">
+            <![CDATA[  and t.orderdate <= #{endtime} ]]>
+        </if>
+        order by t.orderdate desc
+        )AS A
+        INNER JOIN chess_order cs ON cs.orderid = A.orderid AND cs.is_delete = b'0' AND cs.sumamt
+        &gt; 0 AND cs.winamt != cs.sumamt
+        INNER JOIN (SELECT * FROM chess_kindinfo ck
+        WHERE 1 = 1
+        <if test="parchekindid != null">
+            and ck.parchekindid = #{parchekindid}
+        </if>
+        AND ck.is_delete = b'0' ) as B ON cs.chekindid = B.chekindid
+
+        ORDER BY cs.startdate ASC,A.orderid DESC
+    </select>
+
+    <select id="getCaiZhongStatistics"
+            parameterType="com.likes.common.model.dto.order.CaiRequest"
+            resultType="com.likes.common.model.dto.order.CaiStatisticsResponse">
+
+        SELECT
+        SUM(nums) as nums,
+        TRUNCATE(SUM(IFNULL(sumamt,0)),3) as sumamt,
+        TRUNCATE(SUM(IFNULL(winamt,0)),3) as winamt
+        FROM (
+
+        SELECT COUNT(1) AS nums,
+        TRUNCATE(SUM(IFNULL(A.realamt,0)),3) as sumamt ,
+        TRUNCATE(SUM(IFNULL(B.winamt,0)),3) as winamt
+        FROM (SELECT * FROM tra_orderinfom t WHERE t.is_delete = b'0'
+        AND t.ordertype = #{ordertype}
+        <!-- AND t.orderstatus in  ("ord08","ord12") -->
+        AND t.accno = #{accno}
+        AND t.is_delete = b'0'
+        <if test="lotkindids != null and lotkindids.size != 0">
+            AND t.lotkindid in
+            <foreach close=")" collection="lotkindids" index="index" item="s" open="("
+                     separator=",">
+                #{s}
+            </foreach>
+        </if>
+
+        AND DATE_FORMAT(t.orderdate,"%Y%m%d") BETWEEN #{starttime} AND #{endtime}
+        order by t.orderdate desc
+        ) AS A
+        INNER JOIN (SELECT sum(IFNULL(ls.winamt,0)) as winamt,ls.orderid as orderid
+        FROM lot_sscorder ls WHERE ls.is_delete = b'0' GROUP BY ls.orderid) AS B ON A.orderid =
+        B.orderid
+
+        UNION ALL
+
+        SELECT COUNT(1) AS nums,
+        TRUNCATE(SUM(IFNULL(A.realamt,0)),3) as sumamt ,
+        TRUNCATE(SUM(IFNULL(B.winamt,0)),3) as winamt
+        FROM (SELECT * FROM tra_orderinfom t WHERE t.is_delete = b'0'
+        AND t.ordertype = #{ordertype}
+        <!-- AND t.orderstatus in  ("ord08","ord12") -->
+        AND t.accno = #{accno}
+        AND t.is_delete = b'0'
+        <if test="lotkindids != null and lotkindids.size != 0">
+            AND t.lotkindid in
+            <foreach close=")" collection="lotkindids" index="index" item="s" open="("
+                     separator=",">
+                #{s}
+            </foreach>
+        </if>
+
+        AND DATE_FORMAT(t.orderdate,"%Y%m%d") BETWEEN #{starttime} AND #{endtime}
+        order by t.orderdate desc
+        ) AS A
+        INNER JOIN (SELECT sum(IFNULL(ls.winamt,0)) as winamt,ls.orderid as orderid
+        FROM quick_sscorder ls WHERE ls.is_delete = b'0' GROUP BY ls.orderid) AS B ON A.orderid =
+        B.orderid
+
+        ) AS BIG
+    </select>
+
+    <select id="getMyMoreCaiList" parameterType="com.likes.common.model.request.CaiRequest"
+            resultType="com.likes.common.model.dto.order.CaiBettingRecordDO">
+
+        SELECT * FROM (
+        <!-- 时时彩 -->
+        SELECT A.orderid, TRUNCATE( A.realamt,3) as realamt, A.orderno,A.accno,
+        B.statuss,TRUNCATE(B.winamt,3) as winamt,TRUNCATE(B.pingjujine,3) as pingjujine,
+        A.lotkindid,A.sschistoryid,
+        (SELECT lk.lotname FROM lot_kindinfo lk WHERE lk.lotkindid = A.lotkindid LIMIT 1) AS
+        lotname,
+        (SELECT l.period FROM lot_sschistory l WHERE l.sschistoryid = A.sschistoryid LIMIT 1) as
+        period
+        FROM (SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        AND t.ordertype = #{ordertype}
+        AND t.orderstatus = "ord08"
+        AND t.accno = #{accno}) AS A
+
+        INNER JOIN (SELECT group_concat(ls.`status`) as statuss , SUM(ls.winamt) as
+        winamt,ls.orderid ,
+        SUM(IF(ls.`status`= 7,ls.winamt,0)) as pingjujine
+        FROM lot_sscorder ls WHERE ls.is_delete = b'0'
+        GROUP BY ls.orderid ) AS B ON A.orderid = B.orderid
+
+        UNION ALL
+        <!-- 快三 -->
+        SELECT A.orderid, TRUNCATE( A.realamt,3) as realamt, A.orderno,A.accno,
+        B.statuss,TRUNCATE(B.winamt,3) as winamt,TRUNCATE(B.pingjujine,3) as pingjujine,
+        A.lotkindid,A.sschistoryid,
+        (SELECT lk.lotname FROM lot_kindinfo lk WHERE lk.lotkindid = A.lotkindid LIMIT 1) AS
+        lotname,
+        (SELECT l.period FROM quick_sschistory l WHERE l.kshistoryid = A.sschistoryid LIMIT 1) as
+        period
+        FROM (SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        AND t.ordertype = #{ordertype}
+        AND t.orderstatus = "ord08"
+        AND t.accno = #{accno}) AS A
+
+
+        INNER JOIN (SELECT group_concat(ls.`status`) as statuss , SUM(ls.winamt) as
+        winamt,ls.orderid ,
+        SUM(IF(ls.`status`= 7,ls.winamt,0)) as pingjujine
+        FROM quick_sscorder ls WHERE ls.is_delete = b'0'
+        GROUP BY ls.orderid ) AS B ON A.orderid = B.orderid
+
+
+        ) AS BIG
+
+        WHERE 1= 1
+        <!-- #如果包含 0 是待开奖  ；包含 8 是 已经中奖 ; 未中奖就说 不包含 0，8 -->
+        <if test="status == 1">
+            AND FIND_IN_SET(0,statuss) = 0
+            AND FIND_IN_SET(8,statuss) = 0
+        </if>
+        <if test="status == 2">
+            AND FIND_IN_SET(8,statuss) > 0
+        </if>
+        <if test="status == 9">
+            AND FIND_IN_SET(0,statuss) > 0
+        </if>
+        ORDER BY orderid DESC
+    </select>
+
+
+    <!-- 家族提现 对应 的sql -->
+    <!-- 对应时间段 这个直播间收到的礼物 -->
+    <select id="getOrderByRoom"
+            parameterType="com.likes.common.model.request.FamilyStatisticsRequest"
+            resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        select orderid , orderstatus , ordertype,roomid, TRUNCATE(realamt,3) as realamt, orderno,
+        accno
+        from tra_orderinfom
+        where is_delete = b'0' and orderstatus = "ord08" and accountstatus= "acc04"
+        AND ordertype in
+        <foreach close=")" collection="ordertypelist" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        and roomid = #{roomid}
+        <![CDATA[
+		   AND (orderdate  BETWEEN  #{starttime}   AND  #{endtime}  )  ]]>
+    </select>
+
+
+    <!-- 牛人  -->
+    <!-- 神算子 -->
+    <select id="getShenSuanZi" resultType="com.likes.common.model.dto.GreatPerson">
+        SELECT *
+        FROM (select t.nickname, t.headimg, TRUNCATE(t.gpval, 3) as gpval, 2 as gptype
+              from (SELECT MM.nickname,
+                           MM.headimg,
+                           MM.accno,
+                           SUM(MM.totalnums)                                 as totalnums,
+                           SUM(MM.lucknums)                                  as lucknums,
+                           TRUNCATE(SUM(MM.lucknums) / SUM(MM.totalnums), 3) as gpval
+                    FROM (select mb.nickname,
+                                 mb.headimg,
+                                 tod.accno,
+                                 count(ls.sscorderid)           as totalnums,
+                                 (select count(*)
+                                  from lot_sscorder lss
+                                           INNER JOIN (SELECT * FROM tra_orderinfom WHERE is_delete = b'0' AND ordertype = 5) todd
+                                                      on
+                                                          lss.orderid = todd.orderid
+                                  where lss.is_delete = b'0'
+                                    and lss.status = 8
+                                    and todd.accno = tod.accno) as lucknums
+                          from lot_sscorder ls
+                                   Inner join (SELECT * FROM tra_orderinfom WHERE is_delete = b'0' AND ordertype = 5) tod
+                                              on tod.orderid = ls.orderid
+                                   inner join mem_baseinfo mb on mb.accno = tod.accno
+                          where ls.is_delete = b'0'
+                          GROUP BY tod.accno
+
+                          UNION ALL
+
+                          select mb.nickname,
+                                 mb.headimg,
+                                 tod.accno,
+                                 count(ls.kshistoryid)          as totalnums,
+                                 (select count(*)
+                                  from quick_sscorder lss
+                                           INNER JOIN (SELECT * FROM tra_orderinfom WHERE is_delete = b'0' AND ordertype = 5) todd
+                                                      on
+                                                          lss.orderid = todd.orderid
+                                  where lss.is_delete = b'0'
+                                    and lss.status = 8
+                                    and todd.accno = tod.accno) as lucknums
+                          from quick_sscorder ls
+                                   Inner join (SELECT * FROM tra_orderinfom WHERE is_delete = b'0' AND ordertype = 5) tod
+                                              on tod.orderid = ls.orderid
+                                   inner join mem_baseinfo mb on mb.accno = tod.accno
+                          where ls.is_delete = b'0'
+                          GROUP BY tod.accno) as MM
+                    GROUP BY MM.accno) t
+              ORDER BY t.gpval DESC LIMIT 1) AS shenglv
+    </select>
+
+    <!-- 财气值 -->
+    <select id="getCaiqizhubo" resultType="com.likes.common.model.dto.GreatPerson">
+        SELECT *
+        FROM (select mb.nickname, mb.headimg, t.quantity as gpval, 1 as gptype
+
+              from (SELECT m.roomid, TRUNCATE(SUM(m.sumamt), 3) as quantity
+
+                    FROM tra_orderinfom m
+                    WHERE m.ordertype = 10
+                      AND m.is_delete = b'0'
+                      AND m.roomid is NOT NULL
+                    GROUP BY m.roomid) AS t
+                       INNER JOIN bas_anchorroom ba ON t.roomid = ba.roomid AND ba.is_delete = b'0'
+                       inner join mem_baseinfo mb on mb.accno = ba.accno
+
+              ORDER BY gpval DESC LIMIT 1) AS caiqi
+    </select>
+
+    <!-- 财富值 -->
+    <select id="getCaifuzi" resultType="com.likes.common.model.dto.GreatPerson">
+        SELECT mb.nickname, mb.headimg, sumamt as gpval, 3 as gptype
+        FROM (SELECT MM.accno, TRUNCATE(SUM(MM.sumamt), 3) as sumamt
+              FROM (SELECT m.accno, TRUNCATE(SUM(m.sumamt), 3) as sumamt
+                    FROM tra_orderinfom m
+                    WHERE m.is_delete = b'0'
+                      AND m.ordertype in
+                          (5, 10)
+                      and m.orderstatus in ('ord08')
+                    GROUP BY m.accno
+
+                    UNION ALL
+
+                    SELECT t.accno, TRUNCATE(SUM(c.sumamt), 3) as sumamt
+                    FROM (SELECT *
+                          FROM tra_orderinfom m
+                          WHERE m.is_delete = b'0'
+                            AND m.ordertype = 7) AS t
+                             INNER JOIN chess_order c ON t.orderid = c.orderid AND c.is_delete = b'0'
+                    GROUP BY t.accno) AS MM
+              GROUP BY MM.accno) AS MMM
+                 inner join mem_baseinfo mb on mb.accno = MMM.accno
+
+        ORDER BY sumamt DESC LIMIT 1
+    </select>
+
+    <!-- 牛人 end -->
+
+    <select id="getAnchorTopTen" parameterType="com.likes.common.model.request.UserReq"
+            resultType="com.likes.common.model.response.UserResp">
+        SELECT *,(@num:=@num + 1) AS ranknum FROM(
+        SELECT SUM(t.realamt) AS goldnum ,t.roomid
+        FROM
+        (SELECT * FROM tra_orderinfom ta WHERE ta.is_delete = b'0' AND ta.orderstatus = "ord08"
+        AND ta.ordertype in
+        <foreach close=")" collection="changetypeList" index="index" item="s" open="("
+                 separator=",">
+            #{s}
+        </foreach>
+        AND ta.roomid IS NOT NULL
+        AND DATE_FORMAT(ta.orderdate,'%Y%m%d') BETWEEN #{starttime} AND #{endtime}) as t
+        GROUP BY t.roomid
+        ) AS a ,(SELECT @num:= 0) b
+        ORDER BY goldnum DESC
+        LIMIT #{limitnum}
+    </select>
+
+
+    <update id="doUpdateRechargeOrder"
+            parameterType="com.likes.common.mybatis.entity.TraOrderinfom">
+        update tra_orderinfom
+        set
+        update_user = #{updateUser,jdbcType=VARCHAR},
+        payimg = #{payimg,jdbcType=VARCHAR},
+        <if test="accountstatus != null">
+            accountstatus = #{accountstatus,jdbcType=VARCHAR},
+        </if>
+        <if test="sumamt != null">
+            sumamt = #{sumamt,jdbcType=DECIMAL},
+        </if>
+        paydate = #{paydate,jdbcType=TIMESTAMP},
+        orderstatus = #{orderstatus,jdbcType=VARCHAR}
+        where orderid = #{orderid} and orderstatus in ('ord04')
+        AND is_delete = b'0'
+    </update>
+
+    <update id="doUpdateFamilyRechargeOrder"
+            parameterType="com.likes.common.mybatis.entity.TraOrderinfom">
+        update tra_orderinfom
+        set
+        update_user = #{updateUser,jdbcType=VARCHAR},
+        payimg = #{payimg,jdbcType=VARCHAR},
+        <if test="accountstatus != null">
+            accountstatus = #{accountstatus,jdbcType=VARCHAR},
+        </if>
+        <if test="sumamt != null">
+            sumamt = #{sumamt,jdbcType=DECIMAL},
+        </if>
+        paydate = #{paydate,jdbcType=TIMESTAMP},
+        orderstatus = #{orderstatus,jdbcType=VARCHAR}
+        where orderid = #{orderid} AND is_delete = b'0'
+    </update>
+
+
+    <select id="appOrderList" parameterType="com.likes.common.model.request.EntryOrderReq"
+            resultType="com.likes.common.model.response.EntryOrderResponse">
+        SELECT t.orderid,t.orderno,t.orderstatus,t.create_time as
+        createdate,t.update_time updateTime,
+        t.realamt as realamt,
+        t.paydate as paydate,
+        t.realamt as rechargegold
+        FROM tra_orderinfom t LEFT JOIN mem_baseinfo mb on t.accno = mb.accno
+        WHERE t.is_delete = b'0'
+        AND t.ordertype in(1,2)
+        and t.orderstatus in ('ord04','ord08')
+
+        <if test="accno != null and  accno !='' ">
+            and t.accno = #{accno}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            and t.create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and t.create_time &lt;= #{endDate}
+        </if>
+        ORDER BY t.orderstatus asc,t.orderdate desc
+    </select>
+
+
+    <select id="orderList" parameterType="com.likes.common.model.request.EntryOrderReq"
+            resultType="com.likes.common.model.response.EntryOrderResponse">
+        SELECT t.orderid,t.orderno,t.mealid,t.orderstatus,t.create_time as
+        createdate,t.payuser ,t.paynote,t.ordernote,t.update_time updateTime,
+        t.realamt as realamt,
+        TRUNCATE((t.sumamt - t.realamt)/ t.realamt,3) as givepercent,
+        t.realamt as rechargegold,
+        ROUND((t.sumamt - t.realamt),2) as givegold,
+        mb.nickname as nickname,
+        mb.mobileno as mobileno,
+        mb.unique_id as uniqueId,
+        mb.remark as remark,
+        IF(t.update_user is not null,(select ml.acclogin from bd_user ml where ml.accno =
+        t.update_user LIMIT 1),NULL) AS modifyusername
+        FROM tra_orderinfom t LEFT JOIN mem_baseinfo mb on t.accno = mb.accno
+        WHERE t.is_delete = b'0'
+        AND t.ordertype = 2
+        <if test="mobileno != null and mobileno != ''">
+            and mb.mobileno = #{mobileno}
+        </if>
+        <if test="orderstatus != null and  orderstatus !='' ">
+            and t.orderstatus = #{orderstatus}
+        </if>
+        <if test="uniqueId != null and  uniqueId !='' ">
+            and mb.unique_id LIKE CONCAT('%',#{uniqueId,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="accno != null and  accno !='' ">
+            and t.accno = #{accno}
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and t.orderno LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="payType != null and payType !=''">
+            and t.paytype = #{payType}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            and t.create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and t.create_time &lt;= #{endDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and t.create_time &lt;= #{endDate}
+        </if>
+        ORDER BY t.orderstatus asc,t.orderdate desc
+    </select>
+
+    <select id="exportOrderList" parameterType="com.likes.common.model.request.EntryOrderReq"
+            resultType="com.likes.common.model.response.EntryOrderExcelResponse">
+        SELECT t.orderno,t.mealid,t.orderstatus,t.create_time as
+        createdate,t.payuser,t.paynote,t.ordernote,t.update_time updateTime,
+        t.realamt as realamt,
+        ROUND((t.sumamt - t.realamt),2) as givegold,
+        mb.nickname as nickname,
+        mb.unique_id as uniqueId,
+        mb.remark as remark,
+        IF(t.update_user is not null,(select ml.acclogin from bd_user ml where ml.accno =
+        t.update_user LIMIT 1),NULL) AS modifyusername
+        FROM tra_orderinfom t LEFT JOIN mem_baseinfo mb on t.accno = mb.accno
+        WHERE t.is_delete = b'0'
+        AND t.ordertype = 2
+        <if test="orderstatus != null and  orderstatus !='' ">
+            and t.orderstatus = #{orderstatus}
+        </if>
+        <if test="uniqueId != null and  uniqueId !='' ">
+            and mb.unique_id LIKE CONCAT('%',#{uniqueId,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and t.orderno LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="payType != null and payType !=''">
+            and t.paytype = #{payType}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            and t.create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and t.create_time &lt;= #{endDate}
+        </if>
+        ORDER BY t.orderstatus asc,t.orderdate desc limit 10000
+    </select>
+
+
+    <select id="orderListTotal" parameterType="com.likes.common.model.request.EntryOrderReq"
+            resultType="com.likes.common.model.response.EntryOrderTotalResponse">
+        SELECT
+        sum(t.realamt) as allPay,
+        sum(ROUND((t.sumamt - t.realamt),2)) as allSend,
+        sum(t.sumamt) allIn
+        FROM tra_orderinfom t LEFT JOIN mem_baseinfo mb on t.accno = mb.accno
+        WHERE t.is_delete = b'0'
+        AND t.ordertype = 2
+        and t.orderstatus = 'ord08'
+        <if test="accno != null and  accno !='' ">
+            and t.accno = #{accno}
+        </if>
+        <if test="uniqueId != null and  uniqueId !='' ">
+            and mb.unique_id LIKE CONCAT('%',#{uniqueId,jdbcType=VARCHAR},'%')
+        </if>
+
+        <if test="orderno != null and  orderno !='' ">
+            and t.orderno LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="payType != null and payType !=''">
+            and t.paytype = #{payType}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            and t.create_time &gt;= #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and t.create_time &lt;= #{endDate}
+        </if>
+        ORDER BY t.orderstatus asc,t.orderdate desc
+    </select>
+    <!-- 主播体现-->
+    <!-- 确认主播体现的订单  只有自己能看见 -->
+    <select id="incarnateOrderList"
+            parameterType="com.likes.common.model.request.IncarnateOrderReq"
+            resultType="com.likes.common.model.response.IncarnateOrderResponse">
+        SELECT * FROM (
+        SELECT A.orderid,A.orderno,A.accno,A.orderstatus,A.realamt,A.create_time,A.sumamt,
+        <!-- (SELECT ta.paysetid FROM tra_applycash ta WHERE ta.orderid = A.orderid LIMIT 1) as paysetid, -->
+        (SELECT nickname FROM mem_baseinfo m WHERE m.accno = A.accno LIMIT 1) AS nickname,
+        mb.accounttype,mb.accountno,mb.accountname,mb.bankname,mb.bankaddress,tr.apycid
+
+        from
+        (
+        SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        AND t.orderstatus in ("ord05","ord12")
+        AND t.ordertype = 4
+
+        UNION ALL
+
+        SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        AND t.orderstatus = "ord07"
+        AND t.update_user = #{accno}
+        AND t.ordertype = 4
+
+        <!-- UNION ALL
+
+        SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        AND t.orderstatus = "ord06"
+        AND t.ordertype = 4 -->
+        ) AS A
+
+        INNER JOIN tra_applycash tr ON A.orderid = tr.orderid AND tr.is_delete = b'0'
+        INNER JOIN mem_bankaccount mb ON tr.bankaccid = mb.bankaccid
+
+        ) AS B
+        WHERE 1 = 1
+        <if test="orderstatus != null and  orderstatus !='' ">
+            and B.orderstatus = #{orderstatus}
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and B.orderno = #{orderno}
+        </if>
+        <if test="accounttype != null ">
+            and B.accounttype = #{accounttype}
+        </if>
+        <if test="nickname != null and  nickname !='' ">
+            and B.nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+        </if>
+        order by B.orderstatus asc,B.create_time asc
+    </select>
+
+
+    <update id="doUpdateIncarnateHandleOrder"
+            parameterType="com.likes.common.mybatis.entity.TraOrderinfom">
+        update tra_orderinfom
+        set update_user = #{updateUser,jdbcType=VARCHAR},
+            orderstatus = #{orderstatus,jdbcType=VARCHAR}
+        where orderid = #{orderid}
+          and orderstatus = 'ord05'
+          AND is_delete = b'0'
+    </update>
+
+    <update id="doUpdateIncarnateCancelSureOrder"
+            parameterType="com.likes.common.mybatis.entity.TraOrderinfom">
+        update tra_orderinfom
+        set update_user = #{updateUser,jdbcType=VARCHAR},
+            orderstatus = #{orderstatus,jdbcType=VARCHAR}
+        where orderid = #{orderid}
+          and orderstatus = 'ord07'
+          AND is_delete = b'0'
+    </update>
+
+    <update id="updateIncarnateConfirmOrder"
+            parameterType="com.likes.common.mybatis.entity.TraOrderinfom">
+        update tra_orderinfom
+        set update_user = #{updateUser,jdbcType=VARCHAR},
+            paydate     = #{paydate,jdbcType=TIMESTAMP},
+            payimg      = #{payimg,jdbcType=VARCHAR},
+            orderstatus = #{orderstatus,jdbcType=VARCHAR}
+        where orderid = #{orderid}
+          and orderstatus = 'ord07'
+          AND is_delete = b'0'
+    </update>
+
+
+    <update id="undUpdateIncarnateConfirmOrder"
+            parameterType="com.likes.common.mybatis.entity.TraOrderinfom">
+        update tra_orderinfom
+        set update_user = #{updateUser,jdbcType=VARCHAR},
+            paydate     = #{paydate,jdbcType=TIMESTAMP},
+            payimg      = #{payimg,jdbcType=VARCHAR},
+            orderstatus = #{orderstatus,jdbcType=VARCHAR}
+        where orderid = #{orderid}
+          AND is_delete = b'0'
+    </update>
+
+
+    <!-- 主播体现 end-->
+
+    <!-- 家族体现订单 -->
+    <!-- 家族当月是否有体现记录 -->
+    <select id="findByFamilyAccno" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        select *
+        from tra_orderinfom t
+        where t.accno = #{accno}
+          and t.is_delete = b'0'
+          and t.orderstatus = "ord12"
+          and t.payimg IS NOT NULL
+          AND DATE_FORMAT(t.create_time, "%Y%m") = DATE_FORMAT(NOW(), "%Y%m")
+          AND t.ordertype = 4
+    </select>
+
+    <select id="findLastOrderByFamilyAccno"
+            parameterType="com.likes.common.model.request.FamilyIncarnateRequest"
+            resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        select *
+        from tra_orderinfom t
+        where t.accno = #{accno}
+          and t.is_delete = b'0'
+          and t.orderstatus = "ord12"
+          and t.payimg IS NOT NULL
+          AND t.ordertype = 4
+ 	<![CDATA[ AND DATE_FORMAT(t.paydate, "%Y%m") >= #{searchdate}  ]]>
+ 	order by t.paydate ASC limit 1
+    </select>
+
+    <!-- 插入体现订单 -->
+    <insert id="insertFamilyIncarateOrder" keyColumn="orderid" keyProperty="orderid"
+            parameterType="com.likes.common.mybatis.entity.TraOrderinfom"
+            useGeneratedKeys="true">
+        insert into tra_orderinfom ( mealid, ordertype,
+        orderno, accno, paycode,
+        orderdate, expiredate, paytype,
+        oldamt, sumamt, realamt,
+        isinvoice, orderstatus, accountstatus,
+        paywechat, ordernote, payimg,paydate,
+        create_user, update_user)
+
+        SELECT
+        #{mealid,jdbcType=BIGINT}, #{ordertype,jdbcType=DECIMAL}, MM.orderno ,
+        #{accno,jdbcType=VARCHAR}, #{paycode,jdbcType=VARCHAR},
+        #{orderdate,jdbcType=TIMESTAMP}, #{expiredate,jdbcType=TIMESTAMP},
+        #{paytype,jdbcType=VARCHAR},
+        #{oldamt,jdbcType=DECIMAL}, #{sumamt,jdbcType=DECIMAL}, #{realamt,jdbcType=DECIMAL},
+        #{isinvoice,jdbcType=DECIMAL}, #{orderstatus,jdbcType=VARCHAR},
+        #{accountstatus,jdbcType=VARCHAR},
+        #{paywechat,jdbcType=VARCHAR}, #{ordernote,jdbcType=VARCHAR}, #{payimg,jdbcType=VARCHAR},
+        #{paydate,jdbcType=TIMESTAMP},
+        #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}
+
+        FROM (
+        SELECT concat ( DATE_FORMAT(NOW(),"%Y%m%d") ,
+        LPAD( RIGHT( IFNULL(MAX(t.orderno),concat(DATE_FORMAT(NOW(),"%Y%m%d"),"00000000")) ,8) + 1
+        ,8,"0" ) ) AS orderno
+        FROM tra_orderinfom t
+        ) as MM
+        WHERE
+        <!-- (SELECT t1.orderno  FROM tra_orderinfom t1  WHERE t1.orderno = MM.orderno ) is NULL -->
+        1=1
+        AND (select tt.accno from tra_orderinfom tt
+        where tt.accno = #{accno}
+        and tt.is_delete = b'0'
+        and tt.orderstatus = "ord12"
+        and tt.payimg IS NOT NULL
+        AND DATE_FORMAT(tt.create_time, "%Y%m" ) = DATE_FORMAT( NOW(), "%Y%m" )
+        AND tt.ordertype = 4 ) IS NULL
+    </insert>
+    <!-- 家族体现订单 end-->
+
+
+    <update id="doJiesuanOrder">
+        update tra_orderinfom
+        set accountstatus = "acc08"
+        where orderstatus = "ord08"
+        and accountstatus = "acc04"
+        and orderid in
+        <foreach close=")" collection="list" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+    </update>
+
+    <update id="updateJieSuanStatus" parameterType="java.lang.Long">
+        update tra_orderinfom t
+        set t.orderstatus = "ord98"
+        where t.orderid = #{orderid}
+          and t.accountstatus = "acc04"
+          and t.orderstatus = "ord08"
+    </update>
+
+    <!-- 棋牌统计 start-->
+    <select id="getShangfenOrderByPerson"
+            parameterType="com.likes.common.model.dto.chess.ChessRequest"
+            resultType="com.likes.common.model.dto.chess.ChessOrderResponse">
+        SELECT A.orderno,A.orderstatus,A.orderid
+        FROM
+        (
+        SELECT * FROM tra_orderinfom t
+        WHERE t.ordertype = 7
+        AND t.orderstatus in ("ord08","ord98")
+        AND t.accno = #{accno}
+        AND t.is_delete = b'0'
+        <!-- <if test="starttime != null and  starttime !='' ">
+            <![CDATA[   and t.orderdate >= #{starttime} ]]>
+        </if>
+        <if test="endtime != null and  endtime !='' ">
+            <![CDATA[   and t.orderdate <= #{endtime} ]]>
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and t.orderno LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+        </if> -->
+        order by t.orderdate desc
+        )AS A
+        INNER JOIN (SELECT * FROM chess_order co
+        WHERE co.is_delete = b'0'
+        <if test="starttime != null and  starttime !='' ">
+            <![CDATA[  and co.startdate >= #{starttime} ]]>
+        </if>
+        <if test="endtime != null and  endtime !='' ">
+            <![CDATA[  and co.stopdate <= #{endtime} ]]>
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and co.gameid LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+        </if>
+        ) as cs ON cs.orderid = A.orderid AND cs.is_delete = b'0' AND cs.sumamt > 0
+        INNER JOIN (SELECT * FROM chess_kindinfo ck
+        WHERE 1 = 1
+        <if test="parchekindid != null">
+            and ck.parchekindid = #{parchekindid}
+        </if>
+        AND ck.is_delete = b'0' ) as B ON cs.chekindid = B.chekindid
+        GROUP BY A.orderid
+        ORDER BY A.orderid DESC
+    </select>
+
+
+    <select id="getQiPaiXiaZhuByPerson"
+            parameterType="com.likes.common.model.dto.chess.ChessRequest"
+            resultType="com.likes.common.model.dto.chess.ChessOrderDO">
+        SELECT cs.* , B.chename as chessname
+        FROM
+        (
+        SELECT * FROM tra_orderinfom t
+        WHERE t.ordertype = 7
+        AND t.orderstatus in ("ord08","ord98")
+        AND t.accno = #{accno}
+        AND t.is_delete = b'0'
+        <!-- <if test="starttime != null and  starttime !='' ">
+            <![CDATA[  and t.orderdate >= #{starttime} ]]>
+        </if>
+        <if test="endtime != null and  endtime !='' ">
+            <![CDATA[  and t.orderdate <= #{endtime} ]]>
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and t.orderno LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+        </if> -->
+        <if test="orderid != null">
+            and t.orderid = #{orderid}
+        </if>
+        order by t.orderdate desc
+        )AS A
+        INNER JOIN (SELECT * FROM chess_order co
+        WHERE co.is_delete = b'0'
+        <if test="starttime != null and  starttime !='' ">
+            <![CDATA[  and co.startdate >= #{starttime} ]]>
+        </if>
+        <if test="endtime != null and  endtime !='' ">
+            <![CDATA[  and co.stopdate <= #{endtime} ]]>
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and co.gameid LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+        </if>
+
+        ) as cs ON cs.orderid = A.orderid AND cs.is_delete = b'0' AND cs.sumamt > 0
+        INNER JOIN (SELECT * FROM chess_kindinfo ck
+        WHERE 1 = 1
+        <if test="parchekindid != null">
+            and ck.parchekindid = #{parchekindid}
+        </if>
+        AND ck.is_delete = b'0' ) as B ON cs.chekindid = B.chekindid
+
+        ORDER BY cs.startdate ASC,A.orderid DESC
+    </select>
+
+
+    <!-- 根据人 和棋牌种类 统计 -->
+    <select id="getChessStatisticsQipai"
+            parameterType="com.likes.common.model.dto.chess.ChessRequest"
+            resultType="com.likes.common.model.dto.chess.ChessOrderStatisticsResponse">
+        SELECT * FROM (
+        SELECT
+        ( SELECT nickname FROM mem_baseinfo mb WHERE mb.accno = TT.accno ) AS nickname ,
+        ( SELECT chename FROM chess_kindinfo mb WHERE mb.chekindid = TT.parchekindid ) AS chename ,
+        TT.account,TT.channelid,SUM(TT.sumamt) as allsumamt,SUM(TT.winamt) as
+        allwinamt,TT.accno,TT.parchekindid
+        FROM (
+        SELECT A.accno,
+        cs.* , <!-- B.chename , --> B.parchekindid
+        FROM
+        (
+        SELECT * FROM tra_orderinfom t
+        WHERE t.ordertype = 7
+        AND t.orderstatus in ("ord98")
+        AND t.is_delete = b'0'
+        <if test="starttime != null and  starttime !='' ">
+            <![CDATA[  and t.orderdate >= #{starttime} ]]>
+        </if>
+        <if test="endtime != null and  endtime !='' ">
+            <![CDATA[  and t.orderdate <= #{endtime} ]]>
+        </if>
+        )AS A
+        INNER JOIN chess_order cs ON cs.orderid = A.orderid AND cs.is_delete = b'0'
+        INNER JOIN (SELECT * FROM chess_kindinfo ck WHERE 1= 1
+        <if test="parchekindid != null">
+            and ck.parchekindid = #{parchekindid}
+        </if>
+        AND ck.is_delete = b'0' ) as B ON cs.chekindid = B.chekindid
+
+        ORDER BY cs.startdate ASC,A.orderid DESC
+        ) AS TT
+        GROUP BY TT.accno, TT.parchekindid
+        ) MM
+        WHERE 1=1
+        <if test="searchname != null and  searchname !='' ">
+            and MM.nickname LIKE CONCAT('%',#{searchname,jdbcType=VARCHAR},'%')
+        </if>
+    </select>
+    <!-- 棋牌统计 end-->
+
+    <!-- 线上入账订单 -->
+    <select id="agentRechargeOrderList" parameterType="com.likes.common.model.request.AgentOrderReq"
+            resultType="com.likes.common.model.response.AgentRechargeOrder">
+        SELECT K.*,
+        (SELECT count(1) FROM mem_relationship mr WHERE mr.refaccno = K.accno LIMIT 1 ) AS subNum
+               from (
+
+        SELECT t.orderid,
+        t.orderno,
+        t.mealid,
+        t.orderstatus ,
+        t.create_time as createTime,
+        t.update_time updateTime,
+        t.realamt as realamt,
+        mb.mobileno as mobileno,
+        mb.accno as accno,
+        mb.email as email
+        FROM tra_orderinfom t left join mem_baseinfo mb on t.accno = mb.accno
+        WHERE t.is_delete = b'0'
+        and mb.superior_id = #{superiorId}
+        AND t.ordertype = 1 or t.ordertype = 2
+
+        <if test="orderstatus != null and  orderstatus !='' ">
+            and t.orderstatus = #{orderstatus}
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and t.orderno LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="beginTime != null and  beginTime !='' ">
+            <![CDATA[  and t.create_time >= #{beginTime} ]]>
+        </if>
+        <if test="endTime != null and  endTime !='' ">
+            <![CDATA[  and t.create_time <= #{endTime} ]]>
+        </if>
+        ORDER BY t.orderstatus asc,t.orderdate desc
+
+        ) K
+
+    </select>
+
+
+    <select id="onlineOrderList" parameterType="com.likes.common.model.request.EntryOrderReq"
+            resultType="com.likes.common.model.response.EntryOrderResponse">
+        SELECT t.orderid,t.orderno,t.mealid,t.orderstatus,t.create_time as
+        createdate,t.payuser,t.paynote,t.ordernote,t.update_time updateTime,
+        t.realamt as realamt,t.tpaysetid as tpaysetid,
+        TRUNCATE((t.sumamt - t.realamt)/ t.realamt,3) as givepercent,
+        t.realamt as rechargegold,
+        ROUND((t.sumamt - t.realamt),2) as givegold,
+        mb.email as nickname,
+        mb.mobileno as mobileno,
+        mb.unique_id as uniqueId,
+        mb.remark as remark,
+        IF(t.update_user is not null,(select ml.acclogin from bd_user ml where ml.accno =
+        t.update_user LIMIT 1),NULL) AS modifyusername
+        FROM tra_orderinfom t left join mem_baseinfo mb on t.accno = mb.accno
+        WHERE t.is_delete = b'0'
+        AND( t.ordertype = 1
+        or  t.ordertype = 2)
+        <if test="email != null and email != ''">
+            and mb.email = #{email}
+        </if>
+        <if test="orderstatus != null and  orderstatus !='' ">
+            and t.orderstatus = #{orderstatus}
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and t.orderno LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="accno != null and  accno !='' ">
+            and t.accno = #{accno}
+        </if>
+        <if test="uniqueId != null and  uniqueId !='' ">
+            and mb.unique_id = #{uniqueId}
+        </if>
+        <if test="tpaysetids != null">
+            and t.tpaysetid in
+            <foreach close=")" collection="tpaysetids" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+        <if test="startDate != null and  startDate !='' ">
+            <![CDATA[  and t.create_time >= #{startDate} ]]>
+        </if>
+        <if test="endDate != null and  endDate !='' ">
+            <![CDATA[  and t.create_time <= #{endDate} ]]>
+        </if>
+        ORDER BY t.orderstatus asc,t.orderdate desc
+    </select>
+
+
+    <select id="onlineOrderListExecl" parameterType="com.likes.common.model.request.EntryOrderReq"
+            resultType="com.likes.common.model.response.EntryOnLineOrderExcelResponse">
+        SELECT t.orderid,t.orderno,t.mealid,t.orderstatus,t.create_time as
+        createdate,t.payuser,t.paynote,t.ordernote,t.update_time updateTime,
+        t.realamt as realamt,t.tpaysetid as tpaysetid,
+        TRUNCATE((t.sumamt - t.realamt)/ t.realamt,3) as givepercent,
+        t.realamt as rechargegold,
+        ROUND((t.sumamt - t.realamt),2) as givegold,
+        mb.nickname as nickname,
+        mb.unique_id as uniqueId,
+        mb.remark as remark,
+        IF(t.update_user is not null,(select ml.acclogin from bd_user ml where ml.accno =
+        t.update_user LIMIT 1),NULL) AS modifyusername
+        FROM tra_orderinfom t left join mem_baseinfo mb on t.accno = mb.accno
+        WHERE t.is_delete = b'0'
+        AND t.ordertype = 1
+        <if test="orderstatus != null and  orderstatus !='' ">
+            and t.orderstatus = #{orderstatus}
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and t.orderno LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="uniqueId != null and  uniqueId !='' ">
+            and mb.unique_id = #{uniqueId}
+        </if>
+        <if test="tpaysetids != null">
+            and t.tpaysetid in
+            <foreach close=")" collection="tpaysetids" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+        <if test="startDate != null and  startDate !='' ">
+            <![CDATA[  and t.create_time >= #{startDate} ]]>
+        </if>
+        <if test="endDate != null and  endDate !='' ">
+            <![CDATA[  and t.create_time <= #{endDate} ]]>
+        </if>
+        ORDER BY t.orderstatus asc,t.orderdate desc
+    </select>
+
+    <!-- 家族提现后 修改 在直播间投注的 彩票 和  礼物 相关的 订单id -->
+    <update id="doUpdateJieSuanOrderById"
+            parameterType="com.likes.common.model.request.FamilyIncarnateRequest">
+        update tra_orderinfom
+        set accountstatus = "acc08", update_user = #{accno}
+        where is_delete = b'0' and orderstatus = "ord08" and accountstatus= "acc04"
+        and ordertype in
+        <foreach close=")" collection="ordertypelist" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        and orderid in
+        <foreach close=")" collection="ids" index="index" item="d" open="(" separator=",">
+            #{d}
+        </foreach>
+    </update>
+
+    <select id="getCaiList" resultType="com.likes.common.model.dto.order.CaiBettingRecordDO"
+            parameterType="com.likes.common.model.request.BettingRecordRequest">
+        SELECT BIG.*
+        ,(SELECT mb.nickname FROM mem_baseinfo mb WHERE mb.accno = BIG.accno limit 1) as nickname
+        FROM (
+        <!-- 时时彩 -->
+        SELECT A.orderid, TRUNCATE( A.realamt,3) as realamt, A.orderno,A.accno,A.orderdate,
+        B.statuss,TRUNCATE(B.winamt,3) as winamt,TRUNCATE(B.pingjujine,3) as pingjujine,
+        A.lotkindid,A.sschistoryid,
+        (SELECT lk.lotname FROM lot_kindinfo lk WHERE lk.lotkindid = A.lotkindid LIMIT 1) AS
+        lotname,
+        (SELECT l.period FROM lot_sschistory l WHERE l.sschistoryid = A.sschistoryid LIMIT 1) as
+        period
+        FROM (SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        AND t.ordertype = #{ordertype}
+        <if test="searchname != null and  searchname !='' ">
+            and t.orderno LIKE CONCAT('%',#{searchname,jdbcType=VARCHAR},'%')
+        </if>
+        AND t.orderstatus = "ord08"
+        ) AS A
+
+        INNER JOIN (SELECT group_concat(ls.`status`) as statuss , SUM(ls.winamt) as
+        winamt,ls.orderid ,
+        SUM(IF(ls.`status`= 7,ls.winamt,0)) as pingjujine
+        FROM lot_sscorder ls WHERE ls.is_delete = b'0'
+        GROUP BY ls.orderid ) AS B ON A.orderid = B.orderid
+
+        UNION ALL
+
+        <!-- 快三 -->
+        SELECT A.orderid, TRUNCATE( A.realamt,3) as realamt, A.orderno,A.accno,A.orderdate,
+        B.statuss,TRUNCATE(B.winamt,3) as winamt,TRUNCATE(B.pingjujine,3) as pingjujine,
+        A.lotkindid,A.sschistoryid,
+        (SELECT lk.lotname FROM lot_kindinfo lk WHERE lk.lotkindid = A.lotkindid LIMIT 1) AS
+        lotname,
+        (SELECT l.period FROM quick_sschistory l WHERE l.kshistoryid = A.sschistoryid LIMIT 1) as
+        period
+        FROM (SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        AND t.ordertype = #{ordertype}
+        <if test="searchname != null and  searchname !='' ">
+            and t.orderno LIKE CONCAT('%',#{searchname,jdbcType=VARCHAR},'%')
+        </if>
+        AND t.orderstatus = "ord08"
+        ) AS A
+
+
+        INNER JOIN (SELECT group_concat(ls.`status`) as statuss , SUM(ls.winamt) as
+        winamt,ls.orderid ,
+        SUM(IF(ls.`status`= 7,ls.winamt,0)) as pingjujine
+        FROM quick_sscorder ls WHERE ls.is_delete = b'0'
+        GROUP BY ls.orderid ) AS B ON A.orderid = B.orderid
+
+
+        ) AS BIG
+
+        WHERE 1= 1
+        <!-- #如果包含 0 是待开奖  ；包含 8 是 已经中奖 ; 未中奖就说 不包含 0，8 -->
+        <if test="status == 1">
+            AND FIND_IN_SET(0,statuss) = 0
+            AND FIND_IN_SET(8,statuss) = 0
+        </if>
+        <if test="status == 2">
+            AND FIND_IN_SET(8,statuss) > 0
+        </if>
+        <if test="status == 9">
+            AND FIND_IN_SET(0,statuss) > 0
+        </if>
+        ORDER BY orderid DESC
+
+    </select>
+
+    <!-- <select id="getOrderList" parameterType="com.likes.common.model.request.FamilyIncarnateRequest" resultType="com.likes.common.model.response.FamilyIncarnateResponse">
+         SELECT d.orderid,d.ordertype,d.sumamt,d.orderstatus,d.create_time,mf.familyid,mf.familyname,mf.familyman,mf.accno,mb.accounttype,mb.accountname,mb.accountno,ws.apycid,
+         mb.bankname,mb.bankaddress,TRUNCATE(mf.royaltypercent,3) as royaltypercent,mf.bettingpercentage as bettingpercentage
+         FROM tra_orderinfom d
+         INNER JOIN mem_family mf ON mf.familyid  = d.roomid and d.accno = mf.accno
+         INNER JOIN mem_bankaccount mb ON mf.familyid = mb.familyid AND mb.is_delete = b'0'
+         INNER JOIN mem_login ml ON mf.accno = ml.accno
+         INNER JOIN tra_applycash ws on ws.orderid = d.orderid
+         WHERE mf.is_delete = b'0' and d.ordertype in (12,13) and d.orderstatus in ('acc04','acc08') and d.accountstatus in ('acc04','acc08')  and d.is_delete = b'0'
+         ORDER BY d.orderdate DESC
+     </select>-->
+
+    <select id="getOrderList"
+            parameterType="com.likes.common.model.request.FamilyIncarnateRequest"
+            resultType="com.likes.common.model.response.FamilyIncarnateResponse">
+        SELECT d.roomid as familyid, d.orderid,d.ordertype,d.sumamt,d.orderstatus,d.create_time as
+        createTime,ws.apycid
+        <!-- mf.familyid,mf.familyname,mf.familyman,mb.accounttype,mb.accountno, -->
+        FROM tra_orderinfom d
+        <!-- INNER JOIN mem_family mf ON mf.familyid  = d.roomid and d.accno = mf.accno
+        INNER JOIN mem_bankaccount mb ON mf.familyid = mb.familyid AND mb.is_delete = b'0' -->
+        INNER JOIN tra_applycash ws on ws.orderid = d.orderid
+        WHERE
+        <!--  mf.is_delete = b'0' and  -->
+        d.ordertype in (12,13) and d.orderstatus in ('acc04','acc08') and d.accountstatus in
+        ('acc04','acc08') and d.is_delete = b'0'
+        ORDER BY d.orderdate DESC
+    </select>
+
+    <!-- 时时彩 投注记录列表 -->
+    <select id="getSSCBettingRecordList"
+            resultType="com.likes.common.model.dto.order.CaiBettingRecordDO"
+            parameterType="com.likes.common.model.request.BettingRecordRequest">
+        SELECT BIG.*
+        ,(SELECT mb.nickname FROM mem_baseinfo mb WHERE mb.accno = BIG.accno limit 1) as nickname
+        FROM (
+        <!-- 时时彩 -->
+        SELECT A.orderid, TRUNCATE( A.realamt,3) as realamt, A.orderno,A.accno,A.orderdate,
+        B.statuss,TRUNCATE(B.winamt,3) as winamt,TRUNCATE(B.pingjujine,3) as pingjujine,
+        A.lotkindid,A.sschistoryid,
+        (SELECT lk.lotname FROM lot_kindinfo lk WHERE lk.lotkindid = A.lotkindid LIMIT 1) AS
+        lotname,
+        (SELECT l.period FROM lot_sschistory l WHERE l.sschistoryid = A.sschistoryid LIMIT 1) as
+        period
+        FROM (SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        AND t.ordertype = #{ordertype}
+        <if test="searchname != null and  searchname !='' ">
+            and t.orderno LIKE CONCAT('%',#{searchname,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="lotkindid != null ">
+            AND t.lotkindid = #{lotkindid}
+        </if>
+        AND t.orderstatus = "ord08"
+        ) AS A
+
+        INNER JOIN (SELECT group_concat(ls.`status`) as statuss , SUM(ls.winamt) as
+        winamt,ls.orderid ,
+        SUM(IF(ls.`status`= 7,ls.winamt,0)) as pingjujine
+        FROM lot_sscorder ls WHERE ls.is_delete = b'0'
+        GROUP BY ls.orderid ) AS B ON A.orderid = B.orderid
+
+        ) AS BIG
+
+        WHERE 1= 1
+        <!-- #如果包含 0 是待开奖  ；包含 8 是 已经中奖 ; 未中奖就说 不包含 0，8 -->
+        <if test="status == 1">
+            AND FIND_IN_SET(0,statuss) = 0
+            AND FIND_IN_SET(8,statuss) = 0
+        </if>
+        <if test="status == 2">
+            AND FIND_IN_SET(8,statuss) > 0
+        </if>
+        <if test="status == 9">
+            AND FIND_IN_SET(0,statuss) > 0
+        </if>
+        ORDER BY orderid DESC
+
+    </select>
+
+    <!-- 快三 投注记录列表 -->
+    <select id="getKSBettingRecordList"
+            resultType="com.likes.common.model.dto.order.CaiBettingRecordDO"
+            parameterType="com.likes.common.model.request.BettingRecordRequest">
+        SELECT BIG.*
+        ,(SELECT mb.nickname FROM mem_baseinfo mb WHERE mb.accno = BIG.accno limit 1) as nickname
+        FROM (
+        <!-- 快三 -->
+        SELECT A.orderid, TRUNCATE( A.realamt,3) as realamt, A.orderno,A.accno,A.orderdate,
+        B.statuss,TRUNCATE(B.winamt,3) as winamt,TRUNCATE(B.pingjujine,3) as pingjujine,
+        A.lotkindid,A.sschistoryid,
+        (SELECT lk.lotname FROM lot_kindinfo lk WHERE lk.lotkindid = A.lotkindid LIMIT 1) AS
+        lotname,
+        (SELECT l.period FROM quick_sschistory l WHERE l.kshistoryid = A.sschistoryid LIMIT 1) as
+        period
+        FROM (SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        AND t.ordertype = #{ordertype}
+        <if test="searchname != null and  searchname !='' ">
+            and t.orderno LIKE CONCAT('%',#{searchname,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="lotkindid != null ">
+            AND t.lotkindid = #{lotkindid}
+        </if>
+        AND t.orderstatus = "ord08"
+        ) AS A
+
+        INNER JOIN (SELECT group_concat(ls.`status`) as statuss , SUM(ls.winamt) as
+        winamt,ls.orderid ,
+        SUM(IF(ls.`status`= 7,ls.winamt,0)) as pingjujine
+        FROM quick_sscorder ls WHERE ls.is_delete = b'0'
+        GROUP BY ls.orderid ) AS B ON A.orderid = B.orderid
+
+        ) AS BIG
+
+        WHERE 1= 1
+        <!-- #如果包含 0 是待开奖  ；包含 8 是 已经中奖 ; 未中奖就说 不包含 0，8 -->
+        <if test="status == 1">
+            AND FIND_IN_SET(0,statuss) = 0
+            AND FIND_IN_SET(8,statuss) = 0
+        </if>
+        <if test="status == 2">
+            AND FIND_IN_SET(8,statuss) > 0
+        </if>
+        <if test="status == 9">
+            AND FIND_IN_SET(0,statuss) > 0
+        </if>
+        ORDER BY orderid DESC
+    </select>
+
+
+    <select id="findExistByAccno" resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        SELECT A.*
+        FROM (select *
+              from tra_orderinfom t
+              where t.accno = #{accno}
+                and t.ordertype = #{ordertype}
+                and t.orderstatus = "ord08"
+                and t.is_delete = b'0') AS A
+                 INNER JOIN tra_rechargeaudit tt ON A.orderid = tt.orderid AND tt.is_delete = b'0'
+        WHERE tt.paysetid = #{paysetid} LIMIT 1
+    </select>
+
+    <select id="findExistByAccnoRengong"
+            resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        SELECT A.*
+        FROM (select *
+              from tra_orderinfom t
+              where t.accno = #{accno}
+                and t.ordertype in (1, 2)
+                and t.orderstatus = "ord08"
+                and t.is_delete = b'0'
+                and t.paytype in ("WECHAT", "ALIPAY")) AS A
+                 INNER JOIN tra_rechargeaudit tt ON A.orderid = tt.orderid AND tt.is_delete = b'0'
+        WHERE tt.paysetid = #{paysetid} LIMIT 1
+    </select>
+
+    <select id="incarnateOrderListBySuper"
+            parameterType="com.likes.common.model.request.IncarnateOrderReq"
+            resultType="com.likes.common.model.response.IncarnateOrderResponse">
+        SELECT * FROM (
+        SELECT A.orderid,A.orderno,A.accno,A.orderstatus,A.realamt,A.create_time as
+        create_time,A.sumamt,A.update_time as updateTime,
+        (SELECT nickname FROM mem_baseinfo m WHERE m.accno = A.accno LIMIT 1) AS nickname,
+        (SELECT unique_id FROM mem_baseinfo m WHERE m.accno = A.accno LIMIT 1) AS uniqueId,
+        (SELECT remark FROM mem_baseinfo m WHERE m.accno = A.accno LIMIT 1) AS remark,
+        (select ml.acclogin from bd_user ml where ml.accno = A.update_user LIMIT 1) AS updateUser,
+        tr.apycid,
+        tr.damaliang,
+        A.payimg as moneyAddress,
+        tr.xingzhengfei,
+        mbase.email AS email,
+        mbase.level as memLevel
+        from
+        (
+        SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        <if test="orderstatus == null or  orderstatus =='' ">
+            AND
+            (
+            t.orderstatus in ("ord05","ord12","ord14") or (t.orderstatus = 'ord07' )
+            )
+        </if>
+        <if test="orderstatus != null and  orderstatus !='' ">
+            AND t.orderstatus = #{orderstatus}
+        </if>
+        AND t.ordertype = 4
+        ) AS A
+        INNER JOIN tra_applycash tr ON A.orderid = tr.orderid AND tr.is_delete = b'0'
+        INNER JOIN mem_baseinfo mbase ON A.accno = mbase.accno
+            ) AS B
+        WHERE 1 = 1
+        <if test="accno != null and  accno !='' ">
+            and B.accno=#{accno}
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and B.orderno = #{orderno}
+        </if>
+        <if test="moneyAddress != null and  moneyAddress !='' ">
+            and B.moneyAddress = #{moneyAddress}
+        </if>
+        <if test="email != null and email != '' ">
+            and B.email = #{email}
+        </if>
+        <if test="levelSeq != null ">
+            and B.memLevel = #{levelSeq}
+        </if>
+        <if test="uniqueId != null and  uniqueId !='' ">
+            and B.uniqueId LIKE CONCAT(#{uniqueId,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="startDate != null and  startDate !='' ">
+            <![CDATA[  and B.create_time >= #{startDate} ]]>
+        </if>
+        <if test="endDate != null and  endDate !='' ">
+            <![CDATA[  and B.create_time <= #{endDate} ]]>
+        </if>
+        order by B.orderstatus asc
+        <choose>
+            <when test="orderstatus =='ord12'.toString()">
+                ,B.updateTime desc
+            </when>
+            <otherwise>
+                ,B.create_time desc
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="appIncarnateOrderListBySuper"
+            parameterType="com.likes.common.model.request.IncarnateOrderReq"
+            resultType="com.likes.common.model.response.IncarnateOrderResponse">
+        SELECT * FROM (
+        SELECT A.orderid,A.orderno,A.accno,A.orderstatus,A.realamt,A.create_time as
+        create_time,A.sumamt,A.update_time as updateTime,   A.paydate as paydate,
+        tr.apycid,
+        mbase.email AS email
+        from
+        (
+        SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        <if test="orderstatus == null or  orderstatus =='' ">
+            AND
+            (
+            t.orderstatus in ("ord05","ord12","ord14") or (t.orderstatus = 'ord07' )
+            )
+        </if>
+
+        AND t.ordertype = 4
+        ) AS A
+
+        INNER JOIN tra_applycash tr ON A.orderid = tr.orderid AND tr.is_delete = b'0'
+        INNER JOIN mem_baseinfo mbase ON A.accno = mbase.accno
+        ) AS B
+        WHERE 1 = 1
+        <if test="accno != null and  accno !='' ">
+            and B.accno=#{accno}
+        </if>
+        <if test="startDate != null and  startDate !='' ">
+            <![CDATA[  and B.create_time >= #{startDate} ]]>
+        </if>
+        <if test="endDate != null and  endDate !='' ">
+            <![CDATA[  and B.create_time <= #{endDate} ]]>
+        </if>
+        order by B.orderstatus asc
+        <choose>
+            <when test="orderstatus =='ord12'.toString()">
+                ,B.updateTime desc
+            </when>
+            <otherwise>
+                ,B.create_time desc
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <select id="agentTakeCashOrderList"
+            parameterType="com.likes.common.model.request.AgentOrderReq"
+            resultType="com.likes.common.model.response.AgentTakeCashOrder">
+        SELECT B.*,
+        (SELECT count(1) FROM mem_relationship mr WHERE mr.refaccno = B.accno LIMIT 1 ) AS subNum
+               FROM (
+        SELECT A.orderid,
+        A.orderno,
+        A.accno,
+        A.orderstatus,
+        A.realamt,
+        A.payimg as moneyaddress ,
+        A.sumamt,
+        A.create_time as createTime,
+        A.update_time as updateTime,
+        A.paydate as paydate,
+        (SELECT unique_id FROM mem_baseinfo m WHERE m.accno = A.accno LIMIT 1) AS uniqueId,
+        mbase.email AS email
+        from
+        (
+        SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        <if test="orderstatus == null or  orderstatus =='' ">
+            AND
+            (
+            t.orderstatus in ("ord05","ord12","ord14") or (t.orderstatus = 'ord07' )
+            )
+        </if>
+
+        AND t.ordertype = 4
+        ) AS A
+
+        INNER JOIN tra_applycash tr ON A.orderid = tr.orderid AND tr.is_delete = b'0'
+        INNER JOIN mem_baseinfo mbase ON A.accno = mbase.accno
+            and mbase.superior_id = #{superiorId}
+        ) AS B
+        WHERE 1 = 1
+<!--        <if test="accno != null and  accno !='' ">-->
+<!--            and B.accno=#{accno}-->
+<!--        </if>-->
+        <if test="orderno != null and  orderno !='' ">
+            and B.orderno = #{orderno}
+        </if>
+        <if test="beginTime != null and  beginTime !='' ">
+            <![CDATA[  and B.createTime >= #{beginTime} ]]>
+        </if>
+        <if test="endTime != null and  endTime !='' ">
+            <![CDATA[  and B.createTime <= #{endTime} ]]>
+        </if>
+        order by B.orderstatus asc
+        <choose>
+            <when test="orderstatus =='ord12'.toString()">
+                ,B.updateTime desc
+            </when>
+            <otherwise>
+                ,B.createTime desc
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="incarnateOrderActualTotal"
+            parameterType="com.likes.common.model.request.IncarnateOrderReq"
+            resultType="java.math.BigDecimal">
+        SELECT SUM(IFNULL(realamt,0)) as realamt FROM (
+        SELECT
+        A.orderid,A.orderno,A.accno,A.orderstatus,A.realamt,A.create_time as
+        create_time,A.sumamt,A.update_time as updateTime,
+        (SELECT nickname FROM mem_baseinfo m WHERE m.accno = A.accno LIMIT 1) AS nickname,
+        (SELECT unique_id FROM mem_baseinfo m WHERE m.accno = A.accno LIMIT 1) AS uniqueId
+        from
+        (
+        SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        AND t.orderstatus = 'ord12'
+        AND t.ordertype = 4
+        ) AS A
+        ) AS B
+        WHERE 1 = 1
+
+        <if test="startDate != null and  startDate !='' ">
+            <![CDATA[  and B.create_time >= #{startDate} ]]>
+        </if>
+        <if test="endDate != null and  endDate !='' ">
+            <![CDATA[  and B.create_time <= #{endDate} ]]>
+        </if>
+
+        <if test="orderstatus != null and  orderstatus !='' ">
+            and B.orderstatus = #{orderstatus}
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and B.orderno = #{orderno}
+        </if>
+        <if test="accounttype != null ">
+            and B.accounttype = #{accounttype}
+        </if>
+        <if test="nickname != null and  nickname !='' ">
+            and B.nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="uniqueId != null and  uniqueId !='' ">
+            and B.uniqueId LIKE CONCAT(#{uniqueId,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="accno != null and  accno !='' ">
+            and B.accno=#{accno}
+        </if>
+
+    </select>
+
+    <select id="incarnateOrderListExcel"
+            parameterType="com.likes.common.model.request.IncarnateOrderReq"
+            resultType="com.likes.common.model.response.EntryIncarnateOrderExcelResponse">
+        SELECT * FROM (
+        SELECT A.orderid,A.orderno,A.accno,A.orderstatus,A.realamt,A.create_time as
+        create_time,A.sumamt,A.update_time as updateTime,
+        <!-- (SELECT ta.paysetid FROM tra_applycash ta WHERE ta.orderid = A.orderid LIMIT 1) as paysetid, -->
+        (SELECT nickname FROM mem_baseinfo m WHERE m.accno = A.accno LIMIT 1) AS nickname,
+        (SELECT unique_id FROM mem_baseinfo m WHERE m.accno = A.accno LIMIT 1) AS uniqueId,
+        (SELECT remark FROM mem_baseinfo m WHERE m.accno = A.accno LIMIT 1) AS remark,
+        (select ml.acclogin from bd_user ml where ml.accno = A.update_user LIMIT 1) AS updateUser,
+        mb.accounttype,mb.accountno,mb.accountname,mb.bankname,mb.bankaddress,tr.apycid,
+        tr.damaliang,
+        tr.xingzhengfei
+        from
+        (
+        SELECT * FROM tra_orderinfom t
+        WHERE t.is_delete = b'0'
+        <if test="orderstatus == null or  orderstatus =='' ">
+            AND
+            (
+            t.orderstatus in ("ord05","ord12","ord14") or (t.orderstatus = 'ord07' and t.update_user = #{accno})
+            )
+        </if>
+        <if test="orderstatus != null and  orderstatus !='' ">
+            AND t.orderstatus = #{orderstatus}
+            <if test="orderstatus == 'ord07'">
+                AND t.update_user = #{accno}
+            </if>
+        </if>
+        AND t.ordertype = 4
+        ) AS A
+
+        INNER JOIN tra_applycash tr ON A.orderid = tr.orderid AND tr.is_delete = b'0'
+        INNER JOIN mem_bankaccount mb ON tr.bankaccid = mb.bankaccid
+
+        ) AS B
+        WHERE 1 = 1
+        <if test="orderno != null and  orderno !='' ">
+            and B.orderno = #{orderno}
+        </if>
+        <if test="accounttype != null ">
+            and B.accounttype = #{accounttype}
+        </if>
+        <if test="nickname != null and  nickname !='' ">
+            and B.nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="uniqueId != null and  uniqueId !='' ">
+            and B.uniqueId LIKE CONCAT(#{uniqueId,jdbcType=VARCHAR},'%')
+        </if>
+
+        <if test="startDate != null and  startDate !='' ">
+            <![CDATA[  and B.create_time >= #{startDate} ]]>
+        </if>
+        <if test="endDate != null and  endDate !='' ">
+            <![CDATA[  and B.create_time <= #{endDate} ]]>
+        </if>
+        order by B.orderstatus asc
+        <choose>
+            <when test="orderstatus =='ord12'.toString()">
+                ,B.updateTime desc
+            </when>
+            <otherwise>
+                ,B.create_time desc
+            </otherwise>
+        </choose>
+    </select>
+
+
+    <select id="findNoteById" resultType="java.lang.String">
+        select ordernote
+        from tra_orderinfom
+        where orderid = #{orderid} limit 1;
+    </select>
+
+    <select id="statisticsRoomLineMemGift" parameterType="Map" resultType="java.lang.Double">
+        SELECT IFNULL(SUM(sumamt), 0) from tra_orderinfom where 1=1
+        <if test="ordertype != null ">
+            and ordertype=#{ordertype}
+        </if>
+        <if test="accno != null ">
+            AND accno=#{accno}
+        </if>
+        and roomid=#{roomid}
+        and create_time between #{startDate} and #{endDate}
+    </select>
+
+    <select id="getYesterdayAgentOrder"
+            resultType="com.likes.common.model.dto.order.TraOrderinfomDTO">
+        select mrs.refaccno,
+               orderid,
+               tod.accno,
+               tod.realamt,
+               tod.create_time,
+               mb.registerdate,
+               mb.pay_amount as payAmount
+        from mem_relationship mrs
+                 inner join tra_orderinfom tod
+                            on mrs.refaccno = #{refaccno}
+                                and tod.create_time between #{startDate} and #{endDate}
+                                and tod.accno = mrs.accno and tod.is_delete = b'0' and tod.ordertype in (1, 2, 15)
+                                and tod.orderstatus in ('ord08', 'ord12')
+                                and tod.cleanid = 0
+                 inner join mem_baseinfo mb on mb.accno = mrs.accno and mb.is_delete = b'0'
+        order by tod.orderid asc
+    </select>
+
+    <select id="statisticsRoomLastInCome" parameterType="Map" resultType="java.lang.Double">
+        SELECT SUM(tr.realamt) AS zuihoushouru
+        FROM tra_orderinfom tr
+        WHERE tr.roomid = #{roomid}
+          AND tr.ordertype = 10
+          AND tr.is_delete = b'0'
+          AND tr.create_time between #{startDate} and #{endDate}
+    </select>
+
+    <select id="statisticsRoomAllInCome" parameterType="java.lang.Long"
+            resultType="java.lang.Double">
+        SELECT SUM(tr.realamt) AS allquantity
+        FROM tra_orderinfom tr
+        WHERE tr.roomid = #{roomid}
+          AND tr.ordertype = 10
+          AND tr.is_delete = b'0'
+    </select>
+    <select id="getUserWithdraw"
+            parameterType="com.likes.common.model.request.SysAgentinfoReq"
+            resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        select create_time as createTime,realamt
+        from tra_orderinfom
+        where accno = #{accno}
+        and is_delete = b'0'
+        and ordertype = 4
+        and orderstatus ='ord12'
+        <if test="datesta != null and datesta != ''">
+            and orderdate &gt;= #{datesta,jdbcType=VARCHAR}
+        </if>
+        <if test="dateend != null and dateend != ''">
+            and orderdate &lt;= #{dateend,jdbcType=VARCHAR}
+        </if>
+        order by createTime desc
+    </select>
+    <select id="getYesterdayWithdraw"
+            resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        select IFNULL(sum(tod.realamt), 0) as realamt
+        from mem_relationship mrs
+                 inner join tra_orderinfom tod
+                            on mrs.refaccno = #{refaccno}
+                                and tod.create_time between #{startDate} and #{endDate}
+                                and tod.accno = mrs.accno and tod.is_delete = b'0' and tod.ordertype = 4
+                                and tod.orderstatus = 'ord12'
+                                and tod.cleanid = 0
+                 inner join mem_baseinfo mb on mb.accno = mrs.accno and mb.is_delete = b'0'
+    </select>
+    <select id="statisticalDayData"
+            resultType="com.likes.common.model.dto.report.DailyFundsDataDO">
+        SELECT date_format(mg.create_time, '%Y-%m-%d') AS date,
+               sum(case when (ordertype = 1 OR ordertype = 2 OR ordertype = 15) AND orderstatus = 'ord08' THEN realamt else 0 end) as rechargeamt,
+               sum(case when (ordertype = 3 OR ordertype = 4 ) AND orderstatus = 'ord12' THEN realamt else 0 end) as paymentamt
+        FROM tra_orderinfom AS o INNER join mem_goldchange AS mg
+        on mg.refid = o.orderid
+        WHERE o.is_delete = b'0'
+          AND o.ordertype IN (1
+            , 2
+            , 15
+            , 3
+            , 4)
+          AND mg.changetype in (1
+            , 69
+            , 12
+            , 62
+            , 59)
+          AND mg.create_time between #{startTime}
+          and #{endTime}
+        GROUP BY date
+    </select>
+    <select id="statisticalGiftSumamtData"
+            resultType="com.likes.common.model.dto.report.GiftDailyDataDO">
+        SELECT date_format(orderdate, '%Y-%m-%d') AS date,
+               sum(sumamt)                        as giftsumamt
+        FROM tra_orderinfom
+        WHERE is_delete = b'0'
+          AND ordertype = 10
+          AND orderstatus = 'ord08'
+          AND orderdate BETWEEN #{startTime}
+          and #{endTime}
+        GROUP BY date
+    </select>
+
+    <select id="statisticalGiftamtData"
+            resultType="com.likes.common.model.dto.report.GiftDailyRoomDO">
+        SELECT date_format(orderdate, '%Y-%m-%d') AS date,
+               sum(realamt)                       as giftamt,
+               roomid
+        FROM tra_orderinfom
+        WHERE is_delete = b'0'
+          AND ordertype = 10
+          AND orderstatus = 'ord08'
+          AND orderdate between #{startTime}
+          and #{endTime}
+        GROUP BY roomid, date
+    </select>
+
+    <select id="statisticalFirstRechargeData"
+            resultType="com.likes.common.model.dto.report.FirstRechargeDailyDataDO">
+        select date_format(ump.mp, '%Y-%m-%d') AS date, count(1) as firstrecharge
+        from (select accno, min (orderdate) as mp
+            from tra_orderinfom
+            where (ordertype = 1
+            OR ordertype = 2 OR ordertype = 15)
+            AND orderstatus = 'ord08'
+            AND is_delete = 0
+            group by accno) as ump,
+            tra_orderinfom as uo
+        where ump.accno = uo.accno
+          and ump.mp = uo.orderdate
+          AND (uo.ordertype = 1
+           OR uo.ordertype = 2
+           OR ordertype = 15)
+          AND uo.orderstatus = 'ord08'
+          AND uo.orderdate between #{startTime}
+          and #{endTime}
+          AND is_delete = b'0'
+        GROUP BY date
+    </select>
+
+    <select id="getAllWithdrawalAndPayAccno" resultType="java.lang.String">
+        select accno
+        from tra_orderinfom
+        where (ordertype in (1, 2) and orderstatus = 'ord08')
+           or (ordertype in (3, 4) and orderstatus = 'ord12')
+        GROUP BY accno
+    </select>
+    <select id="getPayTotalByAccno" resultType="java.lang.Double">
+        select count(1) as num
+        from tra_orderinfom
+        where accno = #{accno,jdbcType=VARCHAR}
+          and ordertype in (1, 2)
+          and orderstatus = 'ord08'
+        UNION ALL
+        select a.fristrealamt
+        from (select realamt as fristrealamt
+              from tra_orderinfom
+              where accno = #{accno,jdbcType=VARCHAR}
+                and ordertype in (1, 2)
+                and orderstatus = 'ord08'
+              ORDER BY orderid asc LIMIT 1) a
+        UNION ALL
+        select max(realamt) as maxrealamt
+        from tra_orderinfom
+        where accno = #{accno,jdbcType=VARCHAR}
+          and ordertype in (1, 2)
+          and orderstatus = 'ord08'
+        UNION ALL
+        select sum(realamt) as sumrealamt
+        from tra_orderinfom
+        where accno = #{accno,jdbcType=VARCHAR}
+          and ordertype in (1, 2)
+          and orderstatus = 'ord08'
+    </select>
+    <select id="getWithdrawalTotalByAccno" resultType="java.lang.Double">
+        select count(1) as num
+        from tra_orderinfom
+        where accno = #{accno,jdbcType=VARCHAR}
+          and ordertype in (3, 4)
+          and orderstatus = 'ord12'
+        UNION ALL
+        select a.fristrealamt
+        from (select realamt as fristrealamt
+              from tra_orderinfom
+              where accno = #{accno,jdbcType=VARCHAR}
+                and ordertype in (3, 4)
+                and orderstatus = 'ord12'
+              ORDER BY orderid asc LIMIT 1) a
+        UNION ALL
+        select max(realamt) as maxrealamt
+        from tra_orderinfom
+        where accno = #{accno,jdbcType=VARCHAR}
+          and ordertype in (3, 4)
+          and orderstatus = 'ord12'
+        UNION ALL
+        select sum(realamt) as sumrealamt
+        from tra_orderinfom
+        where accno = #{accno,jdbcType=VARCHAR}
+          and ordertype in (3, 4)
+          and orderstatus = 'ord12'
+    </select>
+
+    <select id="selectSumPeople" resultType="com.likes.common.model.dto.report.DepositStatisticsDO">
+
+        select count(distinct (accno)) as AllRenci
+        from tra_orderinfom
+        where ordertype = #{ordertype}
+          and orderstatus = 'ord08'
+    <![CDATA[
+          AND create_time >= #{startTime}
+          And create_time <= #{endTime}
+        ]]>      ;
+
+    </select>
+    <select id="selectNumPeopleCompany" resultType="com.likes.common.model.dto.report.DepositStatisticsDO">
+        select count(*) as renci, sum(realamt) as money, orderstatus as status
+        from tra_orderinfom
+        where ordertype = #{ordertype2}
+       <![CDATA[
+          AND create_time >= #{startTime}
+          And create_time <= #{endTime}
+        ]]>
+           GROUP BY orderstatus
+
+    </select>
+
+
+    <select id="selectAgentOrderList" parameterType="com.likes.common.model.request.AgentTransactionQuery"
+            resultType="com.likes.common.model.AgentTransactionDO">
+        SELECT
+        ord.orderid,
+        ordacc.acclogin,
+        memacc.nickname,
+        ord.sumamt,
+        ord.sumamt - ord.realamt AS discountamt,
+        ord.create_time AS createdate,
+        ord.update_time AS modifydate,
+        ord.orderstatus,
+        CASE
+        WHEN upuser.acclogin IS NULL THEN
+        moduser.acclogin ELSE upuser.acclogin
+        END AS updateUser,
+        account.nickname AS bankaccount
+        FROM
+        tra_orderinfom ord
+        INNER JOIN tra_orderaccount oa ON ord.orderid = oa.orderid
+        INNER JOIN sys_repayaccount account ON oa.bankid = account.bankid
+        INNER JOIN mem_login ordacc ON ord.accno = ordacc.accno
+        INNER JOIN mem_baseinfo memacc ON ord.accno = memacc.accno
+        LEFT JOIN mem_login moduser ON ord.create_user = moduser.accno
+        LEFT JOIN bd_user upuser ON ord.update_user = upuser.accno
+        WHERE
+        ord.is_delete = 0
+        AND ord.ordertype = 14
+        <if test="acclogin != null and acclogin != '' ">
+            and ordacc.acclogin LIKE CONCAT('%',#{acclogin,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="nickname != null and nickname != '' ">
+            and memacc.nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="orderstatus != null and orderstatus != '' ">
+            and ord.orderstatus = #{orderstatus,jdbcType=VARCHAR}
+        </if>
+        ORDER BY ord.orderstatus ASC, ord.update_time DESC
+    </select>
+
+    <select id="selectAgentOrderById" parameterType="java.lang.Long"
+            resultType="com.likes.common.model.AgentTransactionDetailDO">
+        SELECT ord.orderid,
+               ord.orderno,
+               ordacc.acclogin,
+               ord.sumamt,
+               ord.realamt,
+               ord.create_time createdate,
+               ord.orderstatus,
+               ord.payuser,
+               ord.paynote,
+               ord.payimg,
+               payuser.discountrag,
+               account.accountname,
+               account.bankaddress,
+               account.accountno
+        FROM tra_orderinfom ord
+                 INNER JOIN tra_orderaccount oa ON ord.orderid = oa.orderid
+                 INNER JOIN sys_repayaccount account ON oa.bankid = account.bankid
+                 INNER JOIN mem_repayuser payuser ON ord.accno = payuser.accno
+                 INNER JOIN mem_login ordacc ON ord.accno = ordacc.accno
+        WHERE ord.is_delete = 0
+          AND ord.ordertype = 14
+          AND ord.orderid = #{orderid}
+    </select>
+
+    <update id="updatePaycode">
+        update tra_orderinfom
+        set paycode=#{paycode}
+        where orderno = #{orderno}
+    </update>
+
+    <update id="updateOrderNotSuccess"
+            parameterType="com.likes.common.mybatis.entity.TraOrderinfom">
+        <!--
+          WARNING - @mbggenerated
+          This element is automatically generated by MyBatis Generator, do not modify.
+        -->
+        update tra_orderinfom
+        <set>
+            <if test="mealid != null">
+                mealid = #{mealid,jdbcType=BIGINT},
+            </if>
+            <if test="bankid != null">
+                bankid = #{bankid,jdbcType=BIGINT},
+            </if>
+            <if test="roomid != null">
+                roomid = #{roomid,jdbcType=BIGINT},
+            </if>
+            <if test="lotkindid != null">
+                lotkindid = #{lotkindid,jdbcType=BIGINT},
+            </if>
+            <if test="sschistoryid != null">
+                sschistoryid = #{sschistoryid,jdbcType=BIGINT},
+            </if>
+            <if test="oddsid != null">
+                oddsid = #{oddsid,jdbcType=BIGINT},
+            </if>
+            <if test="chekindid != null">
+                chekindid = #{chekindid,jdbcType=BIGINT},
+            </if>
+            <if test="tpaysetid != null">
+                tpaysetid = #{tpaysetid,jdbcType=BIGINT},
+            </if>
+            <if test="ordertype != null">
+                ordertype = #{ordertype,jdbcType=DECIMAL},
+            </if>
+            <if test="orderno != null">
+                orderno = #{orderno,jdbcType=VARCHAR},
+            </if>
+            <if test="accno != null">
+                accno = #{accno,jdbcType=VARCHAR},
+            </if>
+            <if test="paycode != null">
+                paycode = #{paycode,jdbcType=VARCHAR},
+            </if>
+            <if test="orderdate != null">
+                orderdate = #{orderdate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expiredate != null">
+                expiredate = #{expiredate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="paytype != null">
+                paytype = #{paytype,jdbcType=VARCHAR},
+            </if>
+            <if test="oldamt != null">
+                oldamt = #{oldamt,jdbcType=DECIMAL},
+            </if>
+            <if test="sumamt != null">
+                sumamt = #{sumamt,jdbcType=DECIMAL},
+            </if>
+            <if test="realamt != null">
+                realamt = #{realamt,jdbcType=DECIMAL},
+            </if>
+            <if test="isinvoice != null">
+                isinvoice = #{isinvoice,jdbcType=DECIMAL},
+            </if>
+            <if test="orderstatus != null">
+                orderstatus = #{orderstatus,jdbcType=VARCHAR},
+            </if>
+            <if test="accountstatus != null">
+                accountstatus = #{accountstatus,jdbcType=VARCHAR},
+            </if>
+            <if test="cancelreason != null">
+                cancelreason = #{cancelreason,jdbcType=VARCHAR},
+            </if>
+            <if test="payimg != null">
+                payimg = #{payimg,jdbcType=VARCHAR},
+            </if>
+            <if test="paywechat != null">
+                paywechat = #{paywechat,jdbcType=VARCHAR},
+            </if>
+            <if test="paydate != null">
+                paydate = #{paydate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="payuser != null">
+                payuser = #{payuser,jdbcType=VARCHAR},
+            </if>
+            <if test="paynote != null">
+                paynote = #{paynote,jdbcType=VARCHAR},
+            </if>
+            <if test="ordernote != null">
+                ordernote = #{ordernote,jdbcType=VARCHAR},
+            </if>
+            <if test="isDelete != null">
+                is_delete = #{isDelete,jdbcType=BIT},
+            </if>
+            <if test="createUser != null">
+                create_user = #{createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="source != null">
+                `source` = #{source,jdbcType=VARCHAR},
+            </if>
+            <if test="cleanid != null">
+                cleanid = #{cleanid,jdbcType=BIGINT},
+            </if>
+        </set>
+        where orderno = #{orderno,jdbcType=VARCHAR} and orderstatus != 'ord08'
+    </update>
+
+
+    <select id="getStatisticsOnLineOrder" parameterType="com.likes.common.model.request.EntryOrderReq"
+            resultType="com.likes.common.model.response.StatisticsOnLineOrderResponse">
+        SELECT IFNULL(SUM(t.sumamt),0) as totalsumamt,IFNULL(SUM(t.realamt),0) as totalrealamt
+        FROM tra_orderinfom t left join mem_baseinfo mb on t.accno = mb.accno
+        WHERE t.is_delete = b'0'
+        AND t.ordertype = 1
+        <if test="orderstatus != null and  orderstatus !='' ">
+            and t.orderstatus = #{orderstatus}
+        </if>
+        <if test="orderno != null and  orderno !='' ">
+            and t.orderno LIKE CONCAT('%',#{orderno,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="accno != null and  accno !='' ">
+            and t.accno = #{accno}
+        </if>
+        <if test="uniqueId != null and  uniqueId !='' ">
+            and mb.unique_id = #{uniqueId}
+        </if>
+        <if test="tpaysetids != null">
+            and t.tpaysetid in
+            <foreach close=")" collection="tpaysetids" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+        <if test="startDate != null and  startDate !='' ">
+            <![CDATA[  and t.create_time >= #{startDate} ]]>
+        </if>
+        <if test="endDate != null and  endDate !='' ">
+            <![CDATA[  and t.create_time <= #{endDate} ]]>
+        </if>
+        ORDER BY t.orderstatus asc,t.orderdate desc
+    </select>
+
+
+    <select id="getRepayuserOrderList" resultType="com.likes.common.model.dto.pay.TraOrderinfomDO">
+        SELECT toi.*,
+               tro.memaccount,
+               '' AS nickname,
+               '' AS bankname,
+               '' AS accountno,
+               '' AS accountname,
+               '' AS bankaddress
+        FROM tra_orderinfom AS toi
+                 LEFT JOIN tra_repayorder AS tro ON toi.orderid = tro.orderid
+        WHERE toi.is_delete = 0
+          AND toi.ordertype = 15
+          AND toi.orderstatus = "ord08"
+          AND tro.is_delete = 0
+          AND tro.orderstatus = "ord08"
+          AND tro.refaccno = #{accno}
+          AND toi.orderdate BETWEEN #{startTime} AND #{endTime}
+        UNION
+        SELECT a.*,
+               '' AS memaccount,
+               '' AS nickname,
+               '' AS bankname,
+               '' AS accountno,
+               '' AS accountname,
+               '' AS bankaddress
+        FROM tra_orderinfom AS a
+        WHERE is_delete = 0
+          AND ordertype IN (16, 17)
+          AND accno = #{accno}
+          AND orderdate BETWEEN #{startTime} AND #{endTime}
+        UNION
+        SELECT a.*,
+               '' AS memaccount,
+               c.nickname,
+               c.bankname,
+               c.accountno,
+               c.accountname,
+               c.bankaddress
+        FROM tra_orderinfom AS a
+                 LEFT JOIN tra_orderaccount AS b ON a.orderid = b.orderid
+                 LEFT JOIN sys_repayaccount AS c ON a.bankid = c.bankid
+        WHERE a.is_delete = 0
+          AND b.is_delete = 0
+          AND c.is_delete = 0
+          AND a.ordertype = 14
+          AND a.accno = #{accno}
+          AND a.orderdate BETWEEN #{startTime} AND #{endTime}
+        ORDER BY orderdate desc
+    </select>
+
+    <select id="findSuccessByOrderno" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+        select *
+        from tra_orderinfom t
+        WHERE t.is_delete = 0
+          and t.orderno = #{orderno}
+          and orderstatus = 'ord08' limit 1
+    </select>
+    <select id="getDepositReportThird" resultType="com.likes.common.model.dto.report.ThirdProviderDO">
+        select count(distinct(accno)) as peopleNum , tpaysetid as tpaysetid ,SUM(realamt) as sumamtSum,count(accno) as
+        successNum from
+        tra_orderinfom where
+        <if test="ids != null and ids.size > 0  ">
+            tpaysetid in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+            and
+        </if>
+        ordertype = '1' and orderstatus = 'ord08'
+        <![CDATA[
+    AND create_time >= #{startTime}
+     And create_time <= #{endTime}
+        ]]>
+        GROUP BY tpaysetid
+
+    </select>
+
+    <select id="getDepositReportFailThird" resultType="com.likes.common.model.dto.report.ThirdProviderDO">
+        select count(accno) as failNum ,tpaysetid as tpaysetid from
+        tra_orderinfom where
+        <if test="ids != null and ids.size > 0  ">
+            tpaysetid in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+            and
+        </if>
+        ordertype = '1' and orderstatus = 'ord04'
+        <![CDATA[
+    AND create_time >= #{startTime}
+     And create_time <= #{endTime}
+        ]]>
+        GROUP BY tpaysetid
+    </select>
+    <select id="getPayFor" resultType="com.likes.common.model.dto.report.DepositStatisticsDO">
+        select count(distinct (accno)) as AllRenci, sum(realamt) as money
+        from tra_orderinfom
+        where ordertype = '15'
+          and orderstatus = 'ord08'
+    </select>
+    <select id="getRecharge" resultType="com.likes.common.model.dto.report.RechargeUserDataDO">
+        SELECT o.ordertype  as rechargetype,
+               sum(realamt) as rechargeamt,
+               mb.memid     as userid,
+               o.orderid    AS orderid
+        FROM mem_goldchange AS mg
+                 INNER join tra_orderinfom o on mg.refid = o.orderid
+                 INNER join mem_baseinfo mb on o.accno = mb.accno
+        WHERE o.is_delete = b'0'
+          AND mg.create_time between #{startTime} and #{endTime}
+          AND o.ordertype IN (1, 2, 15)
+          and mg.changetype in (1, 69)
+          AND o.orderstatus = 'ord08'
+        GROUP BY o.ordertype, o.orderid, mb.memid
+    </select>
+    <select id="getFamilyOrderGiftTotal" resultType="java.lang.Double">
+        select sum(realamt) from tra_orderinfom where accno=#{accno,jdbcType=VARCHAR}
+        <if test="startTime != null and startTime !=''  ">
+            AND create_time <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime != null and endTime !=''  ">
+            AND create_time <![CDATA[<= ]]> #{endTime}
+        </if>
+        and orderstatus in ('acc04','acc08','acc16') and ordertype=13 and is_delete=b'0'
+    </select>
+    <select id="getFamilyOrderBetTotal" resultType="java.lang.Double">
+        select sum(realamt) from tra_orderinfom where accno=#{accno,jdbcType=VARCHAR}
+        <if test="startTime != null and startTime !=''  ">
+            AND create_time <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime != null and endTime !=''  ">
+            AND create_time <![CDATA[<= ]]> #{endTime}
+        </if>
+        and orderstatus in ('acc04','acc08','acc16') and ordertype=12 and is_delete=b'0'
+    </select>
+    <select id="getallPeople" resultType="com.likes.common.model.dto.report.ThirdProviderDO">
+        select tpaysetid as tpaysetid ,count(distinct(accno)) as AllRenci from
+        tra_orderinfom where
+        <if test="ids != null and ids.size > 0  ">
+            tpaysetid in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+            and
+        </if>
+        ordertype = '1'
+        <![CDATA[
+    AND create_time >= #{startTime}
+     And create_time <= #{endTime}
+        ]]>
+        GROUP BY tpaysetid
+    </select>
+    <select id="doDayExportOrder" resultType="com.likes.common.mybatis.entity.TraOrderinfom">
+          <![CDATA[
+        select *
+        from tra_orderinfom
+        where now() > DATE_FORMAT(DATE_ADD(create_time, INTERVAL 1 DAY), '%Y-%m-%d %H:%i:%S')
+          and orderstatus = #{orderStatus}
+          and ordertype = #{orderType}
+        ]]>
+    </select>
+
+    <update id="batchUpdateOrder" parameterType="com.likes.common.mybatis.entity.TraOrderinfom">
+        <foreach collection="orderList" item="item" index="index">
+            update tra_orderinfom
+            set orderstatus = #{item.orderstatus}
+            where orderid = #{item.orderid};
+        </foreach>
+    </update>
+</mapper>
+

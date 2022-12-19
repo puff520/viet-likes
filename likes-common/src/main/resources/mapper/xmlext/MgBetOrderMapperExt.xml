@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.order.MgBetOrderMapperExt">
+    <insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `mg_bet_order`(`player_name`, `vendor_code`, `game_code`, `parent_bet_id`, `bet_id`,
+                                   `trans_type`, `currency`, `wallet_code`, `bet_amount`, `win_amount`, `traceId`, `created_at`, `user_id`, `game_name`) VALUES
+        <foreach collection="list" item="bet" separator=",">
+            (#{bet.playerName}, #{bet.vendorCode}, #{bet.gameCode}, #{bet.parentBetId}, #{bet.betId}, #{bet.transType},
+             #{bet.currency}, #{bet.walletCode}, #{bet.betAmount}, #{bet.winAmount}, #{bet.traceid}, #{bet.createdAt}, #{bet.userId}, #{bet.gameName})
+        </foreach>
+        ON DUPLICATE KEY UPDATE traceId = VALUES(traceid)
+    </insert>
+
+    <select id="statisticalDayData" resultType="com.likes.common.model.dto.report.GameDailyDataDO">
+        SELECT date_format(created_at, '%Y-%m-%d') AS date,
+               SUM(bet_amount)                     AS gameamt,
+               SUM(win_amount) - SUM(bet_amount)   AS gameawardamt
+        FROM mg_bet_order
+        WHERE created_at BETWEEN #{startTime} and #{endTime}
+        GROUP BY date;
+    </select>
+
+    <select id="statisticalDataByUser" resultType="com.likes.common.model.dto.report.GameUserDataDO">
+        SELECT user_id                           AS userid,
+               SUM(bet_amount)                   AS gameamt,
+               SUM(win_amount) - SUM(bet_amount) AS gameawardamt
+        FROM mg_bet_order
+        WHERE created_at BETWEEN #{startTime} and #{endTime}
+        GROUP BY user_id;
+    </select>
+</mapper>

@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.tra.TraAgentclearingMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.TraAgentclearing">
+        <id column="cleanid" jdbcType="BIGINT" property="cleanid"/>
+        <result column="agentid" jdbcType="BIGINT" property="agentid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="cleantype" jdbcType="VARCHAR" property="cleantype"/>
+        <result column="refids" jdbcType="VARCHAR" property="refids"/>
+        <result column="chargeamt" jdbcType="DECIMAL" property="chargeamt"/>
+        <result column="reverseamt" jdbcType="DECIMAL" property="reverseamt"/>
+        <result column="commission" jdbcType="DECIMAL" property="commission"/>
+        <result column="buttonnote" jdbcType="VARCHAR" property="buttonnote"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    cleanid, agentid, accno, cleantype, refids, chargeamt, reverseamt, commission, buttonnote,
+    is_delete, create_user, create_time, update_user, update_time
+    </sql>
+
+
+    <select id="getAgentList" parameterType="com.likes.common.model.request.SysAgentinfoReq" resultType="com.likes.common.model.vo.member.ManageAgentVO">
+        select mb.memid,mb.accno, mb.nickname, mb.recomcode, mb.proxy_url as proxyUrl,
+        (select ifnull(count(*),0) from mem_relationship where refaccno = mb.accno and is_delete = b'0')as memnums,
+        (select truncate(ifnull(sum(reverseamt),0),2) from tra_agentclearing where accno = mb.accno and is_delete = b'0')as reverseamt
+        from mem_baseinfo mb
+        where mb.accno in(select DISTINCT refaccno from mem_relationship where is_delete = b'0')
+        and mb.is_delete = b'0'
+        <if test="searchstr != null and searchstr !=''">
+            and (mb.nickname = #{searchstr,jdbcType=VARCHAR}
+            or mb.recomcode = #{searchstr,jdbcType=VARCHAR}
+            )
+        </if>
+        order by create_time desc
+    </select>
+
+    <select id="getDetail" parameterType="com.likes.common.model.request.SysAgentinfoReq" resultType="com.likes.common.model.vo.member.ManageAgentDetailVO">
+        select
+        sa.agentname, sa.minamt, sa.maxamt, ta.cleanid, ta.accno, ta.cleantype, ta.refids, ta.chargeamt, ta.reverseamt, ta.commission, ta.buttonnote, ta.create_time as createdate,
+        ta.update_time as modifydate,ta.daily_new_users as dailyNewUsers,ta.daily_pay_users as dailyPayUsers,ta.daily_withdrawal as dailyWithdrawal,ta.daily_pay_total as dailyPayTotal
+        from tra_agentclearing ta
+        left join sys_agentinfo sa on ta.agentid = sa.agentid
+        where ta.accno = #{accno,jdbcType=VARCHAR}
+        <if test="datesta !='' and datesta !=null">
+            and ta.create_time &gt;= #{datesta,jdbcType=VARCHAR}
+        </if>
+        <if test="dateend !='' and dateend !=null">
+            and ta.create_time &lt;= #{dateend,jdbcType=VARCHAR}
+        </if>
+        and ta.is_delete = b'0'
+        order by ta.create_time desc
+    </select>
+
+    <select id="getNextList" parameterType="com.likes.common.model.request.SysAgentinfoReq" resultType="com.likes.common.model.dto.member.MemAgentResp">
+      SELECT mb.nickname, mb.accno,
+      ifnull((select sum(realamt) as chargeamt from tra_orderinfom where accno=mb.accno and ordertype in (1,2,15) and orderstatus = 'ord08'),0)as chargeamt,
+      ifnull((select sum(realamt) as chargeamt from tra_orderinfom where accno=mb.accno and ordertype in (3,4) and orderstatus = 'ord12'),0)as withdrawalTotal,
+      mb.pay_first as payFirst,
+      mb.registerdate as createdate,
+      ml.lastlogindate
+      FROM mem_relationship mr
+      INNER JOIN mem_baseinfo mb ON mb.accno = mr.accno
+      AND mr.refaccno =  #{accno,jdbcType=VARCHAR}
+      <if test="searchstr != null and searchstr !=''">
+        and (mb.nickname LIKE CONCAT('%',#{searchstr,jdbcType=VARCHAR},'%')
+        )
+      </if>
+      AND mr.is_delete = b'0'
+      AND mb.is_delete = b'0'
+      INNER JOIN mem_login ml on mb.accno=ml.accno
+      ORDER BY chargeamt DESC, mr.relaid ASC
+  </select>
+
+
+    <select id="agentDetailList" parameterType="com.likes.common.model.request.AgentDetailReq" resultType="com.likes.common.model.dto.member.MemAgentDetailResp">
+        SELECT
+            k.email,
+            k.accno,
+            k.updateTime,
+            ( CASE WHEN k.orderstatus = 'ord08' THEN k.realamt ELSE 0 END ) AS rechargeAmount,
+            ( CASE WHEN k.orderstatus = 'ord12' THEN k.realamt ELSE 0 END ) AS withdrawalAmount,
+            ( CASE WHEN k.orderstatus = 'ord15' THEN k.realamt ELSE 0 END ) AS buyVipAmount,
+            k.buyLevel
+        FROM
+            (
+                SELECT
+                    mb.accno,
+                    mb.email,
+                    tro.orderstatus,
+                    IFNULL( tro.realamt, '0.00' ) AS realamt,
+                    tro.buy_vip AS buyLevel,
+                    tro.update_time AS updateTime
+                FROM
+                    mem_baseinfo mb
+                        INNER JOIN tra_orderinfom tro ON tro.accno = mb.accno
+                     AND tro.orderstatus IN ( 'ord08', 'ord12', 'ord15' )
+                  AND tro.isinvoice = 9
+                        AND tro.realamt > 1
+<!--                    <if test="accno != null and accno != ''">-->
+<!--                        and mb.accno= #{accno}-->
+<!--                    </if>-->
+                    <if test="req.subEmail != null and req.subEmail != ''">
+                        and mb.email= #{req.subEmail}
+                    </if>
+                    <if test="req.beginTime != null and req.beginTime !=''">
+                        <![CDATA[ AND tro.update_time  >=  #{req.beginTime} ]]>
+
+                    </if>
+                    <if test="req.endTime != null and req.endTime !='' ">
+                        <![CDATA[ AND tro.update_time  <=  #{req.endTime} ]]>
+                    </if>
+                    <if test="list != null and list.size() > 0" >
+                        and tro.accno in
+                        <foreach collection="list" item="accno" index="index" open="(" close=")" separator=",">
+                            #{accno}
+                        </foreach>
+                    </if>
+                 ORDER BY tro.update_time desc
+        ) k
+    </select>
+
+
+    <select id="getNextDetail" parameterType="com.likes.common.model.request.SysAgentinfoReq" resultType="com.likes.common.model.dto.member.MemAgentResp">
+        select truncate(realamt,2) as chargeamt,orderdate as createdate
+        from tra_orderinfom
+        where is_delete = b'0'
+        and ordertype in (1,2,15)
+        and orderstatus in ('ord08','ord12')
+        and accno = #{accno,jdbcType=VARCHAR}
+        <if test="datesta != null and datesta != ''">
+            and orderdate &gt;= #{datesta,jdbcType=VARCHAR}
+        </if>
+        <if test="dateend != null and dateend != ''">
+            and orderdate &lt;= #{dateend,jdbcType=VARCHAR}
+        </if>
+        order by create_time desc
+    </select>
+
+    <insert id="doInsertDayAgent" parameterType="com.likes.common.mybatis.entity.TraAgentclearing" useGeneratedKeys="true">
+    insert into tra_agentclearing (agentid, accno, cleantype, refids, chargeamt, reverseamt, commission, is_delete,create_user,update_user)
+    select null,mrs.refaccno, 'day' as cleantype, group_concat(t.refids) as refids, truncate(ifnull(sum(t.chargeamt),0),2)as chargeamt, 0 , null, 0,'admin',null
+	from mem_relationship mrs
+	left join(
+		select
+	    	tod.accno, group_concat(tod.orderid) as refids,truncate(ifnull(sum(tod.realamt),0),2) as chargeamt
+	    	from mem_relationship mr
+	    	inner join tra_orderinfom tod on tod.accno = mr.accno and tod.is_delete = b'0' and tod.ordertype in (1,2)
+	    	and tod.orderstatus in ('ord08','ord12')
+			  and tod.create_time > IFNULL((select create_time from tra_agentclearing where is_delete = b'0' order by cleanid desc limit 1),"2019-01-01 00:00:00")
+	    	and not FIND_IN_SET(tod.orderid,IFNULL((select GROUP_CONCAT(refids) from tra_agentclearing where is_delete = b'0'),''))
+	    	where mr.is_delete = b'0'
+	    	group by tod.accno
+	    	having chargeamt &gt; 0
+			)t
+	on mrs.accno = t.accno
+	where mrs.is_delete = b'0'
+	GROUP BY mrs.refaccno
+  </insert>
+
+    <update id="doUpdateDayAgent">
+    update tra_agentclearing ta
+    set ta.agentid = (
+    	select agentid from sys_agentinfo where is_delete = b'0' and ta.chargeamt &gt;= minamt
+    	and ta.chargeamt &lt;= maxamt order by commission desc limit 1)
+    , ta.update_user = 'admin',ta.refids=concat(ta.refids,'3更新agentid代理ok;')
+	where ta.update_user = ''
+    and ta.is_delete = b'0'
+  </update>
+
+    <update id="doUpdateDayClearing">
+    update tra_agentclearing ta
+    Inner join sys_agentinfo sa
+    set ta.reverseamt = truncate(sa.commission*ta.chargeamt/100,2),
+    ta.commission = sa.commission,
+    ta.buttonnote = '已统计',
+    ta.refids=concat(ta.refids,'4统计ok;')
+	where ta.agentid = sa.agentid
+	and ta.agentid > 0
+	and ta.commission is null
+  </update>
+
+    <select id="getPayList" resultType="com.likes.common.mybatis.entity.TraAgentclearing">
+    	select
+    	cleanid, accno, reverseamt,refids,buttonnote
+    	from tra_agentclearing
+    	where is_delete = b'0'
+    	and reverseamt &gt; 0
+    	and create_time = #{createTime,jdbcType=TIMESTAMP}
+    	and buttonnote = '已统计'
+    	order by cleanid asc
+  </select>
+
+    <insert id="insertPayAgent" keyColumn="orderid" keyProperty="orderid" parameterType="com.likes.common.mybatis.entity.TraOrderinfom" useGeneratedKeys="true">
+    insert into tra_orderinfom (
+      orderid,
+      mealid,
+      bankid,
+      roomid,
+      lotkindid,
+      sschistoryid,
+      oddsid,
+      chekindid,
+      tpaysetid,
+      ordertype,
+      orderno,
+      accno,
+      paycode,
+      orderdate,
+      expiredate,
+      paytype,
+      oldamt,
+      sumamt,
+      realamt,
+      isinvoice,
+      orderstatus,
+      accountstatus,
+      cancelreason,
+      payimg,
+      paywechat,
+      paydate,
+      payuser,
+      paynote,
+      ordernote,
+      is_delete,
+      create_user,
+      update_user)
+    values (
+      #{orderid,jdbcType=BIGINT},
+      #{mealid,jdbcType=BIGINT},
+      #{bankid,jdbcType=BIGINT},
+      #{roomid,jdbcType=BIGINT},
+      #{lotkindid,jdbcType=BIGINT},
+      #{sschistoryid,jdbcType=BIGINT},
+      #{oddsid,jdbcType=BIGINT},
+      #{chekindid,jdbcType=BIGINT},
+      #{tpaysetid,jdbcType=BIGINT},
+      #{ordertype,jdbcType=DECIMAL},
+      (select concat(DATE_FORMAT(NOW(),"%Y%m%d"),LPAD(RIGHT(IFNULL(MAX(t.orderno),concat(DATE_FORMAT(NOW(),"%Y%m%d"),"00000000"))  ,8)  + 1 ,8,"0" )) AS orderno
+	   FROM tra_orderinfom t ),
+      #{accno,jdbcType=VARCHAR},
+      #{paycode,jdbcType=VARCHAR},
+      #{orderdate,jdbcType=TIMESTAMP},
+      #{expiredate,jdbcType=TIMESTAMP},
+      #{paytype,jdbcType=VARCHAR},
+      #{oldamt,jdbcType=DECIMAL},
+      #{sumamt,jdbcType=DECIMAL},
+      #{realamt,jdbcType=DECIMAL},
+      #{isinvoice,jdbcType=DECIMAL},
+      #{orderstatus,jdbcType=VARCHAR},
+      #{accountstatus,jdbcType=VARCHAR},
+      #{cancelreason,jdbcType=VARCHAR},
+      #{payimg,jdbcType=VARCHAR},
+      #{paywechat,jdbcType=VARCHAR},
+      #{paydate,jdbcType=TIMESTAMP},
+      #{payuser,jdbcType=VARCHAR},
+      #{paynote,jdbcType=VARCHAR},
+      #{ordernote,jdbcType=VARCHAR},
+      #{isDelete,jdbcType=DECIMAL},
+      #{createUser,jdbcType=VARCHAR},
+      #{updateUser,jdbcType=VARCHAR}
+      )
+  </insert>
+
+    <select id="getAgentReport" parameterType="com.likes.common.model.request.SysAgentinfoReq" resultType="com.likes.common.model.dto.member.MemAgentResp">
+        select
+        mb.accno, mb.nickname, mb.recomcode,
+        (select ifnull(count(*),0) from mem_relationship where refaccno = mb.accno and is_delete = b'0'
+        <if test="datesta != null and datesta !=''">
+            and create_time &gt;= #{datesta,jdbcType=VARCHAR}
+        </if>
+        <if test="dateend != null and dateend !=''">
+            and create_time &lt;= #{dateend,jdbcType=VARCHAR}
+        </if>
+        )as memnums,
+        (select truncate(ifnull(sum(chargeamt),0),2) from tra_agentclearing where accno = mb.accno and is_delete = b'0'
+        <if test="datesta != null and datesta !=''">
+            and create_time &gt;= #{datesta,jdbcType=VARCHAR}
+        </if>
+        <if test="dateend != null and dateend !=''">
+            and create_time &lt;= #{dateend,jdbcType=VARCHAR}
+        </if>
+        )as chargeamt,
+        (select truncate(ifnull(sum(reverseamt),0),2) from tra_agentclearing where accno = mb.accno and is_delete = b'0'
+        <if test="datesta != null and datesta !=''">
+            and create_time &gt;= #{datesta,jdbcType=VARCHAR}
+        </if>
+        <if test="dateend != null and dateend !=''">
+            and create_time &lt;= #{dateend,jdbcType=VARCHAR}
+        </if>
+        )as reverseamt
+        from mem_baseinfo mb
+        where mb.accno = #{accno,jdbcType=VARCHAR}
+        and mb.is_delete = b'0'
+    </select>
+    <select id="countWithdrawal" resultType="com.likes.common.model.dto.member.CountWithdrawalDO">
+		select sum(realamt) as sumrealamt,count(DISTINCT(accno))  as userTotal from tra_orderinfom
+        where accno in(select DISTINCT accno from mem_relationship where is_delete = b'0' and refaccno=#{refaccno,jdbcType=VARCHAR})
+        and ordertype in (1,2,15) and orderstatus = 'ord08'
+        UNION ALL
+        select sum(realamt) as sumrealamt,count(DISTINCT(accno))  as userTotal from tra_orderinfom
+        where accno in(select DISTINCT accno from mem_relationship where is_delete = b'0' and refaccno=#{refaccno,jdbcType=VARCHAR})
+        and ordertype in (3,4) and orderstatus = 'ord12'
+  </select>
+</mapper>

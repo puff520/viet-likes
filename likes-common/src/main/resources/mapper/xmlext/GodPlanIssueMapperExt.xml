@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.likes.common.mybatis.mapperext.GodPlanIssueMapperExt">
+    <insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        insert into god_plan_issue (issue, god_id, bet_number,
+        lottery_id, play_tag_id, setting_id,
+        play_show_name, play_name, `number`,
+        `status`, tb_status, plan_id,
+        plan_type, ideal_time, bet_count, single_money,plan_type_index
+        )
+        values
+        <foreach collection="list" item="godPlanIssue" separator=",">
+            (#{godPlanIssue.issue,jdbcType=VARCHAR}, #{godPlanIssue.godId,jdbcType=INTEGER}, #{godPlanIssue.betNumber,jdbcType=VARCHAR},
+            #{godPlanIssue.lotteryId,jdbcType=INTEGER}, #{godPlanIssue.playTagId,jdbcType=INTEGER}, #{godPlanIssue.settingId,jdbcType=INTEGER},
+            #{godPlanIssue.playShowName,jdbcType=VARCHAR}, #{godPlanIssue.playName,jdbcType=VARCHAR}, #{godPlanIssue.number,jdbcType=VARCHAR},
+            #{godPlanIssue.status,jdbcType=INTEGER}, #{godPlanIssue.tbStatus,jdbcType=VARCHAR}, #{godPlanIssue.planId,jdbcType=INTEGER},
+            #{godPlanIssue.planType,jdbcType=INTEGER}, #{godPlanIssue.idealTime,jdbcType=TIMESTAMP},#{godPlanIssue.betCount,jdbcType=INTEGER}, #{godPlanIssue.singleMoney,jdbcType=DECIMAL},
+            #{godPlanIssue.planTypeIndex,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+    <update id="updateDeletedByRecord" parameterType="com.likes.common.mybatis.entity.GodPlanIssue">
+        update god_plan_issue
+        set is_delete = b'1'
+        <where>
+            <if test="godId != null">
+                and god_id = #{godId}
+            </if>
+            <if test="lotteryId != null">
+                and lottery_id = #{lotteryId}
+            </if>
+        </where>
+
+    </update>
+    <select id="countTop20" resultType="int">
+        select count(*) from (select plan_id from (SELECT plan_id,tb_status FROM god_plan_issue WHERE god_id=#{godId} and lottery_id=#{lotteryId} and ideal_time &gt;= #{startDate} and ideal_time &lt; #{issueIdealDate} and is_delete = b'0' and status = 2 order by create_time desc) as a where a.tb_status = 'WIN' GROUP BY plan_id) as c
+    </select>
+    <select id="selectPlanIds" resultType="Long">
+        select * from (select plan_id from god_plan_issue where god_id=#{godId} group by plan_id order by create_time desc) temp limit #{pagesize}
+    </select>
+</mapper>

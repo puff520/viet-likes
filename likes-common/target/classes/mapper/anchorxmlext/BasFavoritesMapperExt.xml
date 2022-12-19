@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.BasFavoritesMapperExt">
+
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.anchor.BasFavorites">
+        <id column="favorid" jdbcType="BIGINT" property="favorid"/>
+        <result column="articleid" jdbcType="BIGINT" property="articleid"/>
+        <result column="videoid" jdbcType="BIGINT" property="videoid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        favorid, articleid, videoid, accno, is_delete as isDelete, create_user as createUser, create_time as createTime, update_user as updateUser, update_time as updateTime
+    </sql>
+
+    <select id="findByParam" parameterType="com.likes.common.model.request.VideoRequest"
+            resultType="com.likes.common.mybatis.entity.anchor.BasFavorites">
+        select <include refid="Base_Column_List"/>
+        from bas_favorites
+        where accno = #{accno}
+        <if test="videoid != null">
+            and videoid = #{videoid}
+        </if>
+        <if test="articleid != null">
+            and articleid = #{articleid}
+        </if>
+        limit 1
+    </select>
+
+    <select id="getIds" parameterType="com.likes.common.model.request.UsersRequest" resultType="java.lang.Long">
+        select DISTINCT
+        <if test="type == 1">
+            bf.articleid
+        </if>
+        <if test="type == 2">
+            bf.videoid
+        </if>
+        FROM bas_favorites bf
+        WHERE  bf.accno = #{accno}
+        AND bf.is_delete = b'0'
+        <if test="type == 1">
+            AND bf.articleid IS NOT NULL
+            and bf.videoid IS NULL
+        </if>
+        <if test="type == 2">
+            AND bf.articleid IS NULL
+            and bf.videoid IS NOT NULL
+        </if>
+    </select>
+
+    <update id="doDelMyCollection" parameterType="com.likes.common.model.request.UsersRequest">
+        update bas_favorites bf
+        set bf.is_delete = b'1',
+            update_user = #{modifyuser,jdbcType=VARCHAR},
+            update_time = #{modifydate,jdbcType=TIMESTAMP}
+        where bf.accno = #{accno}
+        <if test="type == 1">
+            <if test="idList != null and idList.size != 0">
+                And bf.articleid in
+                <foreach close=")" collection="idList" index="index" item="s" open="(" separator=",">
+                    #{s}
+                </foreach>
+            </if>
+        </if>
+        <if test="type == 2">
+            <if test="idList != null and idList.size != 0">
+                And bf.videoid in
+                <foreach close=")" collection="idList" index="index" item="s" open="(" separator=",">
+                    #{s}
+                </foreach>
+            </if>
+        </if>
+    </update>
+
+    <select id="getCollectionnum" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(1) as collectionnum
+        FROM bas_favorites bf INNER JOIN 	bas_video bv ON bf.videoid = bv.videoid
+        WHERE  bf.accno =#{accno}
+        and bf.is_delete = b'0'
+        AND bv.is_delete = b'0'
+        AND bv.checkstatus = 8
+	</select>
+
+</mapper>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.tra.TraAnchortrackingMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.TraAnchortracking">
+        <id column="antrackingid" jdbcType="BIGINT" property="antrackingid"/>
+        <result column="anconlineid" jdbcType="BIGINT" property="anconlineid"/>
+        <result column="orderid" jdbcType="BIGINT" property="orderid"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    antrackingid, anconlineid, orderid, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+    <insert id="insertMany" parameterType="java.util.List" useGeneratedKeys="false">
+        insert into tra_anchortracking ( anconlineid, orderid,
+        create_user, update_user)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.anconlineid},
+            #{item.orderid},
+            #{item.createUser},
+            #{item.updateUser}
+            )
+        </foreach>
+    </insert>
+
+    <select id="getOrderidByOnlineid" parameterType="java.lang.Long"
+            resultType="java.lang.Long">
+  	select t.orderid from tra_anchortracking t
+  	where t.anconlineid = #{anconlineid}
+  	and t.is_delete = b'0'
+  </select>
+
+
+</mapper>

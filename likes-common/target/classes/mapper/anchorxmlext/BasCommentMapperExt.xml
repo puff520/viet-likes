@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.BasCommentMapperExt">
+
+  <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.anchor.BasComment">
+    <id column="commid" jdbcType="BIGINT" property="commid" />
+    <result column="articleid" jdbcType="BIGINT" property="articleid" />
+    <result column="parcommid" jdbcType="BIGINT" property="parcommid" />
+    <result column="accno" jdbcType="VARCHAR" property="accno" />
+    <result column="comment" jdbcType="VARCHAR" property="comment" />
+    <result column="praisenum" jdbcType="BIGINT" property="praisenum" />
+	<result column="is_delete" jdbcType="BIT" property="isDelete"/>
+	<result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+	<result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+	<result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+	<result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    commid, articleid, parcommid, accno, comment, praisenum, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+  <!--<select id="getCommentList"  parameterType="java.lang.Long" resultType="com.likes.common.model.dto.bas.BasCommentDO">-->
+	<!--SELECT bc.* ,-->
+	<!--(SELECT mb.memid FROM mem_baseinfo mb WHERE mb.accno = bc.accno LIMIT 1) as   memid,-->
+	<!--(SELECT mb.nickname FROM mem_baseinfo mb WHERE mb.accno = bc.accno LIMIT 1) as   nickname,-->
+	<!--(SELECT mb.headimg FROM mem_baseinfo mb WHERE mb.accno = bc.accno LIMIT 1) as   headimg-->
+	<!--FROM bas_comment bc-->
+	<!--WHERE bc.articleid = #{articleid}-->
+	<!--and bc.is_delete = b'0'-->
+	<!--ORDER BY bc.praisenum DESC-->
+  <!--</select>-->
+  
+  <!--<select id="getCommentListForLogin"  parameterType="com.likes.common.model.request.ArticleRequest"-->
+		  <!--resultType="com.likes.common.model.dto.bas.BasCommentDO">-->
+	<!--SELECT bc.* ,-->
+	<!--(SELECT mb.memid FROM mem_baseinfo mb WHERE mb.accno = bc.accno LIMIT 1) as   memid,-->
+	<!--(SELECT mb.nickname FROM mem_baseinfo mb WHERE mb.accno = bc.accno LIMIT 1) as   nickname,-->
+	<!--(SELECT mb.headimg FROM mem_baseinfo mb WHERE mb.accno = bc.accno LIMIT 1) as   headimg,-->
+	<!--( if( (SELECT bp.praiseid FROM bas_praise bp WHERE bp.is_delete = b'0'-->
+	 <!--AND bp.articleid = bc.articleid AND bp.accno = #{accno}-->
+	 <!--AND bp.commid = bc.commid LIMIT 1-->
+	<!--)   IS NOT NULL  ,"1","0")   ) as ispraise-->
+	<!--FROM bas_comment bc-->
+	<!--WHERE bc.articleid = #{articleid}-->
+	<!--and bc.is_delete = b'0'-->
+	<!--ORDER BY bc.praisenum DESC-->
+  <!--</select>-->
+  
+  <update id="praiseBasComment" parameterType="com.likes.common.model.request.ArticleRequest">
+  	update bas_comment
+    <set>
+       <!-- 点赞 -->
+      <if test="ispraise == 0 ">
+      <![CDATA[  praisenum = IF(praisenum <= 0,1,praisenum) - 1, ]]>
+       <!--  praisenum = IFNULL(praisenum,1) - 1, -->
+      </if>
+      <if test="ispraise == 1 ">
+        praisenum = IFNULL(praisenum,0) + 1,
+      </if>
+    </set>
+     where commid = #{commid,jdbcType=BIGINT}
+     and praisenum >= 0
+  </update>
+  
+  <select id="getListByArticle" resultType="com.likes.common.model.dto.CommentDO"
+		  parameterType="com.likes.common.model.request.UsersRequest"   >
+  	SELECT b.articleid, b.`comment`, b.create_time, b.praisenum, ba.picids, b.commid
+	FROM bas_comment b
+	INNER JOIN bas_article ba ON ba.articleid = b.articleid AND ba.is_delete = b'0' AND ba.checkstatus = 8
+	WHERE b.accno = #{accno} AND b.is_delete = b'0'
+	ORDER BY b.create_time DESC
+  </select>
+
+  <select id="getList"  parameterType="com.likes.common.model.request.ArticleRequest"
+		  resultType="com.likes.common.model.dto.bas.BasCommentDO">
+	SELECT bc.* ,
+	(SELECT mb.memid FROM anchor_mem_baseinfo mb WHERE mb.accno = bc.accno LIMIT 1) as   memid,
+	(SELECT mb.nickname FROM anchor_mem_baseinfo mb WHERE mb.accno = bc.accno LIMIT 1) as   nickname,
+	(SELECT mb.headimg FROM anchor_mem_baseinfo mb WHERE mb.accno = bc.accno LIMIT 1) as   headimg,
+	( if( (
+		SELECT bp.praiseid FROM bas_praise bp
+		WHERE bp.accno = #{accno}
+		AND bp.commid = bc.commid
+		AND bp.articleid = bc.articleid
+		AND bp.is_delete = b'0' LIMIT 1
+	) IS NOT NULL, "1", "0") ) as ispraise
+	FROM bas_comment bc
+	WHERE bc.articleid = #{articleid}
+	and bc.is_delete = b'0'
+	ORDER BY bc.praisenum DESC
+  </select>
+  
+  <select id="getListNoLogin"  parameterType="com.likes.common.model.request.ArticleRequest"
+		  resultType="com.likes.common.model.dto.bas.BasCommentDO">
+	SELECT bc.* ,
+	(SELECT mb.memid FROM anchor_mem_baseinfo mb WHERE mb.accno = bc.accno LIMIT 1) as   memid,
+	(SELECT mb.nickname FROM anchor_mem_baseinfo mb WHERE mb.accno = bc.accno LIMIT 1) as   nickname,
+	(SELECT mb.headimg FROM anchor_mem_baseinfo mb WHERE mb.accno = bc.accno LIMIT 1) as   headimg
+	FROM bas_comment bc
+	WHERE bc.articleid = #{articleid}
+	and bc.is_delete = b'0'
+	ORDER BY bc.praisenum DESC
+  </select>
+  
+</mapper>

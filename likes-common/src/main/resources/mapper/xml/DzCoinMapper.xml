@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.DzCoinMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.DzCoin">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="coin_id" jdbcType="INTEGER" property="coinId" />
+    <result column="coin_name" jdbcType="VARCHAR" property="coinName" />
+    <result column="main_coin_type" jdbcType="VARCHAR" property="mainCoinType" />
+    <result column="coin_type" jdbcType="VARCHAR" property="coinType" />
+    <result column="main_symbol" jdbcType="VARCHAR" property="mainSymbol" />
+    <result column="symbol" jdbcType="VARCHAR" property="symbol" />
+    <result column="token_status" jdbcType="INTEGER" property="tokenStatus" />
+  </resultMap>
+</mapper>

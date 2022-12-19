@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.BasGiftMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.anchor.BasGift">
+        <id column="giftid" jdbcType="BIGINT" property="giftid"/>
+        <result column="giftname" jdbcType="VARCHAR" property="giftname"/>
+        <result column="gifttype" jdbcType="DECIMAL" property="gifttype"/>
+        <result column="giftdesc" jdbcType="VARCHAR" property="giftdesc"/>
+        <result column="gold" jdbcType="BIGINT" property="gold"/>
+        <result column="gifticon" jdbcType="VARCHAR" property="gifticon"/>
+        <result column="sortby" jdbcType="INTEGER" property="sortby"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="linkage_device" jdbcType="DECIMAL" property="linkageDevice"/>
+        <result column="vibration_seq" jdbcType="VARCHAR" property="vibrationSeq"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        giftid, giftname, gifttype, giftdesc, gold, gifticon, sortby, is_delete, create_user, create_time, update_user, update_time
+    </sql>
+
+    <select id="getList" parameterType="com.likes.common.mybatis.entity.anchor.BasGift"
+            resultType="com.likes.common.model.dto.bas.BasGiftDO">
+        select giftid,giftname,gifttype,giftdesc,gold,gifticon,sortby,linkage_device as linkageDevice,vibration_seq as vibrationSeq,
+        create_user as createUser,create_time as createTime,update_user as updateUser,update_time as updateTime from bas_gift
+        where is_delete = b'0'
+        <if test="giftname != null and giftname != ''   ">
+            and (
+            giftname like CONCAT('%',#{giftname},'%')
+            or
+            giftdesc like CONCAT('%',#{giftname},'%')
+            )
+        </if>
+        order by sortby desc
+    </select>
+
+    <select id="repeat" parameterType="java.lang.String" resultType="com.likes.common.mybatis.entity.anchor.BasGift">
+        select giftid,giftname,gifttype,giftdesc,gold,gifticon,sortby,linkage_device as linkageDevice,vibration_seq as vibrationSeq,
+        create_user as createUser,create_time as createTime,update_user as updateUser,update_time as updateTime from bas_gift
+        where is_delete = b'0'
+        and giftname = #{giftname}
+        <if test="giftid != null">
+            and giftid != #{giftid}
+        </if>
+        limit 1
+    </select>
+
+    <select id="getAllList" resultType="com.likes.common.mybatis.entity.anchor.BasGift">
+      select giftid,giftname,gifttype,giftdesc,gold,gifticon,sortby,linkage_device as linkageDevice,vibration_seq as vibrationSeq,
+        create_user as createUser,create_time as createTime,update_user as updateUser,update_time as updateTime from bas_gift
+        where is_delete = b'0'
+        order by sortby desc
+    </select>
+
+
+    <select id="getGiftList" resultType="com.likes.common.mybatis.entity.anchor.BasGift">
+  	select giftid,giftname,gold,gifticon,giftdesc,update_time,sortby,gifttype
+  	from bas_gift
+  	where is_delete = b'0'
+  	order by sortby desc
+  </select>
+
+</mapper>

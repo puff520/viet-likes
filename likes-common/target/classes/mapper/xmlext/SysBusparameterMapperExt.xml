@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.sys.SysBusparameterMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysBusparameter">
+        <id column="busparamid" jdbcType="BIGINT" property="busparamid"/>
+        <result column="busparamcode" jdbcType="VARCHAR" property="busparamcode"/>
+        <result column="pbusparamcode" jdbcType="VARCHAR" property="pbusparamcode"/>
+        <result column="busparamname" jdbcType="VARCHAR" property="busparamname"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="status" jdbcType="DECIMAL" property="status"/>
+        <result column="sortby" jdbcType="INTEGER" property="sortby"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    busparamid, busparamcode, pbusparamcode, busparamname, remark, status, sortby, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+    <resultMap id="BaseSysResultMap" type="com.likes.common.model.response.SysBusparameterResp">
+        <id column="busparamid" jdbcType="BIGINT" property="busparamid"/>
+        <result column="busparamcode" jdbcType="VARCHAR" property="busparamcode"/>
+        <result column="pbusparamcode" jdbcType="VARCHAR" property="pbusparamcode"/>
+        <result column="busparamname" jdbcType="VARCHAR" property="busparamname"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="status" jdbcType="DECIMAL" property="status"/>
+        <result column="sortby" jdbcType="INTEGER" property="sortby"/>
+        <collection column="busparamcode" property="children" select="com.likes.common.mybatis.mapperext.sys.SysBusparameterMapperExt.selectByPCode"/>
+    </resultMap>
+
+    <select id="selectByCode" parameterType="java.lang.String" resultMap="BaseSysResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_busparameter
+        where is_delete = b'0'
+        AND busparamcode = #{busparamcode,jdbcType=VARCHAR}
+        ORDER BY sortby DESC
+    </select>
+
+    <select id="selectByParedubpcode"  resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_busparameter
+        where is_delete = #{isDelete}
+        and status= 0
+        and pbusparamcode = #{pbusparamcode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getList" parameterType="com.likes.common.mybatis.entity.SysBusparameter" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_busparameter s
+        where s.is_delete = b'0'
+        <if test="busparamname != null and  busparamname !='' ">
+            and (
+            s.busparamname LIKE CONCAT('%',#{busparamname,jdbcType=VARCHAR},'%')
+            or
+            s.busparamcode LIKE CONCAT('%',#{busparamname,jdbcType=VARCHAR},'%')
+            )
+        </if>
+        order by s.create_time desc , s.pbusparamcode desc
+    </select>
+
+    <select id="getList2" parameterType="com.likes.common.mybatis.entity.SysBusparameter" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_busparameter s
+        where s.is_delete = b'0'
+        <if test="busparamname != null and busparamname != ''  ">
+            and (
+            s.busparamname LIKE CONCAT('%',#{busparamname,jdbcType=VARCHAR},'%')
+            or
+            s.busparamcode LIKE CONCAT('%',#{busparamname,jdbcType=VARCHAR},'%')
+            )
+        </if>
+        order by create_time desc,pbusparamcode desc,sortby desc
+    </select>
+
+    <select id="getRepeat" parameterType="com.likes.common.mybatis.entity.SysBusparameter" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_busparameter
+        where is_delete = b'0'
+        and busparamcode = #{busparamcode,jdbcType=VARCHAR}
+        <if test="busparamid != null">
+            and busparamid != #{busparamid}
+        </if>
+        limit 1
+    </select>
+
+    <!-- 这个查找 只适合  用数字 ID 做主键  父节点 也是 数字主键的表 ， 其他不适合 -->
+    <select id="getChild" parameterType="java.lang.String" resultType="java.lang.String">
+  	select busparamcode from (
+              select t1.busparamcode,
+              if(find_in_set(pbusparamcode, @pids) > 0, @pids := concat(@pids, ',', busparamcode), 0) as ischild
+              from (
+							select busparamcode,pbusparamcode from (
+                   select s.busparamcode , s.pbusparamcode from sys_busparameter s WHERE s.is_delete = b'0'
+                   )as t
+                  ) t1,
+				  (select @pids := #{busparamcode}   ) t2
+             ) t3 where ischild != "0" ORDER BY busparamcode asc
+  </select>
+
+
+    <select id="getByCodes" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_busparameter
+        where is_delete = b'0'
+        and busparamcode in
+        <foreach close=")" collection="list" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+
+    </select>
+
+    <select id="selectByBusparamcode" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_busparameter
+        where is_delete = b'0'
+        and busparamcode = #{busparamcode}
+        limit 1
+    </select>
+    <select id="getNormList" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_busparameter
+        where is_delete = b'0'
+        and status = 0
+        and pbusparamcode = #{pbusparamcode,jdbcType=VARCHAR}
+        order by sortby desc
+    </select>
+
+    <select id="getRandomOne" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_busparameter
+        where is_delete = b'0'
+        and status = 0
+        and pbusparamcode = #{pbusparamcode,jdbcType=VARCHAR}
+        ORDER BY RAND() LIMIT 1
+    </select>
+
+</mapper>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.likes.common.mybatis.mapper.AgentReportMapper">
+
+
+    <select id="todayRegister" resultType="java.lang.Integer">
+         SELECT
+            count(1)
+        FROM
+            mem_baseinfo m
+            INNER JOIN mem_login l ON m.accno = l.accno
+            AND l.accstatus = 1
+        WHERE
+            m.is_delete = 0
+            AND l.logintype IN (1)
+             AND m.superior_id =#{superiorId}
+              and create_time BETWEEN #{beginTime} and #{endTime}
+    </select>
+
+
+    <select id="amoutTj" resultType="Map">
+        SELECT IFNULL(A.recAmount,'0.00') as recAmount,IFNULL(A.takeCashAmount,'0.00') as takeCashAmount,IFNULL(A.buyVipAmount,'0.00') as buyVipAmount
+        from (
+            SELECT
+                ( SELECT SUM( quantity ) FROM mem_goldchange WHERE changetype = 1  and create_time BETWEEN #{beginTime} and #{endTime}   AND superior_id = #{superiorId} ) AS recAmount,
+                ( SELECT SUM( quantity ) FROM mem_goldchange WHERE changetype = 12  and create_time BETWEEN #{beginTime} and #{endTime}  AND superior_id = #{superiorId} ) AS takeCashAmount,
+                ( SELECT SUM( quantity ) FROM mem_goldchange WHERE changetype = 100  and create_time BETWEEN #{beginTime} and #{endTime} AND superior_id = #{superiorId} ) AS buyVipAmount
+
+        ) A
+    </select>
+
+
+    <select id="taskTj" resultType="Map">
+        SELECT
+            count(1) taskNum,
+            IFNULL(SUM( quantity ),'0.00')  AS taskTotalPrice
+        FROM
+            mem_goldchange
+        WHERE
+             changetype = 200
+             AND superior_id = #{superiorId}
+             and create_time BETWEEN #{beginTime} and #{endTime}
+    </select>
+
+
+</mapper>

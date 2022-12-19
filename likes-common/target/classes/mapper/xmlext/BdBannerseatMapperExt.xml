@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.BdBannerseatMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.BdBannerseat">
+        <id column="bseatid" jdbcType="BIGINT" property="bseatid"/>
+        <result column="sitearea" jdbcType="VARCHAR" property="sitearea"/>
+        <result column="seatname" jdbcType="VARCHAR" property="seatname"/>
+        <result column="seatcode" jdbcType="VARCHAR" property="seatcode"/>
+        <result column="seatdesc" jdbcType="VARCHAR" property="seatdesc"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    bseatid, sitearea, seatname, seatcode, seatdesc, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+    <select id="getList"
+            parameterType="com.likes.common.mybatis.entity.BdBannerseat"
+            resultType="com.likes.common.model.dto.BdBannerseatDO">
+        select
+        b.*, d.bdusername
+        from bd_bannerseat b
+        LEFT JOIN bd_user d ON b.create_user = d.accno
+        where b.is_delete = b'0'
+        <if test="seatdesc != null and seatdesc != ''  ">
+            and (
+            b.seatdesc LIKE CONCAT('%',#{seatdesc,jdbcType=VARCHAR},'%')
+            or
+            b.seatcode LIKE CONCAT('%',#{seatdesc,jdbcType=VARCHAR},'%')
+            or
+            b.seatname LIKE CONCAT('%',#{seatdesc,jdbcType=VARCHAR},'%')
+            )
+        </if>
+        order by b.create_time desc
+    </select>
+
+    <select id="getRepeat" parameterType="com.likes.common.mybatis.entity.BdBannerseat" resultType="com.likes.common.mybatis.entity.BdBannerseat">
+        select
+        <include refid="Base_Column_List"/>
+        from bd_bannerseat
+        where seatcode = #{seatcode}
+        and is_delete = b'0'
+        and is_enable= b'0'
+        <if test="bseatid != null">
+            and bseatid != #{bseatid,jdbcType=BIGINT}
+        </if>
+        limit 1
+    </select>
+
+</mapper>

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.sys.SysPayproviderMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysPayprovider">
+        <id column="providerid" jdbcType="BIGINT" property="providerid"/>
+        <result column="provider" jdbcType="VARCHAR" property="provider"/>
+        <result column="providercode" jdbcType="VARCHAR" property="providercode"/>
+        <result column="paydns" jdbcType="VARCHAR" property="paydns"/>
+        <result column="backurl" jdbcType="VARCHAR" property="backurl"/>
+        <result column="allowips" jdbcType="VARCHAR" property="allowips"/>
+        <result column="torderurl" jdbcType="VARCHAR" property="torderurl"/>
+        <result column="paygateway" jdbcType="VARCHAR" property="paygateway"/>
+        <result column="accountno" jdbcType="VARCHAR" property="accountno"/>
+        <result column="secretcode" jdbcType="VARCHAR" property="secretcode"/>
+        <result column="pubsecret" jdbcType="VARCHAR" property="pubsecret"/>
+        <result column="prisecret" jdbcType="VARCHAR" property="prisecret"/>
+        <result column="serversecret" jdbcType="VARCHAR" property="serversecret"/>
+        <result column="status" jdbcType="DECIMAL" property="status"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    providerid, provider, providercode, paydns, backurl, allowips, torderurl, paygateway, 
+    accountno, secretcode, pubsecret, prisecret, serversecret, status, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+    <select id="getList" parameterType="com.likes.common.mybatis.entity.SysPayprovider" resultType="com.likes.common.mybatis.entity.SysPayprovider">
+  	select * from sys_payprovider
+  	where is_delete = b'0'
+  	order by status asc,providerid desc
+  </select>
+
+    <select id="getRepeate" parameterType="com.likes.common.mybatis.entity.SysPayprovider" resultType="com.likes.common.mybatis.entity.SysPayprovider">
+        select * from sys_payprovider
+        where is_delete = b'0'
+
+        and provider = #{provider}
+        <if test="providerid != null">
+            and providerid != #{providerid,jdbcType=BIGINT}
+        </if>
+        limit 1
+    </select>
+
+
+    <select id="findByOrderno" parameterType="java.lang.String"
+            resultType="com.likes.common.model.dto.MandatoryDO">
+  	SELECT sp.*,st.tpayname, 
+      st.paytype,st.paycode, st.payvalue,st.tpaysetid
+	FROM sys_payprovider sp
+	INNER JOIN  sys_threepayset st ON st.providerid = sp.providerid
+	WHERE st.tpaysetid = (
+		SELECT DISTINCT t.tpaysetid FROM tra_orderinfom t WHERE t.orderno = #{orderno}
+		AND t.is_delete = b'0'
+	)
+	LIMIT 1
+  </select>
+
+    <select id="findPayproviderByMerchantId" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.SysPayprovider">
+        select sp.*
+        from sys_payprovider sp
+        where sp.accountno = #{accountno} limit 1
+  </select>
+
+    <select id="getAllsysPayproviderlist" parameterType="com.likes.common.mybatis.entity.SysPayprovider"
+            resultType="com.likes.common.mybatis.entity.SysPayprovider">
+        select * from sys_payprovider
+        where is_delete = b'0'
+        <if test="status != null">
+            and status = 0
+        </if>
+        order by providerid desc
+    </select>
+
+    <select id="selectByTpaySetId" parameterType="java.lang.Long"
+            resultType="java.lang.String">
+      SELECT DISTINCT p.provider from sys_threepayset t LEFT JOIN sys_payprovider p
+      on t.providerid=p.providerid
+    where t.tpaysetid=#{tpaysetid} LIMIT 1
+    </select>
+    <select id="getIdAndName" resultType="com.likes.common.model.response.ThirdProviderNameResponse">
+        select providerid  , provider  from  sys_payprovider where is_delete = b'0'
+    </select>
+    <select id="getProviderId" resultType="java.lang.Long">
+        select providerid from  sys_payprovider where provider = #{provider} and is_delete = b'0'
+    </select>
+
+
+</mapper>

@@ -1,0 +1,136 @@
+server:
+  port: 5860
+  servlet:
+    session:
+      timeout: 21600
+  #tomcat.max-threads: 6
+  tomcat.uri-encoding: UTF-8
+
+spring:
+  application:
+    name: likes-agent #在注册中心显示的名字
+
+
+  datasource:
+    dynamic:
+      primary: slave #设置默认的数据源或者数据源组,默认值即为master
+      strict: true #严格匹配数据源,默认false. true未匹配到指定数据源时抛异常,false使用默认数据源
+      datasource:
+        slave:
+          url: jdbc:mysql://mysqlreadonly:3306/likes?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=America/Mexico_City&autoReconnect=true&allowMultiQueries=true
+          username: root
+          password: Antsidc78!
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          type: com.zaxxer.hikari.HikariDataSource
+          #连接池
+          hikari:
+            #连接池
+            minIdle: 5
+            maxPoolSize: 50
+            isAutoCommit: true
+            idleTimeout: 30000
+            poolName: liveHikariCP
+            maxLifetime: 120000
+            connectionTimeout: 30000
+            connectionTestQuery: SELECT 1 #连接测试
+
+
+  # Redis数据库索引（默认为0）
+  redis:
+    # 连接超时时间（毫秒）
+    timeout: 8000
+    database: 0
+    # Redis服务器地址
+    host: localhost
+    #host: 127.0.0.1
+    # Redis服务器连接端口
+    port: 6379
+    # Redis服务器连接密码（默认为空）
+    #    password: 1qaz2wsx
+    password:
+    # 连接池最大连接数（使用负值表示没有限制）
+    lettuce:
+      pool:
+        max-active: -1
+        # 连接池最大阻塞等待时间（使用负值表示没有限制）
+        max-wait: -1
+        # 连接池中的最大空闲连接
+        max-idle: 10
+        # 连接池中的最小空闲连接
+        min-idle: 0
+      timeout: 8000
+      # cluster:
+      # max-redirects: 3
+      # nodes: 127.0.0.1:6380,127.0.0.1:6381,127.0.0.1:6382,127.0.0.1:6383,127.0.0.1:6384,127.0.0.1:6385
+      # timeout: 1000
+  main:
+    allow-bean-definition-overriding: true
+
+  mail:
+    default-encoding: UTF-8
+    host: smtp.gmail.com
+    username: yinpuff@gmail.com
+    password: 'zyaxmdgepemhohdu'
+    properties:
+      mail:
+        display:
+          sendmail: Jave
+          sendname: Spring Boot Guide Email
+        smtp:
+          auth: true
+          port: 465
+          ssl:
+            enable: true
+          starttls:
+            enable: true
+            required: true
+    protocol: smtp
+
+
+mybatis:
+  type-aliases-package: com.likes.common.mybatis.entity
+  mapper-locations: classpath:mapper/xml*/*.xml
+
+pagehelper:
+  reasonable: true
+  supportMethodsArguments: true
+  params: count=countSql
+  rowBoundsWithCount: true
+  returnPageInfo: check
+  pageSizeZero: true
+
+# MinIO 分布式文件系统
+minio:
+  endpoint: http://minio:9000
+  access-key: shuadan123
+  secret-key: shuadan123
+  # 自定义域名(非必须)，Nginx配置反向代理转发文件路径
+  custom-domain:
+  # 默认的桶名称，每个微服务有单独的默认存储桶，可查看youlai-admin.yaml配置
+  default-bucket: picture
+
+logging:
+  level:
+    com.likes: WARN
+  config: classpath:log4j2.xml
+
+
+#multipartFileLinshi: C:\\AppData
+multipartFileLinshi: /java/file
+
+
+#session加密key
+userSessionKey:
+file_url:
+ared.resolver.aws.ConfigClusterResolver: ERROR
+
+
+aws:
+  email:
+    address: 'mail@join-nftclub.com'
+    regions:
+      name: 'us-east-1'
+    template:
+      register:
+        body: ''
+        subject: 'Verification code'

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.likes.common.mybatis.mapperext.UniqueCodeMapperExt">
+
+    <select id="loadUniqueCode" resultType="com.likes.common.mybatis.entity.UserUniqueCode">
+        SELECT id, code from ${tableName} where status=0 order by id asc limit #{size}
+    </select>
+
+    <select id="loadAllUniqueCode" resultType="java.lang.String">
+        SELECT code from ${tableName}
+    </select>
+
+    <insert id="batchInsertCodes" parameterType="java.lang.String">
+        insert ${tableName}(code) values
+        <foreach collection="codes" item="code" separator=",">
+            (#{code,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <update id="updateCodeStatus">
+        update ${tableName} set `status` = #{status} where id <![CDATA[ <= ]]> #{maxRecordId} and `status`=0;
+    </update>
+
+</mapper>

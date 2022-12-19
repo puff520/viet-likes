@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.InfSysnoticeMapperExt">
+
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.InfSysnotice">
+        <id column="noticeid" jdbcType="BIGINT" property="noticeid" />
+        <result column="type" jdbcType="DECIMAL" property="type" />
+        <result column="accno" jdbcType="VARCHAR" property="accno" />
+        <result column="title" jdbcType="VARCHAR" property="title" />
+        <result column="notebody" jdbcType="VARCHAR" property="notebody" />
+        <result column="en_notice" jdbcType="VARCHAR" property="enNotice" />
+        <result column="sp_notice" jdbcType="VARCHAR" property="spNotice" />
+        <result column="ab_notice" jdbcType="VARCHAR" property="abNotice" />
+        <result column="fn_notice" jdbcType="VARCHAR" property="fnNotice" />
+        <result column="params" jdbcType="VARCHAR" property="params" />
+        <result column="expirydates" jdbcType="TIMESTAMP" property="expirydates" />
+        <result column="expirydatee" jdbcType="TIMESTAMP" property="expirydatee" />
+        <result column="sortby" jdbcType="INTEGER" property="sortby" />
+        <result column="work_status" jdbcType="BIT" property="workStatus" />
+        <result column="is_delete" jdbcType="BIT" property="isDelete" />
+        <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+    noticeid, type, accno, title, notebody,en_notice,sp_notice,ab_notice,fn_notice, params, expirydates, expirydatee, sortby, work_status, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+    <update id="updateAppWorkStatus">
+        update inf_sysnotice set work_status = b'0' where type = #{type}
+    </update>
+
+    <select id="getInfSysnoticeList" parameterType="java.lang.Integer"
+            resultType="com.likes.common.model.dto.InfSysnoticeDO">
+         select bd.notebody , bd.title
+         from inf_sysnotice  bd
+         WHERE bd.is_delete = b'0'
+         AND bd.work_status = b'1'
+         AND bd.type = #{type}
+         AND ((bd.expirydates IS NULL) OR (bd.expirydates IS NOT NULL AND NOW() <![CDATA[ >= ]]> bd.expirydates))
+         AND ((bd.expirydatee IS NULL) OR (bd.expirydatee IS NOT NULL AND NOW() <![CDATA[ <= ]]> bd.expirydatee))
+         ORDER BY bd.sortby DESC ,bd.update_time DESC
+  </select>
+
+    <select id="getList" parameterType="com.likes.common.mybatis.entity.InfSysnotice"
+            resultType="com.likes.common.mybatis.entity.InfSysnotice">
+        select
+        <include refid="Base_Column_List"/>
+        from inf_sysnotice bd
+        WHERE bd.is_delete = b'0'
+        ORDER BY bd.sortby DESC ,bd.update_time DESC
+
+    </select>
+
+    <select id="selectNoticeList" resultType="com.likes.common.model.dto.InfSysnoticeDO">
+        select bd.notebody , bd.title ,bd.type as messageType,bd.sortby
+        from inf_sysnotice  bd
+        WHERE bd.is_delete = b'0'
+        AND bd.work_status = b'1'
+        AND bd.type = #{type}
+        AND ((bd.expirydates IS NULL) OR (bd.expirydates IS NOT NULL AND NOW() <![CDATA[ >= ]]> bd.expirydates))
+        AND ((bd.expirydatee IS NULL) OR (bd.expirydatee IS NOT NULL AND NOW() <![CDATA[ <= ]]> bd.expirydatee))
+        ORDER BY bd.sortby asc ,bd.update_time DESC
+    </select>
+
+    <select id="selectAPPNoticeList" resultType="com.likes.common.model.dto.InfSysnoticeDO">
+     SELECT bd.notebody , bd.title, bd.type as messageType ,bd.sortby from inf_sysnotice bd
+            WHERE bd.is_delete = b'0'
+        AND bd.work_status = b'1'
+        AND bd.type = #{type}
+        AND ((bd.expirydates IS NULL) OR (bd.expirydates IS NOT NULL AND NOW() <![CDATA[ >= ]]> bd.expirydates))
+        AND ((bd.expirydatee IS NULL) OR (bd.expirydatee IS NOT NULL AND NOW() <![CDATA[ <= ]]> bd.expirydatee))
+        limit 1
+    </select>
+</mapper>

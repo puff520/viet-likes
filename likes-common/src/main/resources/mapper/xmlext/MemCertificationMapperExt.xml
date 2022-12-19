@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.member.MemCertificationMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemCertification">
+        <id column="certid" jdbcType="BIGINT" property="certid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="certstatus" jdbcType="DECIMAL" property="certstatus"/>
+        <result column="certdesc" jdbcType="VARCHAR" property="certdesc"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        certid, accno, certstatus, certdesc, is_delete, create_user, create_time, update_user, update_time
+    </sql>
+
+
+    <select id="findByAccno" resultType="com.likes.common.mybatis.entity.MemCertification"
+            parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from mem_certification
+        where accno = #{accno,jdbcType=VARCHAR}
+        and is_delete = b'0'
+        order by update_time desc
+        limit 1
+    </select>
+
+    <insert id="insertSelectiveMemCertification"
+            keyColumn="certid" keyProperty="certid"
+            parameterType="com.likes.common.mybatis.entity.MemCertification"
+            useGeneratedKeys="true">
+        insert into mem_certification (accno, certstatus, 
+        certdesc, is_delete, create_user, update_user
+        )
+      
+    select #{accno,jdbcType=VARCHAR},
+           #{certstatus,jdbcType=DECIMAL},
+           #{certdesc,jdbcType=VARCHAR},
+           #{isDelete,jdbcType=BIT},
+           #{createUser,jdbcType=VARCHAR},
+           #{updateUser,jdbcType=VARCHAR}
+      
+      where NOT EXISTS   ( select accno 
+      from  mem_certification
+       where accno = #{accno} 
+       and  is_delete = b'0' 
+       and (certstatus = 1  or certstatus = 0 )
+       LIMIT 1) 
+      
+  </insert>
+    <select id="getMemCertificationOne" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.MemCertification">
+  	SELECT * from
+	  mem_certification
+	  where is_delete = b'0'  and certstatus = 1
+	  and accno = #{accno}
+	  order by update_time desc
+	  limit 1
+  </select>
+
+</mapper>

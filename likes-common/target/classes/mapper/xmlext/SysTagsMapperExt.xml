@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.sys.SysTagsMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysTags">
+        <id column="tagid" jdbcType="BIGINT" property="tagid"/>
+        <result column="tagname" jdbcType="VARCHAR" property="tagname"/>
+        <result column="tagtype" jdbcType="DECIMAL" property="tagtype"/>
+        <result column="sortby" jdbcType="INTEGER" property="sortby"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    tagid, tagname, tagtype, sortby, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+
+    <select id="getTagBQName" resultType="java.lang.String">
+        select tagname from sys_tags s where s.tagtype = 1
+        and is_delete = b'0'
+        <!-- <if test="accnolist != null and accnolist.size != 0">  -->
+        And s.tagid in
+        <foreach close=")" collection="array" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        <!-- </if> -->
+    </select>
+
+    <select id="getList"
+            parameterType="com.likes.common.mybatis.entity.SysTags"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_tags
+        where is_delete = b'0'
+        and tagtype = #{tagtype}
+        <if test="tagname != null and tagname !=''">
+            and (
+            tagname LIKE CONCAT('%',#{tagname,jdbcType=VARCHAR},'%')
+            )
+        </if>
+        ORDER BY sortby desc,create_time DESC
+    </select>
+
+
+    <select id="findByName" parameterType="com.likes.common.mybatis.entity.SysTags"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from sys_tags where
+        tagtype = #{tagtype}
+        and is_delete = b'0'
+        <if test="tagname != null">
+            and tagname = #{tagname}
+        </if>
+        <if test="tagid != null">
+            <![CDATA[   and  tagid <> #{tagid} ]]>
+        </if>
+        limit 1
+    </select>
+
+
+    <select id="getListTuwen" parameterType="com.likes.common.mybatis.entity.SysTags"
+            resultType="com.likes.common.model.dto.sys.SysTagsDO">
+        SELECT
+        s.*,
+        (SELECT bd.bdusername FROM bd_user bd WHERE bd.accno = s.create_user) as bdusername ,
+        (SELECT COUNT(1) FROM bas_article ba WHERE ba.is_delete = b'0' AND ba.checkstatus = 8
+        <!-- AND locate(s.tagname ,ba.title)    -->
+        AND find_in_set(s.tagid ,ba.title)
+        ) AS articlenum
+        FROM sys_tags s
+        WHERE s.is_delete = b'0'
+        and tagtype = #{tagtype}
+        <if test="tagname != null and tagname !=''">
+            and (
+            s.tagname LIKE CONCAT('%',#{tagname,jdbcType=VARCHAR},'%')
+            )
+        </if>
+        ORDER BY s.sortby,s.create_time DESC
+    </select>
+
+    <select id="getTagBQNameForTages" resultType="com.likes.common.mybatis.entity.SysTags">
+        select * from sys_tags s where s.tagtype = 1
+        and is_delete = b'0'
+        <!-- <if test="accnolist != null and accnolist.size != 0">  -->
+        And s.tagid in
+        <foreach close=")" collection="array" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        <!-- </if> -->
+    </select>
+
+    <select id="getTagBQNameList" resultType="com.likes.common.mybatis.entity.SysTags">
+        select * from sys_tags s where s.tagtype = 1
+        and is_delete = b'0'
+        <!-- <if test="accnolist != null and accnolist.size != 0">  -->
+        And s.tagid in
+        <foreach close=")" collection="array" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        <!-- </if> -->
+    </select>
+
+</mapper>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.sys.SysFuncinterfaceMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysFuncinterface">
+        <id column="itfcid" jdbcType="BIGINT" property="itfcid"/>
+        <result column="ofsystem" jdbcType="VARCHAR" property="ofsystem"/>
+        <result column="itfcname" jdbcType="VARCHAR" property="itfcname"/>
+        <result column="itfcurl" jdbcType="VARCHAR" property="itfcurl"/>
+        <result column="itfcdesc" jdbcType="VARCHAR" property="itfcdesc"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        itfcid, ofsystem, itfcname, itfcurl, itfcdesc, is_delete, create_user, create_time, update_user, update_time
+    </sql>
+
+    <!-- 角色模块 对于的 接口 url -->
+    <select id="getInterfaceUrlsByRole" resultType="java.lang.String">
+        SELECT sfi.itfcurl
+        FROM sys_funcinterface sfi
+        INNER JOIN sys_reffuncinitfc sr ON sfi.itfcid = sr.itfcid AND sr.is_delete = b'0'
+        INNER JOIN sys_functionorg sf ON sr.sfunid = sf.sfunid AND sf.is_delete = b'0'
+        WHERE sfi.is_delete = b'0'
+        AND sf.sfunid in
+        <foreach close=")" collection="list" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        order by itfcurl desc
+    </select>
+
+
+    <select id="selectOne" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM sys_funcinterface
+        <if test="ofsystem != null and ofsystem != ''">
+        WHERE ofsystem = #{ofsystem,jdbcType=VARCHAR}
+        </if>
+        <if test="itfcurl != null and itfcurl != ''">
+            AND itfcurl = #{itfcurl,jdbcType=VARCHAR}
+        </if>
+        limit 1
+    </select>
+
+    <update id="deleteByModifydate">
+		update sys_funcinterface
+		set is_delete = b'1'
+		where ofsystem = #{ofsystem,jdbcType=VARCHAR}
+		and is_delete = b'0'
+	</update>
+
+    <!-- searchInterfaceBySfunname -->
+    <select id="searchInterfaceBySfunname" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.SysFuncinterface">
+		SELECT *
+		FROM sys_funcinterface sfi
+		where sfi.itfcname LIKE CONCAT('%',#{itfcname,jdbcType=VARCHAR},'%')
+	</select>
+
+</mapper>

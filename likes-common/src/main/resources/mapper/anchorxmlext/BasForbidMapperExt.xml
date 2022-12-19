@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.BasForbidMapperExt">
+
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.anchor.BasForbid">
+        <id column="forbidid" jdbcType="BIGINT" property="forbidid"/>
+        <result column="roomid" jdbcType="BIGINT" property="roomid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="forbidtype" jdbcType="DECIMAL" property="forbidtype"/>
+        <result column="expirydates" jdbcType="TIMESTAMP" property="expirydates"/>
+        <result column="expirydatee" jdbcType="TIMESTAMP" property="expirydatee"/>
+        <result column="reason" jdbcType="VARCHAR" property="reason"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="forbid_status" jdbcType="INTEGER" property="forbidStatus"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        forbidid, roomid, accno, forbidtype, expirydates, expirydatee, reason, is_delete, create_user, create_time, update_user, update_time,forbid_status
+    </sql>
+
+    <select id="selectForbidOne" parameterType="com.likes.common.mybatis.entity.anchor.BasForbid" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bas_forbid
+        where roomid = #{roomid,jdbcType=BIGINT}
+        and accno = #{accno,jdbcType=VARCHAR}
+        and is_delete = b'0'
+        <if test="forbidtype != null and forbidtype != ''">
+            and forbidtype = #{forbidtype,jdbcType=DECIMAL}
+        </if>
+        limit 1
+    </select>
+
+    <select id="selectOne" parameterType="com.likes.common.mybatis.entity.anchor.BasForbid" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from bas_forbid
+        where is_delete = b'0'
+        and roomid = #{roomid,jdbcType=BIGINT}
+        and accno = #{accno,jdbcType=VARCHAR}
+        and forbidtype = #{forbidtype,jdbcType=DECIMAL}
+        limit 1
+    </select>
+
+    <select id="getForbidList" parameterType="com.likes.common.mybatis.entity.anchor.BasForbid"
+            resultType="com.likes.common.model.response.ForbidResp">
+        select bf.*
+        from bas_forbid bf
+        where bf.roomid = #{roomid,jdbcType=BIGINT}
+        and bf.forbidtype = #{forbidtype,jdbcType=DECIMAL}
+        and bf.is_delete = b'0'
+        <if test="accno != null and accno != ''">
+            and bf.accno = #{accno,jdbcType=VARCHAR}
+        </if>
+        order by bf.forbidid desc
+    </select>
+
+    <select id="getBasForbidByRoomid" parameterType="com.likes.common.model.request.UserReq"
+            resultMap="BaseResultMap">
+        SELECT * FROM bas_forbid bf
+        WHERE bf.is_delete = b'0'
+        AND bf.accno = #{accno}
+        AND bf.roomid = #{roomid}
+        and bf.forbidtype in
+        <foreach close=")" collection="changetypeList" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        ORDER BY bf.create_time desc
+        limit 1
+    </select>
+
+    <select id="getRoomForbidList" parameterType="com.likes.common.model.request.UserReq"
+            resultType="com.likes.common.model.response.UserResp">
+  	SELECT
+	s.createdate,
+	(select nickname from mem_baseinfo where accno = s.accno and is_delete = b'0' limit 1) as nickname,
+	(select headimg from mem_baseinfo where accno = s.accno and is_delete = b'0' limit 1) as headimg,
+	(select sex from mem_baseinfo where accno = s.accno and is_delete = b'0' limit 1) as sex
+	FROM bas_forbid s
+	WHERE s.roomid = #{roomid}
+	AND s.is_delete = b'0'
+	AND s.forbidtype = #{forbidtype}
+  </select>
+
+    <delete id="deleteForbidList" parameterType="com.likes.common.mybatis.entity.anchor.BasForbid">
+        delete from bas_forbid
+        where
+        roomid = #{roomid,jdbcType=BIGINT}
+        and accno = #{accno,jdbcType=VARCHAR}
+    </delete>
+
+    <select id="getMemInfoStatusList" parameterType="com.likes.common.model.dto.bas.BasMemInfoStatusReq"
+            resultType="com.likes.common.model.dto.bas.BasMemInfoStatusResp">
+        SELECT id,nickname,accno,memname,displaystatus,startdate,enddate,roomname,anchoraccno,type,mobileno,updateuser,updatetime from (
+        SELECT bf.forbidid as id, '' as nickname,bf.accno, '' as memname,CASE bf.forbidtype WHEN 1 THEN
+        '房间禁言'
+        WHEN 2 THEN
+        '房间禁入'
+        ELSE
+        '未知'
+        END as displaystatus,bf.expirydates AS startdate,bf.expirydatee as enddate,bs.roomtheme as roomname,bs.accno as anchoraccno,
+        CASE bf.forbidtype WHEN 1 THEN
+        CASE bf.forbid_status WHEN 1 THEN '5' WHEN 2 THEN '6' ELSE '未知禁言' END
+        WHEN 2 THEN
+        CASE bf.forbid_status WHEN 1 THEN '7' WHEN 2 THEN '8' ELSE '未知禁入' END
+        ELSE
+        '未知'
+        END as type,"" as mobileno,bf.update_user as updateuser,bf.update_time as updatetime
+        from bas_forbid bf LEFT JOIN bas_anchorroom bs
+        ON bf.roomid = bs.roomid
+        where bf.is_delete=0 and bs.is_delete=0 and bf.forbidtype in (1,2) and bf.forbid_status in (1,2) and (IF(bf.forbid_status=1 , bf.expirydatee>NOW(),1=1))
+        ) b where 1=1
+        <if test="typeLists != null and typeLists.size()>0">
+            and type in
+            <foreach close=")" collection="typeLists" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+        <if test="mobileno != null and mobileno != ''">
+            and mobileno = #{mobileno,jdbcType=VARCHAR}
+        </if>
+        <if test="roomname != null and roomname != ''">
+            and roomname = #{roomname,jdbcType=VARCHAR}
+        </if>
+        <if test="anchoraccno != null and anchoraccno != ''">
+            and anchoraccno = #{anchoraccno,jdbcType=VARCHAR}
+        </if>
+        ORDER BY accno
+    </select>
+</mapper>

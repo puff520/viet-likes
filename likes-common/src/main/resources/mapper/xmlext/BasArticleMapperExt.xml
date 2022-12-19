@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.BasArticleMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.BasArticle">
+        <id column="articleid" jdbcType="BIGINT" property="articleid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="introduction" jdbcType="VARCHAR" property="introduction"/>
+        <result column="arttype" jdbcType="DECIMAL" property="arttype"/>
+        <result column="videoid" jdbcType="VARCHAR" property="videoid"/>
+        <result column="picids" jdbcType="VARCHAR" property="picids"/>
+        <result column="usertags" jdbcType="VARCHAR" property="usertags"/>
+        <result column="praisenum" jdbcType="BIGINT" property="praisenum"/>
+        <result column="sharenum" jdbcType="BIGINT" property="sharenum"/>
+        <result column="viewnum" jdbcType="BIGINT" property="viewnum"/>
+        <result column="seenum" jdbcType="BIGINT" property="seenum"/>
+        <result column="istophome" jdbcType="DECIMAL" property="istophome"/>
+        <result column="ishot" jdbcType="DECIMAL" property="ishot"/>
+        <result column="sortby" jdbcType="INTEGER" property="sortby"/>
+        <result column="checkstatus" jdbcType="DECIMAL" property="checkstatus"/>
+        <result column="checknote" jdbcType="VARCHAR" property="checknote"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <select id="getList" parameterType="com.likes.common.model.request.ArticleRequest"
+            resultType="com.likes.common.model.dto.bas.BasArticleDO">
+        SELECT ba.*, mb.nickname as bdusername
+        FROM bas_article ba
+        INNER JOIN mem_baseinfo mb ON ba.accno = mb.accno
+        where ba.is_delete = b'0'
+        <if test="title != null and title != ''">
+            and
+            (
+            ba.title LIKE CONCAT('%', #{title,jdbcType=VARCHAR}, '%')
+            or
+            ba.introduction LIKE CONCAT('%', #{title,jdbcType=VARCHAR}, '%')
+            OR
+            mb.nickname LIKE CONCAT('%', #{title,jdbcType=VARCHAR}, '%')
+            )
+        </if>
+        <if test="arttype != null and arttype != ''">
+            and ba.arttype = #{arttype}
+        </if>
+        <if test="checkstatus != null">
+            and ba.checkstatus = #{checkstatus}
+        </if>
+        <if test="checkstatus == null">
+            and ba.checkstatus in (8, 9)
+        </if>
+        ORDER BY ba.sortby DESC, ba.checkstatus asc, ba.update_time DESC
+    </select>
+    <update id="delArtice" parameterType="com.likes.common.model.request.ArticleRequest">
+        update bas_article b
+        set b.is_delete = b'1',
+        update_user = #{modifyuser,jdbcType=VARCHAR}
+        where 1 = 1
+        <if test="articleids != null and articleids.size != 0">
+            And b.articleid in
+            <foreach close=")" collection="articleids" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateBasArticle" parameterType="com.likes.common.mybatis.entity.BasArticle">
+        update bas_article
+        <set>
+            <if test="accno != null">
+                accno = #{accno,jdbcType=VARCHAR},
+            </if>
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="introduction != null">
+                introduction = #{introduction,jdbcType=VARCHAR},
+            </if>
+            <if test="arttype != null">
+                arttype = #{arttype,jdbcType=DECIMAL},
+            </if>
+            <if test="videoid != null">
+                videoid = #{videoid,jdbcType=VARCHAR},
+            </if>
+            <if test="picids != null">
+                picids = #{picids,jdbcType=VARCHAR},
+            </if>
+            <if test="usertags != null">
+                usertags = #{usertags,jdbcType=VARCHAR},
+            </if>
+            <if test="praisenum != null">
+                praisenum = #{praisenum,jdbcType=BIGINT},
+            </if>
+            <if test="sharenum != null">
+                sharenum = #{sharenum,jdbcType=BIGINT},
+            </if>
+            <if test="viewnum != null">
+                viewnum = #{viewnum,jdbcType=BIGINT},
+            </if>
+            <if test="seenum != null">
+                seenum = #{seenum,jdbcType=BIGINT},
+            </if>
+            <if test="istophome != null">
+                istophome = #{istophome,jdbcType=DECIMAL},
+            </if>
+            <if test="ishot != null">
+                ishot = #{ishot,jdbcType=DECIMAL},
+            </if>
+            <if test="sortby != null">
+                sortby = #{sortby,jdbcType=INTEGER},
+            </if>
+            <if test="checkstatus != null">
+                checkstatus = #{checkstatus,jdbcType=DECIMAL},
+            </if>
+            <if test="checknote != null">
+                checknote = #{checknote,jdbcType=VARCHAR},
+            </if>
+            <if test="isDelete != null">
+                is_delete = #{isDelete,jdbcType=BIT},
+            </if>
+            <if test="createuser != null">
+                createuser = #{createuser,jdbcType=VARCHAR},
+            </if>
+            <if test="createdate != null">
+                create_time = #{createdate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="modifyuser != null">
+                update_user = #{modifyuser,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where articleid = #{articleid,jdbcType=BIGINT}
+        and checkstatus = 1
+    </update>
+
+    <select id="getAllArtcleNum" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        FROM bas_article ba
+        WHERE ba.checkstatus = 8
+          AND ba.create_time IS NOT NULL
+    </select>
+
+    <select id="getThisWeekArtcleNum" resultType="java.lang.Integer" parameterType="java.util.Map">
+        SELECT COUNT(1)
+        FROM bas_article ba
+        WHERE ba.checkstatus = 8
+          AND ba.create_time IS NOT NULL
+          AND DATE_FORMAT(ba.create_time, '%Y%m%d') BETWEEN #{starttime} AND #{endtime}
+    </select>
+
+    <select id="getSeeTuwen"
+            parameterType="java.lang.Integer"
+            resultType="com.likes.common.model.dto.DateStaticsDO">
+
+                SELECT date, SUM(seenum) as datenum
+                FROM (
+                             SELECT year(ba.create_time) as date, IFNULL(ba.seenum, 0) AS seenum
+                             FROM bas_article ba
+                             WHERE ba.checkstatus = 8
+                               AND ba.create_time IS NOT NULL
+                               AND ba.arttype = #{arttype}
+                             ) AS MM
+                GROUP BY date
+
+    </select>
+
+
+    <select id="getFaTuwen" parameterType="java.util.Map" resultType="com.likes.common.model.dto.NameValueDO">
+        SELECT count(ba.accno)                         value,
+               date_format(ba.create_time, '%Y-%m') AS name
+        FROM bas_article ba
+        WHERE ba.checkstatus = 8
+          AND ba.create_time IS NOT NULL
+          AND ba.arttype = #{arttype}
+          AND ba.create_time <![CDATA[  >= ]]> date_sub(
+                STR_TO_DATE(#{day}, '%Y-%m-%d %H:%i:%s'),
+                INTERVAL 12 MONTH
+                )
+          AND ba.create_time <![CDATA[ < ]]> STR_TO_DATE(#{day}, '%Y-%m-%d %H:%i:%s')
+        group by name
+    </select>
+
+    <select id="articlListNoLogin" parameterType="com.likes.common.model.request.ArticleRequest"
+            resultType="com.likes.common.model.dto.bas.BasArticleDO">
+        SELECT ba.*,
+        me.nickname,
+        me.memid,
+        me.headimg,
+        (SELECT COUNT(1)
+        FROM bas_comment bc
+        where bc.is_delete = b'0'
+        AND ba.articleid = bc.articleid
+        AND bc.is_delete = b'0') as commentnum
+        FROM bas_article ba,
+        mem_baseinfo me
+        where ba.accno = me.accno
+        AND
+        ba.is_delete = b'0'
+        and ba.checkstatus = 8
+        <if test="title != null and title != ''">
+            and (
+            me.nickname LIKE CONCAT('%', #{title,jdbcType=VARCHAR}, '%')
+            or
+            ba.title LIKE CONCAT('%', #{title,jdbcType=VARCHAR}, '%')
+            or
+            ba.introduction LIKE CONCAT('%', #{title,jdbcType=VARCHAR}, '%')
+            )
+        </if>
+        <if test="arttype != null">
+            AND ba.arttype = #{arttype}
+        </if>
+
+        <if test="sortby == null">
+            ORDER BY ba.sortby DESC,ba.praisenum DESC,ba.viewnum DESC,update_time DESC
+        </if>
+
+        <if test="sortby == 1">
+            ORDER BY update_time DESC ,ba.praisenum DESC,ba.viewnum DESC
+        </if>
+    </select>
+
+    <!--<select id="getArticlDetail" parameterType="com.likes.common.model.request.ArticleRequest"-->
+    <!--resultType="com.likes.common.model.dto.bas.BasArticleDO">-->
+    <!--SELECT ba.*,-->
+    <!--me.nickname,-->
+    <!--me.memid,-->
+    <!--me.headimg,-->
+    <!--if((SELECT bf.favorid-->
+    <!--FROM bas_favorites bf-->
+    <!--WHERE bf.is_delete = b'0'-->
+    <!--AND bf.articleid = ba.articleid-->
+    <!--AND bf.accno = #{accno}-->
+    <!--limit 1) IS not null, "1", "0") as isview,-->
+    <!--IF((select mf.accno-->
+    <!--from mem_follow mf-->
+    <!--where mf.memid = me.memid-->
+    <!--and mf.accno = #{accno}-->
+    <!--AND mf.is_delete = b'0'-->
+    <!--limit 1) is not null-->
+    <!--, "1", "0")                 AS isattention,-->
+    <!--if((SELECT bp.praiseid-->
+    <!--FROM bas_praise bp-->
+    <!--WHERE bp.is_delete = b'0'-->
+    <!--AND bp.articleid = ba.articleid-->
+    <!--AND bp.accno = #{accno}-->
+    <!--and bp.commid is null-->
+    <!--and bp.videoid is null-->
+    <!--limit 1) IS not null, "1", "0") as ispraise,-->
+    <!--(SELECT COUNT(1)-->
+    <!--FROM bas_comment bc-->
+    <!--where bc.is_delete = b'0'-->
+    <!--AND ba.articleid = bc.articleid-->
+    <!--AND bc.is_delete = b'0')         as commentnum-->
+    <!--FROM bas_article ba,-->
+    <!--mem_baseinfo me-->
+    <!--where ba.accno = me.accno-->
+    <!--AND ba.is_delete = b'0'-->
+    <!--and ba.checkstatus = 8-->
+    <!--and ba.articleid = #{articleid}-->
+    <!--ORDER BY ba.praisenum DESC, ba.viewnum DESC-->
+    <!--</select>-->
+
+    <select id="articlDetailNoLogin" parameterType="com.likes.common.model.request.ArticleRequest"
+            resultType="com.likes.common.model.dto.bas.BasArticleDO">
+        SELECT ba.*,
+        me.nickname,
+        me.memid,
+        me.headimg,
+        (SELECT COUNT(1)
+        FROM bas_comment bc
+        where bc.is_delete = b'0'
+        AND ba.articleid = bc.articleid
+        AND bc.is_delete = b'0') as commentnum
+        FROM bas_article ba,
+        mem_baseinfo me
+        where ba.accno = me.accno
+        AND
+        ba.is_delete = b'0'
+        <!-- <if test="checkstatus == null">
+             AND ba.checkstatus = 8
+        </if>
+       <if test="checkstatus != null">
+            AND ba.checkstatus = #{checkstatus}
+       </if> -->
+
+        and ba.articleid = #{articleid}
+        ORDER BY ba.praisenum DESC, ba.viewnum DESC
+    </select>
+
+
+    <update id="updateNum" parameterType="com.likes.common.model.request.ArticleRequest">
+        update bas_article
+        <set>
+            <!-- 收藏 -->
+            <if test="isview == 0">
+
+                viewnum = IF(viewnum <![CDATA[ <= ]]> 0, 1, viewnum) - 1,
+
+            </if>
+            <if test="isview == 1">
+                viewnum =IFNULL(viewnum, 0) + 1,
+            </if>
+
+            <!-- 点赞 -->
+            <if test="ispraise == 0">
+
+                praisenum = IF(praisenum <![CDATA[ <= ]]> 0, 1, praisenum) - 1,
+
+                <!-- praisenum = IFNULL(praisenum,1) - 1, -->
+            </if>
+            <if test="ispraise == 1">
+                praisenum = IFNULL(praisenum, 0) + 1,
+            </if>
+
+            <!-- 分享 -->
+            <if test="isshare == 0">
+
+                sharenum = IF(sharenum <![CDATA[ <= ]]> 0, 1, sharenum) - 1,
+
+                <!-- sharenum = IFNULL(sharenum,1) - 1, -->
+            </if>
+            <if test="isshare == 1">
+                sharenum = IFNULL(sharenum, 0) + 1,
+            </if>
+        </set>
+        where articleid = #{articleid,jdbcType=BIGINT}
+        and viewnum >= 0
+        and sharenum >= 0
+        and praisenum >= 0
+    </update>
+
+    <update id="updateSeenum" parameterType="java.lang.Long">
+        update bas_article
+        set seenum = IFNULL(seenum, 0) + 1
+        where articleid = #{articleid}
+          and seenum >= 0
+    </update>
+
+    <select id="getAttentionArticleList" parameterType="com.likes.common.model.request.UsersRequest"
+            resultType="com.likes.common.model.dto.bas.BasArticleDO">
+        SELECT ba.*, me.nickname, me.memid, me.headimg,
+        if((SELECT bf.favorid
+        FROM bas_favorites bf
+        WHERE bf.accno = #{accno}
+        AND bf.is_delete = b'0'
+        AND bf.articleid = ba.articleid
+        limit 1) is not null, "1", "0") as isview,
+        -- if((SELECT mf.accno
+        -- FROM mem_follow mf
+        -- WHERE mf.memid = me.memid
+        -- AND mf.accno = #{accno}
+        -- AND mf.is_delete = b'0'
+        -- limit 1) is not null , "1", "0") as isattention,
+        "0" as isattention,
+        if((SELECT bp.praiseid
+        FROM bas_praise bp
+        WHERE bp.articleid = ba.articleid
+        AND bp.accno = #{accno}
+        AND bp.is_delete = b'0'
+        AND bp.commid is null
+        AND bp.videoid is null
+        limit 1) is not null, "1", "0") as ispraise,
+        (SELECT COUNT(1)
+        FROM bas_comment bc
+        WHERE ba.articleid = bc.articleid
+        AND bc.is_delete = b'0') as commentnum
+        FROM bas_article ba, mem_baseinfo me
+        WHERE ba.accno = me.accno
+        AND ba.is_delete = b'0'
+        AND ba.checkstatus = 8
+        <if test="accnolist != null and accnolist.size != 0">
+            AND ba.accno in
+            <foreach close=")" collection="accnolist" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+        <if test="title != null and title != ''">
+            AND ( me.nickname LIKE CONCAT('%', #{title,jdbcType=VARCHAR}, '%')
+            or ba.title LIKE CONCAT('%', #{title,jdbcType=VARCHAR}, '%')
+            or
+            and ba.introduction LIKE CONCAT('%', #{title,jdbcType=VARCHAR}, '%') )
+        </if>
+        ORDER BY ba.create_time DESC, ba.praisenum DESC, ba.viewnum DESC
+    </select>
+
+    <select id="getMyArticleList" parameterType="com.likes.common.model.request.UsersRequest"
+            resultType="com.likes.common.model.dto.bas.BasArticleDO">
+        SELECT ba.*,
+        me.nickname,
+        me.memid,
+        me.headimg,
+        (SELECT COUNT(1)
+        FROM bas_comment bc
+        where bc.is_delete = b'0'
+        AND ba.articleid = bc.articleid
+        AND bc.is_delete = b'0') as commentnum
+        FROM bas_article ba,
+        mem_baseinfo me
+        where ba.accno = me.accno
+        AND
+        ba.is_delete = b'0'
+
+        <if test="checkstatus == null">
+            AND ba.checkstatus = 8
+        </if>
+
+        <if test="checkstatus != null">
+            AND ba.checkstatus = #{checkstatus}
+        </if>
+
+        <if test="accnolist != null and accnolist.size != 0">
+            AND ba.accno in
+            <foreach close=")" collection="accnolist" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+
+        ORDER BY ba.create_time DESC, ba.checkstatus DESC
+    </select>
+
+
+    <select id="myArticleCommentList" resultType="com.likes.common.model.dto.CommentDO"
+            parameterType="com.likes.common.model.request.UsersRequest">
+        SELECT b.articleid,
+               b.`comment`,
+               b.create_time,
+               b.praisenum,
+               ba.picids,
+               b.commid,
+               m.nickname,
+               m.headimg
+        FROM bas_comment b
+                     INNER JOIN bas_article ba ON ba.articleid = b.articleid
+                AND ba.is_delete = b'0' AND ba.checkstatus = 8
+                     INNER JOIN mem_baseinfo m ON b.accno = m.accno AND m.is_delete = b'0'
+        WHERE ba.articleid in (SELECT DISTINCT ar.articleid
+                               FROM bas_article ar
+                               WHERE ar.is_delete = b'0'
+                                 AND ar.checkstatus = 8
+                                 AND ar.accno = #{accno})
+          AND b.is_delete = b'0'
+        ORDER BY b.create_time DESC
+    </select>
+
+    <update id="doDelMySources" parameterType="com.likes.common.model.request.UsersRequest">
+        update bas_article
+        set is_delete = b'1',
+        update_user = #{modifyuser}
+        where accno = #{accno}
+        <if test="idList != null and idList.size != 0">
+            AND articleid in
+            <foreach close=")" collection="idList" index="index" item="s" open="(" separator=",">
+                #{s}
+            </foreach>
+        </if>
+    </update>
+
+    <select id="detailArticleForUpdate" parameterType="com.likes.common.model.request.ArticleRequest"
+            resultType="com.likes.common.model.dto.bas.BasArticleDO">
+        SELECT ba.*,
+               me.nickname,
+               me.memid,
+               me.headimg
+        FROM bas_article ba,
+             mem_baseinfo me
+        where ba.accno = me.accno
+          AND ba.is_delete = b'0'
+          and ba.checkstatus = #{checkstatus}
+          and ba.articleid = #{articleid}
+    </select>
+
+    <update id="doArticleForUpdate" parameterType="com.likes.common.mybatis.entity.BasArticle">
+        update bas_article
+        <set>
+            <if test="title != null">
+                title = #{title,jdbcType=VARCHAR},
+            </if>
+            <if test="introduction != null">
+                introduction = #{introduction,jdbcType=VARCHAR},
+            </if>
+            <if test="arttype != null">
+                arttype = #{arttype,jdbcType=DECIMAL},
+            </if>
+            <if test="videoid != null">
+                videoid = #{videoid,jdbcType=VARCHAR},
+            </if>
+            <if test="picids != null">
+                picids = #{picids,jdbcType=VARCHAR},
+            </if>
+            <if test="usertags != null">
+                usertags = #{usertags,jdbcType=VARCHAR},
+            </if>
+            <if test="checkstatus != null">
+                checkstatus = #{checkstatus,jdbcType=DECIMAL},
+            </if>
+            <if test="checknote != null">
+                checknote = #{checknote,jdbcType=VARCHAR},
+            </if>
+            <if test="modifyuser != null">
+                update_user = #{modifyuser,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where articleid = #{articleid,jdbcType=BIGINT}
+        and checkstatus = 9
+        and is_delete = b'0'
+    </update>
+</mapper>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.SysRecordMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.model.SysRecord">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="recordid" jdbcType="BIGINT" property="recordid" />
+    <result column="operationer" jdbcType="VARCHAR" property="operationer" />
+    <result column="operationdate" jdbcType="TIMESTAMP" property="operationdate" />
+    <result column="recordevent" jdbcType="INTEGER" property="recordevent" />
+    <result column="recordremark" jdbcType="LONGVARCHAR" property="recordremark" />
+  </resultMap>
+
+
+
+  <select id="getLst" parameterType="com.likes.common.model.request.SysRecordRequest" resultType="com.likes.common.model.dto.sys.SysRecordDO">
+    select
+    *,operationdate as recorddate,
+    (select bdusername from bd_user where bd_user.accno = sr.operationer) as operationName
+    from sys_record sr
+    where
+    recordevent =  #{rtype}
+    <if test=" keyword !=null and keyword != '' ">
+      AND (
+      recordremark LIKE CONCAT('%',#{keyword},'%')
+      )
+    </if>
+  </select>
+
+
+</mapper>

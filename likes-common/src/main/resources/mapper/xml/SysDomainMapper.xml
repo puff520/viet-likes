@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace=" com.likes.common.mybatis.mapper.SysDomainMapper">
+  <resultMap id="BaseResultMap" type="com.likes.common.model.SysDomain">
+    <!--
+      WARNING - @mbg.generated
+    -->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="domain" jdbcType="VARCHAR" property="domain" />
+    <result column="type" jdbcType="INTEGER" property="type" />
+    <result column="invitation_code" jdbcType="VARCHAR" property="invitationCode" />
+    <result column="note" jdbcType="VARCHAR" property="note" />
+    <result column="status" jdbcType="DECIMAL" property="status" />
+    <result column="is_delete" jdbcType="BIT" property="isDelete" />
+    <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+</mapper>

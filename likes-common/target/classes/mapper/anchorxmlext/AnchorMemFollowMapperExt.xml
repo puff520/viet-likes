@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.AnchorMemFollowMapperExt">
+
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.anchor.AnchorMemFollow">
+        <id column="followid" jdbcType="BIGINT" property="followid"/>
+        <result column="memid" jdbcType="BIGINT" property="memid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="is_delete" jdbcType="DECIMAL" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        followid, memid, accno, is_delete as isDelete, create_user, create_time, update_user, update_time
+    </sql>
+
+    <select id="findByParam" parameterType="com.likes.common.model.request.VideoRequest"
+            resultType="com.likes.common.mybatis.entity.anchor.AnchorMemFollow">
+        select <include refid="Base_Column_List"/>
+        from anchor_mem_follow
+        where memid = #{memid}
+        and accno = #{accno}
+        limit 1
+    </select>
+
+    <select id="getAttention" parameterType="java.lang.String" resultType="java.lang.String">
+        <!-- SELECT	mb.accno FROM anchor_mem_follow mf
+        INNER JOIN mem_baseinfo mb ON mf.memid = mb.memid and
+          mb.is_delete = b'0'
+          WHERE mf.is_delete = b'0' AND mf.accno = #{accno} -->
+        SELECT ( SELECT DISTINCT mb.accno
+                FROM anchor_mem_baseinfo mb
+                WHERE mf.memid = mb.memid
+                AND mb.is_delete = b'0' ) as accno
+        FROM anchor_mem_follow mf
+        WHERE mf.accno = #{accno}
+        AND mf.is_delete = b'0'
+    </select>
+
+    <select id="getAttentionUserList" resultType="com.likes.common.model.dto.PromotionDo"
+            parameterType="com.likes.common.model.request.UsersRequest">
+        SELECT mb.memid ,mb.nickname,mb.headimg,mb.accno,mf.create_time as createTime, if(mf.is_delete = b'0',1,0) as isattention
+        from anchor_mem_follow mf
+        INNER JOIN anchor_mem_baseinfo mb ON mb.memid = mf.memid AND mb.is_delete = b'0'
+        where mf.accno = #{accno}
+        AND mf.is_delete = b'0'
+        order by mf.is_delete asc
+    </select>
+
+    <select id="getFansList" resultType="com.likes.common.model.dto.PromotionDo"
+            parameterType="com.likes.common.model.request.UsersRequest">
+        SELECT mb.memid ,mb.nickname,mb.headimg,mb.accno,mf.create_time
+        from anchor_mem_follow mf
+        INNER JOIN anchor_mem_baseinfo mb ON mf.accno = mb.accno AND mb.is_delete = b'0'
+        where mf.memid = #{memid}
+        AND mf.is_delete = b'0'
+    </select>
+
+    <select id="findByAccno" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from anchor_mem_follow
+        where accno = #{accno}
+        limit 1
+    </select>
+
+    <select id="findByParams" parameterType="com.likes.common.model.request.VideoRequest"
+            resultType="com.likes.common.mybatis.entity.anchor.AnchorMemFollow">
+        select <include refid="Base_Column_List"/>
+        from anchor_mem_follow
+        where memid = #{memid}
+        and accno = #{accno}
+        limit 1
+    </select>
+
+    <select id="getThisSeeLive" parameterType="com.likes.common.model.request.UserReq" resultType="java.lang.Integer">
+        SELECT COUNT(1) as attentionnum
+		FROM anchor_mem_follow mf
+		WHERE mf.create_time
+            BETWEEN #{onlinedate}
+            AND #{offlinedate}
+        AND mf.is_delete = b'0'
+        AND mf.memid = #{memid}
+    </select>
+
+    <select id="myAttentionList" parameterType="java.lang.String" resultType="com.likes.common.mybatis.entity.anchor.AnchorMemFollow">
+        SELECT mf.followid,mf.memid,mf.accno,mf.is_delete as isDelete,mf.create_user as createUser,mf.create_time as createTime,
+            mf.update_user as updateUser,mf.update_time as updateTime
+		FROM anchor_mem_follow mf
+		WHERE mf.accno = #{accno}
+		AND mf.memid is NOT NULL
+		AND mf.is_delete = b'0'
+    </select>
+
+    <select id="getAttentionByMemidAndAccno" resultType="com.likes.common.mybatis.entity.anchor.AnchorMemFollow">
+        SELECT  <include refid="Base_Column_List"/>
+		FROM anchor_mem_follow mf
+		WHERE mf.memid = #{memid}
+		AND mf.accno = #{accno}
+		AND mf.is_delete = b'0'
+    </select>
+
+</mapper>

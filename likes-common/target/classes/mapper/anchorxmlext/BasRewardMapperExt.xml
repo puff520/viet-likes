@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.anchor.BasRewardMapperExt">
+
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.anchor.BasReward">
+        <id column="rewardid" jdbcType="BIGINT" property="rewardid"/>
+        <result column="giftid" jdbcType="BIGINT" property="giftid"/>
+        <result column="roomid" jdbcType="BIGINT" property="roomid"/>
+        <result column="nickname" jdbcType="VARCHAR" property="nickname"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        rewardid, giftid, roomid, nickname, accno, is_delete, create_user, create_time
+    </sql>
+
+    <insert id="insertBasReward" keyColumn="rewardid" keyProperty="rewardid"
+            parameterType="com.likes.common.model.dto.bas.BasRewardReq" useGeneratedKeys="true">
+        insert into bas_reward (giftid, roomid, nickname, accno, is_delete, create_user, create_time)
+        values (#{giftid}, #{roomid}, #{nickname},
+                #{accno}, #{isDelete}, #{createUser}, #{createTime})
+    </insert>
+
+    <!-- 1分钟内送出的礼物数 -->
+    <select id="getGiftnumsMinute" parameterType="com.likes.common.model.request.UsersRequest" resultType="java.lang.Integer">
+        select count(1)
+        from bas_reward
+        where is_delete = b'0'
+        and accno = #{accno}
+        and roomid = #{roomid}
+        and create_time between date_add(now(), interval - 1 minute) and now()
+    </select>
+
+    <select id="getAllGiftnums" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(1)
+        from bas_reward
+        where accno = #{accno}
+        and is_delete = b'0'
+    </select>
+
+    <select id="getAnchorAllGiftnumsByRoomid" parameterType="java.lang.Long" resultType="java.lang.Integer">
+        select count(1)
+        from bas_reward
+        where is_delete = b'0'
+        and roomid = #{roomid}
+    </select>
+    <select id="findRewardByRoomId"
+            parameterType="com.likes.common.model.request.UserReq"
+            resultType="java.lang.String">
+SELECT DISTINCT br.accno FROM bas_reward br WHERE br.roomid = #{roomid} AND br.is_delete = b'0'
+        AND DATE_FORMAT(br.create_time,'%Y%m%d') BETWEEN #{starttime} AND #{endtime}
+    </select>
+</mapper>

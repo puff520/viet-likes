@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.tra.TraAnchorMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.TraAnchor">
+        <id column="traanchorid" jdbcType="BIGINT" property="traanchorid"/>
+        <result column="accno" jdbcType="VARCHAR" property="accno"/>
+        <result column="apycid" jdbcType="BIGINT" property="apycid"/>
+        <result column="anconlineid" jdbcType="BIGINT" property="anconlineid"/>
+        <result column="familyid" jdbcType="BIGINT" property="familyid"/>
+        <result column="giftincome" jdbcType="DECIMAL" property="giftincome"/>
+        <result column="betsincome" jdbcType="DECIMAL" property="betsincome"/>
+        <result column="buttonnote" jdbcType="VARCHAR" property="buttonnote"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    traanchorid, accno, apycid, anconlineid, familyid, giftincome, betsincome, buttonnote, 
+    is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+    <insert id="insertMany" parameterType="java.util.List" useGeneratedKeys="false">
+        insert into tra_anchor (accno, apycid,
+        anconlineid, familyid, giftincome,
+        betsincome, buttonnote, create_user, update_user)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.accno},
+            #{item.apycid},
+            #{item.anconlineid},
+            #{item.familyid},
+            #{item.giftincome},
+            #{item.betsincome},
+            #{item.buttonnote},
+            #{item.createUser},
+            #{item.updateUser}
+            )
+        </foreach>
+    </insert>
+
+
+    <select id="getTraAnchorDOList" parameterType="java.util.List"
+            resultType="com.likes.common.model.vo.TraAnchorVO">
+        SELECT t.accno,t.apycid,t.traanchorid,t.familyid,sum(t.giftincome) as giftincome, d. nickname
+        FROM tra_anchor t LEFT JOIN mem_baseinfo d on d.accno = t.accno
+        WHERE
+        t.is_delete = b'0'
+        AND t.apycid in
+        <foreach close=")" collection="list" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        GROUP BY t.accno
+    </select>
+
+    <select id="getTraAnchorList" parameterType="java.util.List"
+            resultType="com.likes.common.model.vo.TraAnchorVO">
+        SELECT t.accno,t.apycid,t.traanchorid,t.familyid, sum(t.giftincome) as giftincome,sum(t.betsincome) as betsincome
+        FROM tra_anchor t
+        WHERE
+        t.is_delete = b'0'
+        AND t.apycid in
+        <foreach close=")" collection="list" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        GROUP BY t.accno
+    </select>
+
+    <select id="getListByApycid" parameterType="java.lang.Long"
+            resultType="com.likes.common.mybatis.entity.TraAnchor">
+  	select * from tra_anchor 
+  	where is_delete = b'0'  and apycid = #{apycid}
+  	order by create_time asc
+  </select>
+
+    <select id="getincarnateHistoryByFamily" parameterType="com.likes.common.model.request.FamilyIncarnateRequest"
+            resultType="com.likes.common.model.dto.TraAnchorDO">
+        SELECT t.accno,t.apycid,t.traanchorid,t.anconlineid,t.familyid,TRUNCATE(t.giftincome,3) as giftincome,TRUNCATE(t.betsincome,3) as betsincome
+        -- ,f.onlinedate,f.offlinedate,
+        -- (SELECT nickname FROM mem_baseinfo mb WHERE mb.accno = t.accno LIMIT 1) as nickname
+        FROM tra_anchor t
+        -- left join bas_anchoronline f on t.anconlineid = f.anconlineid
+        WHERE t.apycid = #{apycid}
+        AND t.familyid = #{familyid}
+        AND t.is_delete = b'0'
+        <if test="accno != null">
+            AND t.accno = #{accno}
+        </if>
+        ORDER BY t.create_time asc
+    </select>
+
+    <select id="getincarnateHistoryByApycid" parameterType="com.likes.common.model.request.FamilyIncarnateRequest"
+            resultType="com.likes.common.model.dto.TraAnchorDO">
+        SELECT t.accno,t.apycid,t.traanchorid,t.anconlineid,t.familyid,TRUNCATE(t.giftincome,3) as giftincome,TRUNCATE(t.betsincome,3) AS betsincome,
+        (SELECT nickname FROM mem_baseinfo mb WHERE mb.accno = t.accno LIMIT 1) as nickname
+        FROM tra_anchor t
+        WHERE t.apycid = #{apycid}
+        AND t.is_delete = b'0'
+        <if test="accno != null">
+            AND t.accno = #{accno}
+        </if>
+        ORDER BY t.create_time asc
+    </select>
+
+    <select id="getAnchorIncomeList" parameterType="com.likes.common.model.request.FamilyIncarnateRequest"
+            resultType="com.likes.common.model.dto.TraAnchorDO">
+  	SELECT t.accno,t.apycid,t.anconlineid,t.familyid,TRUNCATE(t.giftincome,3) as giftincome ,
+	TRUNCATE(t.betsincome,3) AS betsincome , TRUNCATE(t.betsincome + t.giftincome,3) AS allincome,
+	(SELECT onlinedate FROM bas_anchoronline mb WHERE mb.anconlineid = t.anconlineid LIMIT 1) as onlinedate,
+	(SELECT offlinedate FROM bas_anchoronline mb WHERE mb.anconlineid = t.anconlineid LIMIT 1) as offlinedate
+	FROM tra_anchor t
+	WHERE t.apycid = #{apycid}
+	AND t.familyid = #{familyid}
+	AND t.is_delete = b'0'
+	AND t.accno = #{accno}
+	ORDER BY t.anconlineid DESC
+  </select>
+
+</mapper>

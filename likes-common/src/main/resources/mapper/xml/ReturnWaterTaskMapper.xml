@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.likes.common.mybatis.mapper.ReturnWaterTaskMapper">
+    <select id="queryWaterList"
+            resultType="com.likes.common.mybatis.entity.CptOpenMember">
+        SELECT
+        SUM(a.valid_bet_amount) balance,
+        c.user_id userId
+        FROM
+        ag_bet_order a LEFT JOIN cpt_open_member c on a.player_name = c.username
+        WHERE
+        a.flag = 1
+        AND c.type ='T_AG'
+        <if test="startTimeDate !=null and startTimeDate !='' ">
+            <![CDATA[ and a.bet_time  >=  #{startTimeDate}  ]]>
+        </if>
+        <if test="endTimeDate !=null and endTimeDate !='' ">
+            <![CDATA[ and a.bet_time <=  #{endTimeDate}  ]]>
+        </if>
+        GROUP BY
+        a.player_name,c.user_id
+    </select>
+
+
+    <select id="queryKyWaterList"
+            resultType="com.likes.common.mybatis.entity.CptOpenMember">
+        SELECT
+        SUM(a.cell_score) balance,
+        c.user_id userId
+        FROM
+        ky_bet_order a LEFT JOIN cpt_open_member  c on
+        a.user_id = c.user_id
+        WHERE
+        c.type = 'T_KY'
+        <if test="startTimeDate !=null and startTimeDate !='' ">
+            <![CDATA[ and a.game_start_time  >=  #{startTimeDate}  ]]>
+        </if>
+        <if test="endTimeDate !=null and endTimeDate !='' ">
+            <![CDATA[ and a.game_start_time <=  #{endTimeDate}  ]]>
+        </if>
+        GROUP BY
+        a.account,c.user_id
+    </select>
+
+    <select id="queryLotteryWaterList"
+            resultType="com.likes.common.mybatis.entity.OrderBetRecord">
+        SELECT
+        SUM(bet_amount) as betAmount,
+        user_id as userId,
+        lottery_id as lotteryId
+        FROM
+        order_bet_record
+        WHERE
+        tb_status != 'BACK'
+        <if test="startTimeDate !=null and startTimeDate !='' ">
+            <![CDATA[ and create_time  >=  #{startTimeDate}  ]]>
+        </if>
+        <if test="endTimeDate !=null and endTimeDate !='' ">
+            <![CDATA[ and create_time <=  #{endTimeDate}  ]]>
+        </if>
+        GROUP BY
+        lottery_id,user_id
+    </select>
+
+
+    <select id="queryEsWaterList"
+            resultType="com.likes.common.mybatis.entity.CptOpenMember">
+        SELECT
+        SUM(a.cell_score) balance,
+        c.user_id userId
+        FROM
+        ky_bet_order a LEFT JOIN cpt_open_member c on
+        SUBSTRING(a.account,LOCATE('_',a.account)+1) = c.username
+        WHERE
+        c.type = 'T_ES'
+        <if test="startTimeDate !=null and startTimeDate !='' ">
+            <![CDATA[ and a.settlement_time  >=  #{startTimeDate}  ]]>
+        </if>
+        <if test="endTimeDate !=null and endTimeDate !='' ">
+            <![CDATA[ and a.settlement_time <=  #{endTimeDate}  ]]>
+        </if>
+        GROUP BY
+        a.account,c.user_id
+    </select>
+
+
+    <select id="queryAeWaterList"
+            resultType="com.likes.common.mybatis.entity.CptOpenMember">
+        SELECT
+        SUM(a.bet) balance,
+        c.user_id userId
+        FROM
+        ae_bet_order a LEFT JOIN cpt_open_member c on
+        a.uname = c.username
+        WHERE
+        c.type = 'T_AE'
+        <if test="startTimeDate !=null and startTimeDate !='' ">
+            <![CDATA[ and a.etime  >=  #{startTimeDate}  ]]>
+        </if>
+        <if test="endTimeDate !=null and endTimeDate !='' ">
+            <![CDATA[ and a.etime <=  #{endTimeDate}  ]]>
+        </if>
+        GROUP BY
+        a.uname,c.user_id
+    </select>
+</mapper>

@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+        namespace="com.likes.common.mybatis.mapperext.member.MemLoginMapperExt">
+    <resultMap
+            id="BaseResultMap"
+            type="com.likes.common.mybatis.entity.MemLogin">
+        <id
+                column="loginid"
+                jdbcType="BIGINT"
+                property="loginid"/>
+        <result
+                column="accno"
+                jdbcType="VARCHAR"
+                property="accno"/>
+        <result
+                column="acclogin"
+                jdbcType="VARCHAR"
+                property="acclogin"/>
+        <result
+                column="logintype"
+                jdbcType="DECIMAL"
+                property="logintype"/>
+        <result
+                column="password"
+                jdbcType="VARCHAR"
+                property="password"/>
+        <result
+                column="passwordmd5"
+                jdbcType="VARCHAR"
+                property="passwordmd5"/>
+        <result
+                column="paypassword"
+                jdbcType="VARCHAR"
+                property="paypassword"/>
+        <result
+                column="accstatus"
+                jdbcType="DECIMAL"
+                property="accstatus"/>
+        <result
+                column="lastlogindate"
+                jdbcType="TIMESTAMP"
+                property="lastlogindate"/>
+        <result
+                column="loginnum"
+                jdbcType="INTEGER"
+                property="loginnum"/>
+        <result
+                column="clintipadd"
+                jdbcType="VARCHAR"
+                property="clintipadd"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+		loginid, accno, acclogin, logintype, password, passwordmd5,
+		paypassword,
+		accstatus,
+		lastlogindate, loginnum, clintipadd
+	</sql>
+
+
+    <!-- APP -->
+    <select
+            id="getMemLoginByParam"
+            parameterType="com.likes.common.mybatis.entity.MemLogin"
+            resultType="com.likes.common.mybatis.entity.MemLogin">
+        select
+        <include refid="Base_Column_List"/>
+        from mem_login
+        where
+        1=1
+        <if test="acclogin != null">
+            and acclogin = #{acclogin}
+        </if>
+        <if test="accstatus != null">
+            and accstatus = #{accstatus}
+        </if>
+        <if test="passwordmd5 != null">
+            and passwordmd5 = #{passwordmd5}
+        </if>
+        <!-- 普通用户 和 主播 -->
+        and logintype in (1,2,3,7,11)
+    </select>
+
+    <select id="findByMobile"
+            resultType="com.likes.common.mybatis.entity.MemLogin"
+            parameterType="java.lang.String">
+		select
+		*
+		from mem_login
+		where
+		1=1
+		and acclogin = #{acclogin}
+		and logintype in (1,2,3,7,11)
+	</select>
+
+
+    <select id="findByEmail"
+            resultType="com.likes.common.mybatis.entity.MemLogin"
+            parameterType="java.lang.String">
+        select
+            *
+        from mem_login
+        where
+            1=1
+          and acclogin = #{acclogin}
+          and logintype in (1,2,3,7,11)
+    </select>
+
+
+
+
+    <select id="findByEmailRegister" resultType="com.likes.common.mybatis.entity.MemLogin"
+            parameterType="java.lang.String">
+	select
+		*
+		from mem_login
+		where
+		1=1
+		and acclogin = #{acclogin}
+	</select>
+
+    <insert id="insertSelectiveMemLogin" keyColumn="loginid"
+            keyProperty="loginid"
+            parameterType="com.likes.common.mybatis.entity.MemLogin"
+            useGeneratedKeys="true">
+		insert into mem_login (accno, acclogin,
+		logintype, passwordmd5,
+		 accstatus,
+		loginnum)
+
+		select
+		#{accno,jdbcType=VARCHAR},
+		#{acclogin,jdbcType=VARCHAR},
+		#{logintype,jdbcType=DECIMAL},
+		#{passwordmd5,jdbcType=VARCHAR},
+		#{accstatus,jdbcType=DECIMAL},
+		#{loginnum,jdbcType=INTEGER}
+
+		where
+		(
+			select
+			accno
+			from mem_login
+			where
+			1=1
+			and acclogin = #{acclogin}
+		) is null
+
+	</insert>
+
+    <!-- APP -->
+
+
+    <!-- APP后台管理 -->
+    <select id="selectByAcclogin" parameterType="java.lang.String" resultMap="BaseResultMap">
+	    select
+	    m.*
+	    from mem_login m
+	    INNER JOIN bd_user d  ON m.accno = d.accno and d.is_delete = b'0'
+	    where m.acclogin = #{acclogin,jdbcType=VARCHAR}
+	    limit 1
+  </select>
+
+
+    <select id="selectEurekaByAcclogin" resultType="com.likes.common.model.LoginUser">
+    select *
+    from mem_login
+    where acclogin = #{acclogin,jdbcType=VARCHAR}
+    and passwordmd5 = #{password,jdbcType=VARCHAR}
+    and logintype = 9
+    limit 1
+  </select>
+
+    <select id="selectByAccno" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mem_login
+        where accno = #{accno,jdbcType=VARCHAR}
+        limit 1
+    </select>
+
+    <select id="userList" parameterType="com.likes.common.model.request.UserRequest"
+            resultType="com.likes.common.model.vo.member.UserVO">
+        SELECT mb.memid,mb.unique_id as uniqueId,mb.accno,mb.nickname,mb.goldnum,mb.recomcode,
+        mb.clintipadd as clintipadd,mb.register_ip as registerIp,mb.registerdate as registerdate,
+        mb.consume_amount as consumeAmount,mb.no_withdrawal_amount as noWithdrawalAmount,
+        mb.remark,ml.lastlogindate , ml.acclogin, ml.accstatus,ml.logintype,
+        mb.level as memlevel
+        FROM mem_login ml
+        INNER JOIN mem_baseinfo mb ON ml.accno = mb.accno AND mb.is_delete = b'0'
+        <if test="uniqueId != null and uniqueId !=''  ">
+            AND mb.unique_id = #{uniqueId,jdbcType=VARCHAR}
+        </if>
+        <if test="startTime != null and startTime !=''  ">
+            AND mb.registerdate <![CDATA[>=]]> #{startTime}
+        </if>
+        <if test="endTime != null and endTime !=''  ">
+            AND mb.registerdate <![CDATA[<= ]]> #{endTime}
+        </if>
+        <if test="accstatus != null">
+            AND ml.accstatus = #{accstatus}
+        </if>
+        <if test="memlevel != null">
+            and mb.level=#{memlevel}
+        </if>
+        <if test="registerIp != null and registerIp !='' ">
+            AND mb.register_ip = #{registerIp}
+        </if>
+        <if test="acclogin != null and acclogin !=''  ">
+            AND ml.acclogin LIKE CONCAT('%',#{acclogin,jdbcType=VARCHAR},'%')
+        </if>
+        <if test="beginAmount != null">
+            <![CDATA[   and mb.goldnum  >=  #{beginAmount}]]>
+        </if>
+        <if test="endAmount != null">
+            <![CDATA[  and mb.goldnum <= #{endAmount}]]>
+        </if>
+        <if test="headAccno != null and headAccno !=''  ">
+            INNER JOIN
+            mem_relationship mr
+            on mb.accno = mr.accno
+            and mr.head_accno=#{headAccno}
+        </if>
+        ORDER BY
+            mb.create_time DESC , ml.accstatus asc
+    </select>
+
+    <select id="userBdList" parameterType="com.likes.common.model.request.UserRequest"
+            resultType="com.likes.common.model.dto.member.UsersBdDO">
+        SELECT mb.*, sr.sysrolename,sr.sysroleid
+        FROM bd_user mb
+        LEFT JOIN sys_bduserrole sbd ON sbd.accno = mb.accno AND sbd.is_delete = b'0'
+        LEFT JOIN sys_roleinfo sr ON sbd.sysroleid = sr.sysroleid
+        WHERE 1 = 1 AND mb.is_delete = b'0'
+        <!-- <if test="logintype == 3"> -->
+        <!-- AND ml.logintype NOT IN (1,2,7,9,10)  -->
+        <!--AND ml.logintype = 8-->
+        <!-- </if> -->
+        <if test="accstatus != null">
+            AND mb.accstatus = #{accstatus}
+        </if>
+        <if test="acclogin != null and acclogin !=''  ">
+            AND (
+            mb.acclogin LIKE CONCAT('%',#{acclogin,jdbcType=VARCHAR},'%')
+            or
+            mb.phoneno LIKE CONCAT('%',#{acclogin,jdbcType=VARCHAR},'%')
+            or
+            mb.bdusername LIKE CONCAT('%',#{acclogin,jdbcType=VARCHAR},'%')
+            )
+        </if>
+
+        ORDER BY mb.create_time DESC , mb.accstatus asc
+    </select>
+
+
+    <select id="getAPPUserDetail" parameterType="java.lang.String"
+            resultType="com.likes.common.model.dto.member.UsersDO">
+  	SELECT ml.*,mb.nickname,mb.memid,mb.memname,mb.create_time,mb.mobileno,mb.sex
+  	FROM mem_login ml
+	INNER JOIN mem_baseinfo mb ON ml.accno = mb.accno
+	WHERE mb.is_delete = b'0'
+	and ml.accno = #{accno}
+  </select>
+
+    <select id="getBdUserDetail" parameterType="java.lang.String"
+            resultType="com.likes.common.model.dto.member.UsersBdDO">
+  	SELECT ml.*,mb.bdusername,mb.phoneno,mb.email,mb.create_time
+  	FROM mem_login ml
+	INNER JOIN bd_user mb ON ml.accno = mb.accno
+	WHERE mb.is_delete = b'0'
+	and ml.accno = #{accno}
+  </select>
+
+    <select id="getAPPAnchorUserDetail" parameterType="java.lang.String"
+            resultType="com.likes.common.model.dto.member.UsersDO">
+  	SELECT ml.*,mb.nickname,mb.memid,mb.memname,mb.create_time,mb.mobileno,mb.sex ,
+	ba.roomid,ba.channelid,ba.roomname,bc.channelname
+  	FROM mem_login ml
+	INNER JOIN mem_baseinfo mb ON ml.accno = mb.accno
+	INNER JOIN bas_anchorroom ba ON ml.accno = ba.accno AND ba.is_delete = b'0'
+	LEFT JOIN bas_channel bc ON ba.channelid = bc.channelid AND bc.is_delete = b'0'
+	WHERE mb.is_delete = b'0'
+	and ml.accno = #{accno}
+  </select>
+
+    <update
+            id="updateLogin"
+            parameterType="com.likes.common.mybatis.entity.MemLogin">
+		update mem_login
+		set
+		lastlogindate =
+		#{lastlogindate,jdbcType=TIMESTAMP},
+		loginnum = IFNULL(loginnum,0) + 1,
+		clintipadd = #{clintipadd,jdbcType=VARCHAR}
+		where accno = #{accno,jdbcType=VARCHAR}
+		and acclogin = #{acclogin,jdbcType=VARCHAR}
+	</update>
+
+
+    <select id="getRepeat" parameterType="com.likes.common.mybatis.entity.MemLogin"
+            resultType="com.likes.common.mybatis.entity.MemLogin">
+        select * from mem_login
+        where acclogin = #{acclogin}
+        <if test="loginid != null">
+            and loginid != #{loginid}
+        </if>
+    </select>
+
+    <insert id="insertMemLogin" keyColumn="loginid" keyProperty="loginid" parameterType="com.likes.common.model.dto.member.MemLoginDO" useGeneratedKeys="true">
+    insert into mem_login ( accno, acclogin,
+      logintype,  passwordmd5,password,
+      accstatus, loginnum )
+
+    SELECT #{accno} ,#{acclogin},#{logintype},#{passwordmd5},#{password},#{accstatus},#{loginnum}
+    WHERE NOT EXISTS
+		(SELECT m.acclogin
+		FROM mem_login m
+		WHERE  m.acclogin = #{acclogin}
+		)
+  </insert>
+
+    <insert id="saveMemLogin" keyColumn="loginid" keyProperty="loginid" parameterType="com.likes.common.model.dto.member.MemLoginDO" useGeneratedKeys="true">
+    insert into mem_login ( accno, acclogin,
+      logintype,  passwordmd5,password,
+      accstatus, loginnum ) VALUES (#{accno} ,#{acclogin},#{logintype},#{passwordmd5},#{password},#{accstatus},#{loginnum})
+  </insert>
+
+    <select id="getAddressStatics" resultType="com.likes.common.model.dto.NameValueDO">
+     SELECT IFNULL(tag,"其他") AS name,num as value
+          FROM (
+            SELECT mb.tag,COUNT(1) AS num
+            FROM mem_baseinfo mb,mem_login ml
+            WHERE mb.accno = ml.accno
+            AND ml.logintype in (1,2,7)
+            AND mb.tag is not null
+            GROUP BY mb.tag
+        ) as MM
+        ORDER BY num desc
+  </select>
+
+    <select id="getAddressStaticsTen" resultType="com.likes.common.model.dto.NameValueDO">
+     SELECT IFNULL(tag,"其他") AS name,num as value
+          FROM (
+            SELECT mb.tag,COUNT(1) AS num
+            FROM mem_baseinfo mb,mem_login ml
+            WHERE mb.accno = ml.accno
+            AND ml.logintype in (1,2,7)
+            AND mb.tag is not null
+            GROUP BY mb.tag
+        ) as MM
+        ORDER BY num asc
+        limit 10
+  </select>
+
+
+    <select id="getAllRegisteredNum" resultType="java.lang.Integer">
+  	SELECT COUNT(1)
+  	FROM mem_baseinfo mb,mem_login ml
+	WHERE mb.accno = ml.accno
+	AND ml.logintype in (1,2,7)
+  </select>
+
+
+    <select id="getThisWeekRegisteredNum" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+  SELECT COUNT(1)
+  	FROM mem_baseinfo mb,mem_login ml
+	WHERE mb.accno = ml.accno
+	AND ml.logintype in (1,2,7)
+	AND DATE_FORMAT(mb.create_time,'%Y%m%d') BETWEEN #{starttime} AND #{endtime}
+  </select>
+
+    <select id="getAllAnchorNum" resultType="java.lang.Integer">
+        SELECT COUNT(1)
+        <!-- FROM mem_baseinfo mb,mem_login ml
+      WHERE mb.accno = ml.accno-->
+        FROM mem_login ml
+        WHERE 1 = 1
+        AND ml.logintype in (2)
+    </select>
+
+    <select id="findByAccno" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.MemLogin">
+	  select * from mem_login ml where ml.accno = #{accno}
+	  limit 1
+  </select>
+
+    <select id="findByAccloginAndLoginidRegister"
+            resultType="com.likes.common.mybatis.entity.MemLogin">
+	  select * from mem_login ml
+	  where ml.acclogin = #{acclogin}
+	  and loginid != #{loginid}
+	  limit 1
+  </select>
+    <select id="findByAccloginRegister" parameterType="java.lang.String"
+            resultType="com.likes.common.mybatis.entity.MemLogin">
+	  select * from mem_login ml
+	  where ml.acclogin = #{acclogin}
+	  limit 1
+  </select>
+    <select id="getOperatorList" resultType="com.likes.common.model.dto.OperatorDO">
+ 	SELECT ml.accno,ba.nickname,ba.memname
+ 		FROM mem_login ml
+   	 inner join mem_baseinfo ba on ba.accno = ml.accno AND ml.accstatus = 1
+	 WHERE ba.memorgin = "operator"   AND ba.is_delete = b'0'
+ </select>
+
+    <select id="getNewOrder" resultType="java.util.Map">
+        SELECT
+        ordertype,count(0) as num
+        FROM tra_orderinfom
+        where ((ordertype = 2 or ordertype = 1) and orderstatus = 'ord04') or (ordertype = 3 and orderstatus = 'ord05')
+        GROUP BY ordertype
+    </select>
+
+    <select id="getLevelNum" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+  	SELECT COUNT(1) as num FROM (
+		SELECT IFNULL(ml2.memlevel ,"1") as memlevel
+		FROM mem_login ml
+		LEFT JOIN mem_level ml2 ON ml.accno = ml2.accno
+		WHERE 1=1
+		AND ml.logintype in (1,2,7)
+		) AS MM
+		WHERE memlevel BETWEEN #{start} AND #{end}
+  </select>
+
+    <select id="getThisWeekAnchorNum" resultType="java.lang.Integer"
+            parameterType="java.util.Map">
+ 	SELECT COUNT(1)
+  	FROM mem_login ml,(SELECT * FROM mem_certification WHERE certstatus = 0) mb
+	WHERE mb.accno = ml.accno
+	AND ml.logintype in (2)
+	AND DATE_FORMAT(mb.update_time,'%Y%m%d') BETWEEN #{starttime} AND #{endtime}
+  </select>
+
+    <select id="selectMemForFInance" resultType="com.likes.common.model.vo.finance.FinanceMemBaseVo">
+        SELECT
+        baseinfo.accno,
+        baseinfo.nickname,
+        baseinfo.unique_id uniqueId,
+        baseinfo.goldnum,
+        baseinfo.remark,
+        baseinfo.withdrawal_amount withdrawalAmount,
+        baseinfo.pay_amount payAmount,
+        baseinfo.no_withdrawal_amount noWithdrawalAmount,
+        baseinfo.consume_amount consumeAmount,
+        login.accstatus,
+        baseinfo.mobileno,
+        baseinfo.email
+        FROM
+        mem_baseinfo baseinfo
+        LEFT JOIN mem_login login ON baseinfo.accno = login.accno
+        WHERE
+        login.logintype in(1,11)
+        AND baseinfo.is_delete = b'0'
+        AND baseinfo.nickname LIKE #{nickname}
+        <if test="uniqueId != null and uniqueId != ''">
+            AND baseinfo.unique_id = #{uniqueId}
+        </if>
+        <if test="email != null and email != ''">
+            and baseinfo.email = #{email}
+        </if>
+    </select>
+
+    <select id="userReportList" resultType="com.likes.common.model.vo.member.UserReportVO">
+        SELECT mb.memid,mb.unique_id as uniqueId,mb.accno,mb.nickname,mb.goldnum,mb.pay_amount as payAmount,mb.withdrawal_amount as withdrawalAmount,
+        ml.accstatus,
+        IFNULL((select memlevel from mem_level where accno= mb.accno and is_delete=b'0' LIMIT 1),"0") as memlevel,
+        (select count(*) from mem_relationship where refaccno=mb.accno and is_delete=b'0') as userNum,
+        (select nickname from mem_baseinfo where accno=(select refaccno from mem_relationship where accno=mb.accno and is_delete=b'0')) as refNickname
+        FROM mem_baseinfo mb
+        INNER JOIN mem_login ml ON ml.accno = mb.accno AND mb.is_delete = b'0'
+        AND ml.logintype IN (1,7)
+        <if test="nickname != null and nickname !=''  ">
+            AND (
+            mb.unique_id = #{nickname,jdbcType=VARCHAR} or mb.nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+            )
+        </if>
+        ORDER BY mb.memid DESC
+    </select>
+
+    <select id="selectUserByAccLogin" resultType="com.likes.common.model.LoginUser">
+         SELECT
+        ml.acclogin, ml.accno, ml.logintype, mb.repaymemid, mb.nickname,'' as memname, mb.mobileno
+    FROM mem_login ml
+    INNER JOIN mem_repayuser mb ON mb.accno = ml.accno
+    WHERE mb.is_delete = 0
+    AND ml.acclogin = #{acclogin}
+    limit 1
+  </select>
+
+    <select id="getRegisteredNumByDate" resultType="java.lang.Integer">
+        SELECT COUNT(1) as memnums
+        FROM mem_baseinfo as mb
+                     left JOIN mem_login as ml ON ml.accno = mb.accno
+                where ml.logintype = 1
+                and mb.registerdate BETWEEN #{startTime} and #{endTime}
+    </select>
+    <select id="trialList" resultType="com.likes.common.model.vo.member.UserVO">
+        SELECT mb.memid,mb.unique_id as uniqueId,mb.accno,mb.nickname,mb.goldnum,mb.consume_amount as consumeAmount,mb.no_withdrawal_amount as noWithdrawalAmount,
+        mb.remark,ml.lastlogindate , ml.acclogin, ml.accstatus,ml.logintype,mle.memlevel as memlevel ,mb.create_user as createUser, ml.clintipadd as clintipadd ,mb.create_time as createTime
+        FROM mem_login ml
+        INNER JOIN mem_baseinfo mb ON ml.accno = mb.accno AND mb.is_delete = b'0'
+        <if test="uniqueId != null and uniqueId !=''  ">
+            AND mb.unique_id = #{uniqueId,jdbcType=VARCHAR}
+        </if>
+        <if test="acclogin != null and acclogin !=''  ">
+            AND ml.acclogin = #{acclogin,jdbcType=VARCHAR}
+        </if>
+        AND ml.logintype = 11
+        <if test="accstatus != null and accstatus !=''  ">
+            AND ml.accstatus = #{accstatus}
+        </if>
+        <if test="nickname != null and nickname !=''  ">
+            AND mb.nickname LIKE CONCAT('%',#{nickname,jdbcType=VARCHAR},'%')
+        </if>
+        INNER JOIN mem_level mle on ml.accno = mle.accno and mle.is_delete = b'0'
+        <if test="memlevel != null and memlevel !=''  ">
+            and mle.memlevel=#{memlevel}
+        </if>
+        ORDER BY memlevel DESC,mb.create_time DESC , ml.accstatus asc
+
+    </select>
+</mapper>

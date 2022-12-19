@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.sys.SysRoleinfoMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysRoleinfo">
+        <id column="sysroleid" jdbcType="BIGINT" property="sysroleid"/>
+        <result column="sysrolename" jdbcType="VARCHAR" property="sysrolename"/>
+        <result column="sysrolestatus" jdbcType="DECIMAL" property="sysrolestatus"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        sysroleid, sysrolename, sysrolestatus
+    </sql>
+
+    <select id="repeat" resultType="com.likes.common.mybatis.entity.SysRoleinfo" parameterType="java.lang.String">
+        select * from sys_roleinfo
+        where sysrolename = #{sysrolename}
+        <if test="sysroleid != null">
+            and sysroleid != #{sysroleid,jdbcType=BIGINT}
+        </if>
+        and sysrolestatus = 0
+        limit 1
+    </select>
+
+    <select id="roleList" resultType="com.likes.common.model.dto.sys.SysRoleinfoForRoleDO"
+            parameterType="com.likes.common.mybatis.entity.SysRoleinfo">
+        select * from sys_roleinfo
+        where 1 = 1
+        <if test="sysrolename != null  and sysrolename !='' ">
+            and sysrolename like CONCAT('%',#{sysrolename},'%')
+        </if>
+        and sysrolestatus = 0
+    </select>
+
+    <select id="getRoleByAccno" resultType="com.likes.common.mybatis.entity.SysRoleinfo" parameterType="java.lang.String">
+  	SELECT sr.*
+  	FROM sys_roleinfo sr
+	INNER JOIN sys_bduserrole sb ON sr.sysroleid = sb.sysroleid
+	WHERE sb.is_delete = b'0'
+	AND sb.accno = #{accno}
+	LIMIT 1
+  </select>
+
+</mapper>

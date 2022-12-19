@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapperext.sys.SysRolefuncMapperExt">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.SysRolefunc">
+        <id column="rolefuncid" jdbcType="BIGINT" property="rolefuncid"/>
+        <id column="sysroleid" jdbcType="BIGINT" property="sysroleid"/>
+        <id column="sfunid" jdbcType="BIGINT" property="sfunid"/>
+        <result column="is_delete" jdbcType="BIT" property="isDelete"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    rolefuncid, sysroleid, sfunid, is_delete, create_user, create_time, update_user, update_time
+  </sql>
+
+    <!-- app管理后台 -->
+
+    <!-- app管理后台 -->
+
+    <update id="delRoleFunctionorg" parameterType="com.likes.common.mybatis.entity.SysRolefunc">
+  	 update sys_rolefunc
+      set is_delete = #{isDelete,jdbcType=BIT},
+      update_user = #{updateUser,jdbcType=VARCHAR}
+      where sysroleid = #{sysroleid,jdbcType=BIGINT} and is_delete = b'0'
+  </update>
+
+    <insert id="insertList" parameterType="com.likes.common.mybatis.entity.SysRolefunc">
+        insert into sys_rolefunc (sysroleid, sfunid, create_user, update_user)
+        VALUES
+        <foreach collection="list" index="index" item="itemData" separator=",">
+            (
+            #{itemData.sysroleid},
+            #{itemData.sfunid},
+            #{itemData.isDelete},
+            #{itemData.createUser},
+            #{itemData.updateUser}
+            )
+        </foreach>
+
+    </insert>
+
+    <insert id="insertList2"
+            parameterType="com.likes.common.model.request.SysRolefuncRequest">
+        insert into sys_rolefunc (sysroleid, sfunid, is_delete, create_user, update_user)
+
+        select #{sysroleid} ,s.sfunid ,#{isDelete},
+        #{createUser},#{updateUser}
+        from sys_functionorg s
+        where s.is_delete = b'0'
+        and s.sfunid in
+        <foreach close=")" collection="sfunidList" index="index" item="s" open="(" separator=",">
+            #{s}
+        </foreach>
+        and (select sr.sysroleid from sys_rolefunc sr
+        where sr.sysroleid = #{sysroleid} and sr.is_delete = b'0'
+        LIMIT 1) is null
+    </insert>
+
+    <update id="updateSysRolefuncOne" parameterType="com.likes.common.mybatis.entity.SysRolefunc">
+ 	update sys_rolefunc
+	    set is_delete = #{isDelete,jdbcType=DECIMAL},
+	      update_user = #{updateUser,jdbcType=VARCHAR},
+	      update_time = #{updateTime,jdbcType=TIMESTAMP}
+	    where
+	       sysroleid = #{sysroleid,jdbcType=BIGINT}
+	      and sfunid = #{sfunid,jdbcType=BIGINT}
+	      ORDER BY create_time DESC
+		  LIMIT 1
+ 	</update>
+
+    <insert id="insertSysRolefuncOne" parameterType="com.likes.common.mybatis.entity.SysRolefunc">
+ 	insert into sys_rolefunc (sysroleid, sfunid, is_delete, create_user, update_user)
+    VALUES (#{sysroleid},#{sfunid},#{isDelete},#{createUser},#{updateUser})
+ 	</insert>
+    <insert id="insertSysRolefuncList" parameterType="java.util.List" useGeneratedKeys="false">
+        insert into sys_rolefunc (sysroleid, sfunid, is_delete, create_user, update_user)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.sysroleid},
+            #{item.sfunid},
+            #{item.isDelete},
+            #{item.createUser},
+            #{item.updateUser}
+            )
+        </foreach>
+    </insert>
+
+
+    <select id="getRoleSfunidList" parameterType="java.lang.Long" resultType="java.lang.Long">
+ 		SELECT DISTINCT sr.sfunid FROM sys_rolefunc sr WHERE sr.sysroleid = #{sysroleid} AND sr.is_delete = b'0'
+ 	</select>
+
+</mapper>

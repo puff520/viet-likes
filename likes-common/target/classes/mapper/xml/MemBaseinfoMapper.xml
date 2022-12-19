@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.likes.common.mybatis.mapper.MemBaseinfoMapper">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemBaseinfo">
+
+        <id column="memid" jdbcType="BIGINT" property="memid" />
+        <result column="unique_id" jdbcType="VARCHAR" property="uniqueId" />
+        <result column="accno" jdbcType="VARCHAR" property="accno" />
+        <result column="nickname" jdbcType="VARCHAR" property="nickname" />
+        <result column="memname" jdbcType="VARCHAR" property="memname" />
+        <result column="mobileno" jdbcType="VARCHAR" property="mobileno" />
+        <result column="sex" jdbcType="INTEGER" property="sex" />
+        <result column="idcardtype" jdbcType="VARCHAR" property="idcardtype" />
+        <result column="idcardno" jdbcType="VARCHAR" property="idcardno" />
+        <result column="idcardfront" jdbcType="VARCHAR" property="idcardfront" />
+        <result column="idcardback" jdbcType="VARCHAR" property="idcardback" />
+        <result column="birthday" jdbcType="DATE" property="birthday" />
+        <result column="nationality" jdbcType="VARCHAR" property="nationality" />
+        <result column="headimg" jdbcType="VARCHAR" property="headimg" />
+        <result column="registerdate" jdbcType="TIMESTAMP" property="registerdate" />
+        <result column="recomcode" jdbcType="VARCHAR" property="recomcode" />
+        <result column="describes" jdbcType="VARCHAR" property="describes" />
+        <result column="tag" jdbcType="VARCHAR" property="tag" />
+        <result column="clintipadd" jdbcType="VARCHAR" property="clintipadd" />
+        <result column="register_ip" jdbcType="VARCHAR" property="registerIp" />
+        <result column="register_dev" jdbcType="VARCHAR" property="registerDev" />
+        <result column="last_login_dev" jdbcType="VARCHAR" property="lastLoginDev" />
+        <result column="logincountry" jdbcType="VARCHAR" property="logincountry" />
+        <result column="memfeatures" jdbcType="VARCHAR" property="memfeatures" />
+        <result column="memorgin" jdbcType="VARCHAR" property="memorgin" />
+        <result column="fansnum" jdbcType="BIGINT" property="fansnum" />
+        <result column="goldnum" jdbcType="DECIMAL" property="goldnum" />
+        <result column="wait_amount" jdbcType="DECIMAL" property="waitAmount" />
+        <result column="withdrawal_remainder" jdbcType="DECIMAL" property="withdrawalRemainder" />
+        <result column="bet_amount" jdbcType="DECIMAL" property="betAmount" />
+        <result column="pay_amount" jdbcType="DECIMAL" property="payAmount" />
+        <result column="pay_max" jdbcType="DECIMAL" property="payMax" />
+        <result column="pay_first" jdbcType="DECIMAL" property="payFirst" />
+        <result column="pay_num" jdbcType="INTEGER" property="payNum" />
+        <result column="withdrawal_amount" jdbcType="DECIMAL" property="withdrawalAmount" />
+        <result column="withdrawal_max" jdbcType="DECIMAL" property="withdrawalMax" />
+        <result column="withdrawal_first" jdbcType="DECIMAL" property="withdrawalFirst" />
+        <result column="withdrawal_num" jdbcType="INTEGER" property="withdrawalNum" />
+        <result column="consume_amount" jdbcType="DECIMAL" property="consumeAmount" />
+        <result column="no_withdrawal_amount" jdbcType="DECIMAL" property="noWithdrawalAmount" />
+        <result column="chat_status" jdbcType="INTEGER" property="chatStatus" />
+        <result column="freeze_status" jdbcType="INTEGER" property="freezeStatus" />
+        <result column="bet_status" jdbcType="INTEGER" property="betStatus" />
+        <result column="backwater_status" jdbcType="INTEGER" property="backwaterStatus" />
+        <result column="share_order_status" jdbcType="INTEGER" property="shareOrderStatus" />
+        <result column="logintype" jdbcType="INTEGER" property="logintype" />
+        <result column="openId" jdbcType="VARCHAR" property="openid" />
+        <result column="sitearea" jdbcType="VARCHAR" property="sitearea" />
+        <result column="wechat" jdbcType="VARCHAR" property="wechat" />
+        <result column="chatnickname" jdbcType="VARCHAR" property="chatnickname" />
+        <result column="is_delete" jdbcType="BIT" property="isDelete" />
+        <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+    </resultMap>
+
+</mapper>

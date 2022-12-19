@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.likes.common.mybatis.mapperext.member.MemberCenterInfoMapperExt">
+    <select id="winnersRanking" resultType="com.likes.common.model.vo.member.WinnersRankingVO">
+        SELECT
+          IF(IFNULL(am.nickname,'')='',am.account,am.nickname) name,
+          IFNULL(heads, '') heads,
+          IFNULL(SUM(mbc.change_money), 0) winAmount
+        FROM member_balance_change mbc LEFT JOIN app_member am ON mbc.member_id=am.id
+        WHERE mbc.type=10
+        GROUP BY mbc.member_id
+        ORDER BY winAmount desc
+        limit 3
+    </select>
+</mapper>

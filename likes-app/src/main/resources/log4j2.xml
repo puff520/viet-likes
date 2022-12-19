@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO" monitorInterval="1800">
+    <!-- status="WARN"，可以去掉，它的含义为是否记录log4j2本身的event信息，默认是OFF，设置成“WARN”指：所有log4j2的event信息中，只有WARN及以上级别的信息才记录 -->
+    <!-- monitorInterval="1800" 指log4j2每隔1800秒（半小时），自动监控该配置文件是否有变化，如果变化，则自动根据文件内容重新配置（很不错的功能！） -->
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <!-- <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" /> -->
+            <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c.%M:%L] - [%m]%n"/>
+        </Console>
+
+        <!-- 按天第天备份一个日志 -->
+        <RollingFile name="File" fileName="/logs/likesapp.log" filePattern="/logs/liveapp-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout charset="UTF-8" pattern="%d{yyyy-MM-dd HH:mm:ss} %p [%c.%M:%L] - [%m]%n"/>
+            <Policies>
+                <!-- 每24小时更新一次 -->
+                <!-- <TimeBasedTriggeringPolicy modulate="true" interval="1" /> -->
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <!-- 最多备份20个 -->
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Root>
+        <logger name="org.springframework" level="INFO"/>
+        <logger name="com.zaxxer.hikari" level="INFO"/>
+        <logger name="io.lettuce.core.protocol" level="INFO"/>
+        <logger name="io.lettuce.core.RedisChannelHandler" level="INFO"/>
+        <logger name="org.apache.http.wire" level="WARN"/>
+    </Loggers>
+</Configuration>

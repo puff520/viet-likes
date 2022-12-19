@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.likes.common.mybatis.mapper.MemberCreditMapper">
+    <resultMap id="BaseResultMap" type="com.likes.common.mybatis.entity.MemberCredit">
+        <!--
+          WARNING - @mbg.generated
+        -->
+        <result column="id" jdbcType="BIGINT" property="id"/>
+        <result column="member_no" jdbcType="VARCHAR" property="memberNo"/>
+        <result column="integral" jdbcType="INTEGER" property="integral"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="update_user" jdbcType="TIMESTAMP" property="updateUser"/>
+    </resultMap>
+
+    <update id="modifyBatch">
+
+
+        update member_credit
+        <set>
+            <if test="credit.integral != null">
+                integral = #{credit.integral},
+            </if>
+            <if test="credit.updateUser!= null">
+                `update_user` = #{credit.updateUser},
+            </if>
+            <if test="credit.updateTime != null">
+                update_time = #{credit.updateTime},
+            </if>
+        </set>
+        where member_no in
+        <foreach collection="ids" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        <!--        <if test="ids != null and ids.size() >0 ">-->
+        <!--         -->
+        <!--        </if>-->
+
+    </update>
+
+    <select id="memCreditList" resultType="com.likes.common.model.vo.member.MemberCreditVO">
+        SELECT k.accno,
+               k.email,
+               k.`level`,
+               k.goldnum,
+               k.integral,
+               k.update_time AS                                             updateTime,
+               (SELECT email FROM mem_baseinfo m WHERE m.accno = k.refaccno LIMIT 1 ) AS topAgent,
+	( SELECT email FROM mem_baseinfo m WHERE m.accno = k.head_accno LIMIT 1 ) AS headAgent
+        FROM
+            (
+            SELECT
+            mb.accno,
+            mb.email,
+            mb.`level`,
+            mb.goldnum,
+            mc.integral,
+            mc.update_time,
+            mr.refaccno,
+            mr.head_accno
+            FROM
+            mem_baseinfo mb
+            INNER JOIN member_credit mc ON mc.member_no = mb.accno
+            INNER JOIN mem_relationship mr ON mb.accno = mr.accno
+            ORDER BY
+            mc.update_time desc
+
+            ) k
+        where  1=1
+        <if test="email != null and email !=''">
+            and k.email = #{email}
+        </if>
+        <if test="beginIntegral != null">
+            and k.integral  &gt;= #{beginIntegral}
+        </if>
+        <if test="endIntegral != null">
+            and k.integral  &lt;= #{endIntegral}
+        </if>
+
+    </select>
+
+</mapper>
